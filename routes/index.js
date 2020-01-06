@@ -11,8 +11,8 @@ const web3 = new Web3(new Web3.providers.HttpProvider('https://mainnet.infura.io
 const adapterAddress = '0x15efc392e1803db6d69c52c3ef6ce54ed00bbfe5'
 const adapterABI = require('../utils/adapterABI.json')
 const adapter = new web3.eth.Contract(adapterABI, adapterAddress)
-const walletAddress = '0xc62b87d321964c23d23f4ce5abb04e935bbaee09';
-const walletKey = Buffer.from('1683758e5953ee65910e53dd7cdaa7eb50e2f02b1d96941154032902690dc68b', 'hex')
+const walletAddress = 'YOUR_ADDRESS';
+const walletKey = Buffer.from('YOUR_KEY', 'hex')
 
 const gatewayStatusMap = {
     // address: {
@@ -122,7 +122,7 @@ router.post('/swap-gateway/create', function(req, res, next) {
         status: 'pending',
         txHash: ''
     }
-    
+
     monitorShiftIn(shiftIn, dest)
     res.json({ gatewayAddress })
 });
