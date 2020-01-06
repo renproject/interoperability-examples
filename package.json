@@ -6,11 +6,19 @@
     "start": "node ./bin/www"
   },
   "dependencies": {
+    "@renproject/ren": "^0.2.3",
+    "axios": "^0.19.0",
     "cookie-parser": "~1.4.4",
     "debug": "~2.6.9",
+    "ethereumjs-tx": "^2.1.2",
     "express": "~4.16.1",
     "http-errors": "~1.6.3",
     "jade": "~1.11.0",
-    "morgan": "~1.9.1"
+    "morgan": "~1.9.1",
+    "node-fetch": "^2.6.0",
+    "node-gyp": "^5.0.7",
+    "request": "^2.88.0",
+    "sochain": "^1.0.3",
+    "web3": "^1.2.4"
   }
 }
