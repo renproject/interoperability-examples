@@ -24,8 +24,18 @@ const styles = () => ({
   contentContainer: {
       boxShadow: '0px 0px 30px 0px rgba(0, 0, 0, 0.05)',
       borderRadius: theme.shape.borderRadius,
-      padding: 0,
-      marginBottom: theme.spacing(3)
+      padding: theme.spacing(3),
+      marginTop: theme.spacing(3),
+      marginBottom: theme.spacing(3),
+      '& input': {
+          marginBottom: theme.spacing(1)
+      }
+  },
+  gateway: {
+      marginTop: theme.spacing(2)
+  },
+  status: {
+      fontSize: 14
   }
 })
 
@@ -36,10 +46,18 @@ class App extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
+            address: '',
+            amount: '',
+            gateway: ''
         }
+
+        this.interval = null
     }
 
     async componentDidMount() {
+    }
+
+    async getGateway() {
         const API_URL = 'http://localhost:3000'
         const request = await fetch(`${API_URL}/swap-gateway/create`, {
             method: 'POST',
@@ -47,14 +65,36 @@ class App extends React.Component {
               'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                sourceAmount: '0.00001',
+                sourceAmount: '0.0001',
                 sourceAsset: 'BTC',
                 destinationAsset: 'ETH',
                 destinationAddress: '0x62ACc475F68254941e923958Fcad78e10A4CfF06'
             })
         })
+        const json = await request.json()
+        console.log(json)
+        this.setState({
+            gateway: json.gatewayAddress
+        })
 
-        console.log(await request.json())
+        if (this.interval) {
+            clearInterval(this.interval)
+        }
+
+        this.interval = setInterval(async () => {
+            const req = await fetch(`${API_URL}/swap-gateway/status?gateway=${json.gatewayAddress}`, {
+                method: 'GET',
+                headers: {
+                  'Content-Type': 'application/json'
+                }
+            })
+
+            const data = await req.json()
+            this.setState({
+                txHash: data.txHash,
+                status: data.status
+            })
+        }, 1000)
     }
 
     render() {
@@ -66,8 +106,39 @@ class App extends React.Component {
             <ThemeProvider theme={theme}>
                 <Container maxWidth="sm">
                     <Grid container>
-                        <Grid item xs={12}><br/></Grid>
+                        <Grid item xs={12}>
+
+                        </Grid>
+
+
                         <Grid item xs={12} className={classes.contentContainer}>
+                            <Grid container direction='column'>
+                                <Grid item xs={12}>
+                                    <input placeholder='ETH Address' onChange={e => {
+                                        this.setState({
+                                            address: e.target.value
+                                        })
+                                    }}/>
+                                </Grid>
+                                <Grid item xs={12}>
+                                    <input placeholder='BTC Amount' onChange={e => {
+                                        this.setState({
+                                            amount: e.target.value
+                                        })
+                                    }}/>
+                                </Grid>
+                                <Grid item xs={12}>
+                                    <button onClick={this.getGateway.bind(this)}>Get Swap Address</button>
+                                </Grid>
+                                {this.state.gateway && <React.Fragment><Grid className={classes.gateway} item xs={12}>
+                                        {this.state.gateway}
+                                    </Grid>
+                                    <Grid className={classes.status} item xs={12}>
+                                        {this.state.status === 'complete' ? <span>
+                                            Swap submitted! <a href={'https://kovan.etherscan.io/tx/' + this.state.txHash} target='_blank'>View transaction</a>
+                                        </span> : <span>Waiting for {this.state.amount} BTC sent to gateway...</span>}
+                                    </Grid></React.Fragment>}
+                            </Grid>
                         </Grid>
                     </Grid>
                 </Container>

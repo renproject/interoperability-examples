@@ -1,52 +1,6 @@
 [
 	{
-		"inputs": [
-			{
-				"internalType": "address",
-				"name": "_owner",
-				"type": "address"
-			},
-			{
-				"internalType": "contract IShifterRegistry",
-				"name": "_registry",
-				"type": "address"
-			},
-			{
-				"internalType": "contract UniswapExchange",
-				"name": "_zbtcExchange",
-				"type": "address"
-			}
-		],
-		"stateMutability": "nonpayable",
-		"type": "constructor"
-	},
-	{
-		"inputs": [],
-		"name": "owner",
-		"outputs": [
-			{
-				"internalType": "address",
-				"name": "",
-				"type": "address"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [],
-		"name": "registry",
-		"outputs": [
-			{
-				"internalType": "contract IShifterRegistry",
-				"name": "",
-				"type": "address"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
+		"constant": false,
 		"inputs": [
 			{
 				"internalType": "bytes",
@@ -71,13 +25,67 @@
 		],
 		"name": "shiftIn",
 		"outputs": [],
+		"payable": false,
 		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"constant": false,
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "_amount",
+				"type": "uint256"
+			},
+			{
+				"internalType": "address payable",
+				"name": "_to",
+				"type": "address"
+			}
+		],
+		"name": "swap",
+		"outputs": [],
+		"payable": true,
+		"stateMutability": "payable",
 		"type": "function"
 	},
 	{
 		"inputs": [
 			{
 				"internalType": "address",
+				"name": "_owner",
+				"type": "address"
+			},
+			{
+				"internalType": "contract IShifter",
+				"name": "_zbtcShifter",
+				"type": "address"
+			},
+			{
+				"internalType": "contract IERC20",
+				"name": "_zbtcToken",
+				"type": "address"
+			},
+			{
+				"internalType": "contract UniswapExchange",
+				"name": "_zbtcExchange",
+				"type": "address"
+			}
+		],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "constructor"
+	},
+	{
+		"payable": true,
+		"stateMutability": "payable",
+		"type": "fallback"
+	},
+	{
+		"constant": false,
+		"inputs": [
+			{
+				"internalType": "address payable",
 				"name": "_to",
 				"type": "address"
 			},
@@ -87,12 +95,14 @@
 				"type": "uint256"
 			}
 		],
-		"name": "swap",
+		"name": "withdrawETH",
 		"outputs": [],
-		"stateMutability": "nonpayable",
+		"payable": true,
+		"stateMutability": "payable",
 		"type": "function"
 	},
 	{
+		"constant": false,
 		"inputs": [
 			{
 				"internalType": "address",
@@ -107,10 +117,109 @@
 		],
 		"name": "withdrawZBTC",
 		"outputs": [],
+		"payable": false,
 		"stateMutability": "nonpayable",
 		"type": "function"
 	},
 	{
+		"constant": true,
+		"inputs": [
+			{
+				"internalType": "bytes32",
+				"name": "_pHash",
+				"type": "bytes32"
+			},
+			{
+				"internalType": "uint256",
+				"name": "_amount",
+				"type": "uint256"
+			},
+			{
+				"internalType": "address",
+				"name": "_to",
+				"type": "address"
+			},
+			{
+				"internalType": "bytes32",
+				"name": "_nHash",
+				"type": "bytes32"
+			}
+		],
+		"name": "hashForSignature",
+		"outputs": [
+			{
+				"internalType": "bytes32",
+				"name": "",
+				"type": "bytes32"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [],
+		"name": "owner",
+		"outputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [],
+		"name": "registry",
+		"outputs": [
+			{
+				"internalType": "contract IShifterRegistry",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [
+			{
+				"internalType": "bytes32",
+				"name": "_pHash",
+				"type": "bytes32"
+			},
+			{
+				"internalType": "uint256",
+				"name": "_amount",
+				"type": "uint256"
+			},
+			{
+				"internalType": "bytes32",
+				"name": "_nHash",
+				"type": "bytes32"
+			}
+		],
+		"name": "verifyShiftInSignature",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "",
+				"type": "bool"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
 		"inputs": [],
 		"name": "zbtcExchange",
 		"outputs": [
@@ -120,10 +229,12 @@
 				"type": "address"
 			}
 		],
+		"payable": false,
 		"stateMutability": "view",
 		"type": "function"
 	},
 	{
+		"constant": true,
 		"inputs": [],
 		"name": "zbtcShifter",
 		"outputs": [
@@ -133,10 +244,12 @@
 				"type": "address"
 			}
 		],
+		"payable": false,
 		"stateMutability": "view",
 		"type": "function"
 	},
 	{
+		"constant": true,
 		"inputs": [],
 		"name": "zbtcToken",
 		"outputs": [
@@ -146,6 +259,7 @@
 				"type": "address"
 			}
 		],
+		"payable": false,
 		"stateMutability": "view",
 		"type": "function"
 	}
