@@ -10,7 +10,7 @@ const router = express.Router();
 const ren = new RenJS('testnet')
 const web3 = new Web3(new Web3.providers.HttpProvider('https://kovan.infura.io/v3/7be66f167c2e4a05981e2ffc4653dec2'))
 
-const adapterAddress = '0x227c0db1a7764942b9bcaa868fe789af9f056b6b'
+const adapterAddress = process.env.ADAPTER_ADDRESS;
 const adapterABI = require('../utils/adapterABI.json')
 const adapter = new web3.eth.Contract(adapterABI, adapterAddress)
 const walletAddress = process.env.WALLET_ADDRESS;
