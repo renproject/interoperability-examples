@@ -65,7 +65,7 @@ class App extends React.Component {
               'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                sourceAmount: '0.0001',
+                sourceAmount: this.state.amount,
                 sourceAsset: 'BTC',
                 destinationAsset: 'ETH',
                 destinationAddress: '0x62ACc475F68254941e923958Fcad78e10A4CfF06'
