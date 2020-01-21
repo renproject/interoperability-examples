@@ -68,7 +68,7 @@ class App extends React.Component {
                 sourceAmount: this.state.amount,
                 sourceAsset: 'BTC',
                 destinationAsset: 'ETH',
-                destinationAddress: '0x62ACc475F68254941e923958Fcad78e10A4CfF06'
+                destinationAddress: this.state.address
             })
         })
         const json = await request.json()

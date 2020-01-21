@@ -5,10 +5,10 @@ const Tx = require('ethereumjs-tx').Transaction;
 const express = require('express');
 const router = express.Router();
 
-const ren = new RenJS('chaosnet')
-const web3 = new Web3(new Web3.providers.HttpProvider('https://mainnet.infura.io/v3/7be66f167c2e4a05981e2ffc4653dec2'))
-// const ren = new RenJS('testnet')
-// const web3 = new Web3(new Web3.providers.HttpProvider('https://kovan.infura.io/v3/7be66f167c2e4a05981e2ffc4653dec2'))
+// const ren = new RenJS('chaosnet')
+// const web3 = new Web3(new Web3.providers.HttpProvider('https://mainnet.infura.io/v3/7be66f167c2e4a05981e2ffc4653dec2'))
+const ren = new RenJS('testnet')
+const web3 = new Web3(new Web3.providers.HttpProvider('https://kovan.infura.io/v3/7be66f167c2e4a05981e2ffc4653dec2'))
 
 const adapterAddress = process.env.ADAPTER_ADDRESS;
 const adapterABI = require('../utils/adapterSimpleABI.json')
