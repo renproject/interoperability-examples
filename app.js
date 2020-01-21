@@ -13,7 +13,7 @@ var app = express();
 
 // view engine setup
 app.set('views', path.join(__dirname, 'ui/build'));
-app.set('view engine', 'handlebars');
+app.set('view engine', 'hbs');
 
 app.use(logger('dev'));
 app.use(express.json());
