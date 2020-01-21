@@ -94,7 +94,7 @@ class App extends React.Component {
                 txHash: data.txHash,
                 status: data.status
             })
-        }, 1000)
+        }, 10000)
     }
 
     render() {

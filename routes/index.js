@@ -10,6 +10,8 @@ const router = express.Router();
 const ren = new RenJS('testnet')
 const web3 = new Web3(new Web3.providers.HttpProvider('https://kovan.infura.io/v3/7be66f167c2e4a05981e2ffc4653dec2'))
 
+console.log('web3', web3.eth.blockNumber)
+
 const adapterAddress = process.env.ADAPTER_ADDRESS;
 const adapterABI = require('../utils/adapterSimpleABI.json')
 const adapter = new web3.eth.Contract(adapterABI, adapterAddress)
@@ -34,9 +36,16 @@ const swap = async function (amount, dest, gateway) {
 
     console.log('swap amount', amount)
 
+    try {
+        const gas = await adapter.methods.swap(amount, dest).estimateGas()
+        console.log('gas', gas)
+    } catch(e){
+        console.log(e)
+    }
+
     const rawTx = {
         "from": walletAddress,
-        "gasPrice": web3.utils.toHex(2000000000),
+        "gasPrice": web3.utils.toHex(20000000000),
         "gasLimit": web3.utils.toHex(400000),
         "to": adapterAddress,
         "value": "0x0",
