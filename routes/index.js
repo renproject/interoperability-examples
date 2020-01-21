@@ -36,8 +36,8 @@ const swap = async function (amount, dest, gateway) {
 
     const rawTx = {
         "from": walletAddress,
-        "gasPrice": web3.utils.toHex(10000000000),
-        "gasLimit": web3.utils.toHex(200000),
+        "gasPrice": web3.utils.toHex(2000000000),
+        "gasLimit": web3.utils.toHex(400000),
         "to": adapterAddress,
         "value": "0x0",
         "data": adapter.methods.swap(amount, dest).encodeABI(),
@@ -70,8 +70,8 @@ const completeShiftIn = async function (shiftIn, signature, response) {
     const nonce = await web3.eth.getTransactionCount(walletAddress)
     const rawTx = {
         "from": walletAddress,
-        "gasPrice": web3.utils.toHex(50 * 1e9),
-        "gasLimit": web3.utils.toHex(210000),
+        "gasPrice": web3.utils.toHex(2000000000),
+        "gasLimit": web3.utils.toHex(400000),
         "to": adapterAddress,
         "value": "0x0",
         "data": adapter.methods.shiftIn(

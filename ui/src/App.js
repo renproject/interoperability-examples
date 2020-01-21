@@ -58,7 +58,7 @@ class App extends React.Component {
     }
 
     async getGateway() {
-        const API_URL = 'http://localhost:3000'
+        const API_URL = ''
         const request = await fetch(`${API_URL}/swap-gateway/create`, {
             method: 'POST',
             headers: {
