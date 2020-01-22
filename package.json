@@ -6,15 +6,19 @@
     "start": "node ./bin/www"
   },
   "dependencies": {
+    "@openzeppelin/network": "^0.2.10",
     "@renproject/ren": "^0.3.2",
     "cookie-parser": "~1.4.4",
     "debug": "~2.6.9",
     "ethereumjs-tx": "^2.1.2",
+    "ethers": "^4.0.43",
     "express": "~4.16.1",
     "hbs": "~4.0.4",
     "http-errors": "~1.6.3",
     "morgan": "~1.9.1",
-    "web3": "^1.2.1"
+    "rm": "^0.1.8",
+    "secp256k1": "^4.0.0",
+    "web3": "^1.2.0"
   },
   "engines": {
     "node": "^10.18.1"

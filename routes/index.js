@@ -1,24 +1,53 @@
 const RenJS = require("@renproject/ren");
 const Web3 = require("web3");
+const ethers = require('ethers');
 const Tx = require('ethereumjs-tx').Transaction;
+const { fromConnection } = require('@openzeppelin/network/lib')
 
 const express = require('express');
 const router = express.Router();
 
 // const ren = new RenJS('chaosnet')
-// const web3 = new Web3(new Web3.providers.HttpProvider('https://mainnet.infura.io/v3/7be66f167c2e4a05981e2ffc4653dec2'))
 const ren = new RenJS('testnet')
-const web3 = new Web3(new Web3.providers.HttpProvider('https://kovan.infura.io/v3/7be66f167c2e4a05981e2ffc4653dec2'))
-
-console.log('web3', web3.eth.blockNumber)
 
 const adapterAddress = process.env.ADAPTER_ADDRESS;
 const adapterABI = require('../utils/adapterSimpleABI.json')
-const adapter = new web3.eth.Contract(adapterABI, adapterAddress)
+
 const walletAddress = process.env.WALLET_ADDRESS;
 const walletKey = new Buffer.from(process.env.WALLET_KEY, 'hex')
 
-web3.eth.defaultAccount = walletAddress
+const url = 'https://kovan.infura.io/v3/7ae0954512994011a37062e1f805f619';
+const provider = new ethers.providers.JsonRpcProvider(url);
+const walletWithProvider = new ethers.Wallet(walletKey, provider);
+const adapter = new ethers.Contract(adapterAddress, adapterABI, provider);
+const adapterWithSigner = adapter.connect(walletWithProvider);
+
+const REACT_APP_TX_FEE = 100;
+const signKey = {
+    privateKey: walletKey,
+    address: walletAddress
+};
+const gasPrice = 2000000000;
+const relay_client_config = {
+  txfee: REACT_APP_TX_FEE,
+  force_gasPrice: gasPrice, //override requested gas price
+  gasPrice: gasPrice, //override requested gas price
+  force_gasLimit: 500000, //override requested gas limit.
+  gasLimit: 500000, //override requested gas limit.
+  verbose: true
+};
+
+let web3Context = null;
+
+fromConnection(
+    "https://kovan.infura.io/v3/7be66f167c2e4a05981e2ffc4653dec2",
+    {
+        gsn: { signKey, ...relay_client_config }
+    }
+).then(context => {
+    web3Context = context
+})
+
 
 const gatewayStatusMap = {
     // address: {
@@ -29,43 +58,23 @@ const gatewayStatusMap = {
 
 // Swap using contract funds
 const swap = async function (amount, dest, gateway) {
-    const nonce = await web3.eth.getTransactionCount(walletAddress)
-    console.log('nonce', nonce)
+    console.log('swap amount', amount, dest)
 
-    web3.eth.getGasPrice(function(e, r) { console.log('gas price', r) })
-
-    console.log('swap amount', amount)
+    const adapterContract = new web3Context.lib.eth.Contract(adapterABI, adapterAddress)
 
     try {
-        const gas = await adapter.methods.swap(amount, dest).estimateGas()
-        console.log('gas', gas)
-    } catch(e){
+        const result = await adapterContract.methods.swap(
+            amount,
+            dest
+        ).send({
+            from: web3Context.accounts[0]
+        })
+        // console.log('result', result)
+        gatewayStatusMap[gateway].status = 'complete'
+        gatewayStatusMap[gateway].txHash = result.transactionHash
+    } catch(e) {
         console.log(e)
     }
-
-    const rawTx = {
-        "from": walletAddress,
-        "gasPrice": web3.utils.toHex(20000000000),
-        "gasLimit": web3.utils.toHex(400000),
-        "to": adapterAddress,
-        "value": "0x0",
-        "data": adapter.methods.swap(amount, dest).encodeABI(),
-        "nonce": web3.utils.toHex(nonce),
-        "chainId": web3.utils.toHex(42)
-    }
-
-    console.log('rawTx', rawTx)
-
-    const transaction = new Tx(rawTx);
-    transaction.sign(walletKey);
-    const serializedTx = transaction.serialize().toString('hex');
-    web3.eth.sendSignedTransaction('0x' + serializedTx)
-        .on('receipt', console.log)
-        .on('transactionHash', hash => {
-            console.log('swap hash', hash)
-            gatewayStatusMap[gateway].status = 'complete'
-            gatewayStatusMap[gateway].txHash = hash
-        });
 }
 
 // Complete the shift once RenVM verifies the tx
@@ -75,29 +84,21 @@ const completeShiftIn = async function (shiftIn, signature, response) {
     const msg = params.contractParams[0].value
     const amount = params.sendAmount
     const nHash = response.args.nhash
+    const adapterContract = new web3Context.lib.eth.Contract(adapterABI, adapterAddress)
 
-    const nonce = await web3.eth.getTransactionCount(walletAddress)
-    const rawTx = {
-        "from": walletAddress,
-        "gasPrice": web3.utils.toHex(2000000000),
-        "gasLimit": web3.utils.toHex(400000),
-        "to": adapterAddress,
-        "value": "0x0",
-        "data": adapter.methods.shiftIn(
+    try {
+        const result = await adapterContract.methods.shiftIn(
             msg,
             amount,
-            nhash,
+            nHash,
             signature
-        ).encodeABI(),
-        "nonce": web3.utils.toHex(nonce)
+        ).send({
+            from: web3Context.accounts[0]
+        })
+        console.log('shift in hash for ' + shiftIn.gatewayAddress, result.transactionHash)
+    } catch(e) {
+        console.log(e)
     }
-
-    const transaction = new Tx(rawTx);
-    transaction.sign(walletKey);
-    web3.eth.sendSignedTransaction('0x' + transaction.serialize().toString('hex'))
-        .on('transactionHash', hash => {
-            console.log('shift in hash', hash)
-        });
 }
 
 // Stagger Swap and Shift-in based on tx confirmations
@@ -107,7 +108,7 @@ const monitorShiftIn = async function (shiftIn, dest) {
     const confsTillShiftIn = 2
 
     console.log('awaiting initial tx', gateway, shiftIn.params.sendAmount)
-    // const initalConf = await shiftIn.waitForDeposit(confsTillSwap);
+    const initalConf = await shiftIn.waitForDeposit(confsTillSwap);
     console.log('calling swap', shiftIn.params.sendAmount, dest, gateway)
     swap(shiftIn.params.sendAmount, dest, gateway)
 
@@ -125,25 +126,17 @@ router.post('/swap-gateway/create', function(req, res, next) {
     const params = req.body
     const amount = params.sourceAmount
     const dest = params.destinationAddress
+
     const shiftIn = ren.shiftIn({
-        // Send BTC from the Bitcoin blockchain to the Ethereum blockchain.
         sendToken: RenJS.Tokens.BTC.Btc2Eth,
-
-        // Amount of BTC we are sending (in Satoshis)
         sendAmount: Math.floor(amount * (10 ** 8)), // Convert to Satoshis
-
-        // The contract we want to interact with
         sendTo: adapterAddress,
-
-        // The name of the function we want to call
         contractFn: "shiftIn",
-
-        // Arguments expected for calling `deposit`
         contractParams: [
             {
                 name: "_msg",
                 type: "bytes",
-                value: web3.utils.fromAscii(`Depositing ${amount} BTC`),
+                value: web3Context.lib.utils.fromAscii(`Depositing ${amount} BTC`),
             }
         ],
     });
