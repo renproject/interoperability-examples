@@ -1,68 +1,27 @@
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+## GSN Integration
 
-## Available Scripts
+When building smart contracts that interact with RenVM, you can use patterns to enable methods to be called via the OpenZeppelin [Gas Station Network (GSN)](https://gsn.openzeppelin.com/). The GSN is a decentralized solution for solving user onboarding to Ethereum applications. It allows dapps to pay for their users' transactions in a secure way, so users don’t need to hold ETH to pay for their gas or even set up an account.
 
-In the project directory, you can run:
+### 1. Deploy adapter
 
-### `npm start`
+Deploy one of the adapter contracts in the `/contracts` directory.
 
-Runs the app in the development mode.<br>
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+### 2. Fund adapter with ETH
 
-The page will reload if you make edits.<br>
-You will also see any lint errors in the console.
+Your adapter will pay gas fees for users using a pool of ETH deposited into GSN's RelayHub. To fund your adapter, [click here](https://gsn.openzeppelin.com/recipients).
 
-### `npm test`
+### 3) Set environment variables
 
-Launches the test runner in the interactive watch mode.<br>
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+Update the `adapterAddress` in `App.js` with your adapter's address.
 
-### `npm run build`
+```
+const initialState = {
+    transactions: [],
+    adapterAddress: '0x17BB7d6F4722373A88E2f4C8F91db91EE7d86dae'
+}
+```
 
-Builds the app for production to the `build` folder.<br>
-It correctly bundles React in production mode and optimizes the build for the best performance.
+### 4) Install dependencies and run
 
-The build is minified and the filenames include the hashes.<br>
-Your app is ready to be deployed!
-
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
-
-### `npm run eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
-
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (Webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
-
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/code-splitting
-
-### Analyzing the Bundle Size
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size
-
-### Making a Progressive Web App
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app
-
-### Advanced Configuration
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/advanced-configuration
-
-### Deployment
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/deployment
-
-### `npm run build` fails to minify
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify
+In main terminal window run
+`npm install && npm start`
