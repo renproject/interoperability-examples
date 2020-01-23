@@ -16,7 +16,7 @@ const styles = () => ({})
 
 const initialState = {
     transactions: [],
-    adapterAddress: '0x17BB7d6F4722373A88E2f4C8F91db91EE7d86dae',
+    adapterAddress: '0xade8792c3ee90320cabde200ccab34b27cc88651',
     selectedTab: 0,
     instantSwapSelected: false,
     amount: '',

@@ -11,7 +11,7 @@ const router = express.Router();
 const ren = new RenJS('testnet')
 
 const adapterAddress = process.env.ADAPTER_ADDRESS;
-const adapterABI = require('../utils/adapterSimpleABI.json')
+const adapterABI = require('../utils/exchangeAdapterSimpleABI.json')
 
 const walletAddress = process.env.WALLET_ADDRESS;
 const walletKey = new Buffer.from(process.env.WALLET_KEY, 'hex')

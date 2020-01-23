@@ -1,8 +1,8 @@
 import RenJS from "@renproject/ren";
-import adapterABI from './adapterABI.json'
+import adapterABI from './exchangeAdapterSimpleABI.json'
 
-const API_URL = ''
-// const API_URL = 'http://localhost:3000'
+// const API_URL = ''
+const API_URL = 'http://localhost:3000'
 let swapMonitor = null
 
 export const addTx = (store, tx) => {
@@ -57,7 +57,7 @@ export const completeDeposit = async function(tx) {
     updateTx(store, Object.assign(tx, { awaiting: 'eth-settle' }))
 
     try {
-        const result = await adapterContract.methods.shiftIn(
+        const result = await adapterContract.methods.shiftInWithSwap(
             params.contractParams[0].value,
             params.sendAmount,
             renResponse.args.nhash,
@@ -86,10 +86,10 @@ export const initShiftIn = function(tx) {
         shiftIn = sdk.shiftIn({
             messageID: ethSig.messageID,
             sendTo: adapterAddress,
-            contractFn: "shiftIn",
+            contractFn: "shiftInWithSwap",
             contractParams: [
                 {
-                    name: "_sender",
+                    name: "_to",
                     type: "address",
                     value: destAddress,
                 }
@@ -100,10 +100,10 @@ export const initShiftIn = function(tx) {
             sendToken: RenJS.Tokens.BTC.Btc2Eth,
             sendAmount: Math.floor(amount * (10 ** 8)), // Convert to Satoshis
             sendTo: adapterAddress,
-            contractFn: "shiftIn",
+            contractFn: "shiftInWithSwap",
             contractParams: [
                 {
-                    name: "_sender",
+                    name: "_to",
                     type: "address",
                     value: destAddress,
                 }

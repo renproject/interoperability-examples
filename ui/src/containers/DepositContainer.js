@@ -267,10 +267,14 @@ class DepositContainer extends React.Component {
             transactions,
             adapterAddress,
             selectedTab,
-            instantSwapSelected
+            instantSwapSelected,
+            amount,
+            address
         } = store.getState()
 
         console.log(store.getState())
+
+        const disabled = amount < 0.0001 || (amount > 0.0005 && instantSwapSelected) || !address
 
         return <Grid container>
             <Typography variant={'h1'} className={classes.title}>Kovan ETH – Testnet BTC Exchange</Typography>
@@ -279,7 +283,7 @@ class DepositContainer extends React.Component {
                 <Grid container direction='column'>
                     <Grid className={classes.desc} item xs={12}>
                         <span >Swap Testnet BTC for Kovan ETH</span>
-                        <span className={classes.btcLink}>Get testnet BTC <a target='_blank' href={'https://tbtc.bitaps.com/'}>here</a></span>
+                        <span className={classes.btcLink}>Send testnet BTC from <a target='_blank' href={'https://tbtc.bitaps.com/'}>here</a></span>
                     </Grid>
                     <Grid item xs={12}>
                         <Grid container>
@@ -307,10 +311,10 @@ class DepositContainer extends React.Component {
                         <FormControlLabel control={<Switch checked={instantSwapSelected}
                             color='primary'
                             onChange={() => store.set('instantSwapSelected', !instantSwapSelected)}
-                            value={"instant"} />} label="Instant swap (0.0005 BTC max)" />
+                            value={"instant"} />} label="Faster swap (0 confirmations, 0.0005 BTC max)" />
                     </Grid>
                     <Grid item xs={12} className={classes.swapButtonContainer}>
-                        <Button className={classes.swapButton} variant='outlined' color='primary' onClick={instantSwapSelected ? this.startInstant.bind(this) : this.start.bind(this)}>Start Swap</Button>
+                        <Button disabled={disabled} className={classes.swapButton} variant='outlined' color='primary' onClick={instantSwapSelected ? this.startInstant.bind(this) : this.start.bind(this)}>Start Swap</Button>
                     </Grid>
                     {transactions && transactions.length ? <Divider className={classes.divider} /> : null}
                     <Grid item xs={12} className={classes.unfinished}>
