@@ -32,7 +32,8 @@ let web3Context = null;
 
 (async function() {
     const gasPriceResult = await web3.eth.getGasPrice()
-    const gasPrice = gasPriceResult.toNumber();
+    console.log(gasPriceResult)
+    const gasPrice = gasPriceResult;
     const relay_client_config = {
       txfee: REACT_APP_TX_FEE,
       force_gasPrice: gasPrice, //override requested gas price
