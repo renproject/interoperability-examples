@@ -33,13 +33,13 @@ import {
 
 const REACT_APP_TX_FEE = 100;
 const signKey = ephemeral();
-const gasPrice = 2000000000;
+// const gasPrice = 10000000000;
 const relay_client_config = {
   txfee: REACT_APP_TX_FEE,
-  force_gasPrice: gasPrice, //override requested gas price
-  gasPrice: gasPrice, //override requested gas price
-  force_gasLimit: 500000, //override requested gas limit.
-  gasLimit: 500000, //override requested gas limit.
+  // force_gasPrice: gasPrice, //override requested gas price
+  // gasPrice: gasPrice, //override requested gas price
+  force_gasLimit: 200000, //override requested gas limit.
+  gasLimit: 200000, //override requested gas limit.
   verbose: true
 };
 

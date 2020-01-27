@@ -53,6 +53,7 @@ export const completeDeposit = async function(tx) {
     const { params, awaiting, renResponse, renSignature } = tx
 
     const adapterContract = new web3.eth.Contract(adapterABI, adapterAddress)
+    const gasPrice = await web3Context.lib.eth.getGasPrice()
 
     updateTx(store, Object.assign(tx, { awaiting: 'eth-settle' }))
 
@@ -63,7 +64,8 @@ export const completeDeposit = async function(tx) {
             renResponse.args.nhash,
             renSignature
         ).send({
-            from: web3Context.accounts[0]
+            from: web3Context.accounts[0],
+            gasPrice: Math.round(gasPrice * 1.5)
         })
         console.log('result', result)
         updateTx(store, Object.assign(tx, { awaiting: '', txHash: result.transactionHash }))

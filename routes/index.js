@@ -19,7 +19,7 @@ const walletKey = new Buffer.from(process.env.WALLET_KEY, 'hex')
 const url = 'https://kovan.infura.io/v3/7ae0954512994011a37062e1f805f619';
 
 // for gas price
-const web3 = new Web3(url)
+// const web3 = new Web3(url)
 
 const REACT_APP_TX_FEE = 100;
 const signKey = {
@@ -31,15 +31,15 @@ const signKey = {
 let web3Context = null;
 
 (async function() {
-    const gasPriceResult = await web3.eth.getGasPrice()
-    console.log(gasPriceResult)
-    const gasPrice = gasPriceResult;
+    // const gasPriceResult = await web3.eth.getGasPrice()
+    // console.log(gasPriceResult)
+    // const gasPrice = 10000000000;
     const relay_client_config = {
       txfee: REACT_APP_TX_FEE,
-      force_gasPrice: gasPrice, //override requested gas price
-      gasPrice: gasPrice, //override requested gas price
-      force_gasLimit: 250000, //override requested gas limit.
-      gasLimit: 250000, //override requested gas limit.
+      // force_gasPrice: gasPrice, //override requested gas price
+      // gasPrice: gasPrice, //override requested gas price
+      force_gasLimit: 200000, //override requested gas limit.
+      gasLimit: 200000, //override requested gas limit.
       verbose: true
     };
     web3Context = await fromConnection(
@@ -48,6 +48,7 @@ let web3Context = null;
             gsn: { signKey, ...relay_client_config }
         }
     )
+    // console.log(gas)
 })()
 
 const gatewayStatusMap = {
@@ -62,13 +63,15 @@ const swap = async function (amount, dest, gateway) {
     console.log('swap amount', amount, dest)
 
     const adapterContract = new web3Context.lib.eth.Contract(adapterABI, adapterAddress)
+    const gasPrice = await web3Context.lib.eth.getGasPrice()
 
     try {
         const result = await adapterContract.methods.swap(
             amount,
             dest
         ).send({
-            from: web3Context.accounts[0]
+            from: web3Context.accounts[0],
+            gasPrice: Math.round(gasPrice * 1.5)
         })
         // console.log('result', result)
         gatewayStatusMap[gateway].status = 'complete'
@@ -86,6 +89,7 @@ const completeShiftIn = async function (shiftIn, signature, response) {
     const amount = params.sendAmount
     const nHash = response.args.nhash
     const adapterContract = new web3Context.lib.eth.Contract(adapterABI, adapterAddress)
+    const gasPrice = await web3Context.lib.eth.getGasPrice()
 
     try {
         const result = await adapterContract.methods.shiftIn(
@@ -94,7 +98,9 @@ const completeShiftIn = async function (shiftIn, signature, response) {
             nHash,
             signature
         ).send({
-            from: web3Context.accounts[0]
+            from: web3Context.accounts[0],
+            gasPrice: Math.round(gasPrice * 1.5)
+            // nonce: 15
         })
         console.log('shift in hash for ' + shiftIn.gatewayAddress, result.transactionHash)
     } catch(e) {
@@ -109,7 +115,7 @@ const monitorShiftIn = async function (shiftIn, dest) {
     const confsTillShiftIn = 2
 
     console.log('awaiting initial tx', gateway, shiftIn.params.sendAmount)
-    const initalConf = await shiftIn.waitForDeposit(confsTillSwap);
+    // const initalConf = await shiftIn.waitForDeposit(confsTillSwap);
     console.log('calling swap', shiftIn.params.sendAmount, dest, gateway)
     swap(shiftIn.params.sendAmount, dest, gateway)
 
