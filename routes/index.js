@@ -17,37 +17,37 @@ const walletAddress = process.env.WALLET_ADDRESS;
 const walletKey = new Buffer.from(process.env.WALLET_KEY, 'hex')
 
 const url = 'https://kovan.infura.io/v3/7ae0954512994011a37062e1f805f619';
-const provider = new ethers.providers.JsonRpcProvider(url);
-const walletWithProvider = new ethers.Wallet(walletKey, provider);
-const adapter = new ethers.Contract(adapterAddress, adapterABI, provider);
-const adapterWithSigner = adapter.connect(walletWithProvider);
+
+// for gas price
+const web3 = new Web3(url)
 
 const REACT_APP_TX_FEE = 100;
 const signKey = {
     privateKey: walletKey,
     address: walletAddress
 };
-const gasPrice = 2000000000;
-const relay_client_config = {
-  txfee: REACT_APP_TX_FEE,
-  force_gasPrice: gasPrice, //override requested gas price
-  gasPrice: gasPrice, //override requested gas price
-  force_gasLimit: 500000, //override requested gas limit.
-  gasLimit: 500000, //override requested gas limit.
-  verbose: true
-};
+
 
 let web3Context = null;
 
-fromConnection(
-    "https://kovan.infura.io/v3/7be66f167c2e4a05981e2ffc4653dec2",
-    {
-        gsn: { signKey, ...relay_client_config }
-    }
-).then(context => {
-    web3Context = context
-})
-
+(async function() {
+    const gasPriceResult = await web3.eth.getGasPrice()
+    const gasPrice = gasPriceResult.toNumber();
+    const relay_client_config = {
+      txfee: REACT_APP_TX_FEE,
+      force_gasPrice: gasPrice, //override requested gas price
+      gasPrice: gasPrice, //override requested gas price
+      force_gasLimit: 250000, //override requested gas limit.
+      gasLimit: 250000, //override requested gas limit.
+      verbose: true
+    };
+    web3Context = await fromConnection(
+        "https://kovan.infura.io/v3/7be66f167c2e4a05981e2ffc4653dec2",
+        {
+            gsn: { signKey, ...relay_client_config }
+        }
+    )
+})()
 
 const gatewayStatusMap = {
     // address: {
@@ -119,7 +119,6 @@ const monitorShiftIn = async function (shiftIn, dest) {
     console.log('renvm response', renvm)
     completeShiftIn(shiftIn, renvm.signature, renvm.response)
 }
-
 
 // Routes
 router.post('/swap-gateway/create', function(req, res, next) {
