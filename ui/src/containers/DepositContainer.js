@@ -351,18 +351,23 @@ class DepositContainer extends React.Component {
                     <b className={classes.caption}>How it Works</b>
                     <br/>
                     <br/>
-                    This exchange uses <a target='_blank' href='https://renproject.io/'>RenVM</a>, <a target='_blank' href='https://uniswap.io/'>Uniswap</a>, and Open Zeppelin's <a target='_blank' href='https://gsn.openzeppelin.com/'>GSN</a> to facilitate trustless interoperabilty between Bitcoin and Ethereum.
+                    This exchange uses <a target='_blank' href='https://renproject.io/'>RenVM</a>, <a target='_blank' href='https://uniswap.io/'>Uniswap</a>, and Open Zeppelin's <a target='_blank' href='https://gsn.openzeppelin.com/'>GSN</a> to facilitate trustless interoperabilty between Bitcoin and Ethereum. All swaps abstract ETH away from the user with the <b>GaaS pattern</b>, and faster swaps are faciliated using the <b>CaaS pattern</b>. To learn more, check out our interoperability tutorials below:
+                </p>
+                <p>
+                    <ul>
+                        <li><a target='_blank' href={'https://docs.renproject.io/developers/tutorials'}>GaaS tutorial</a> (Gas-less tranasactions)</li>
+                        <li><a target='_blank' href={'https://docs.renproject.io/developers/tutorials'}>CaaS tutorial</a> (Faster swaps via expedited confirmations)</li>
+                    </ul>
                 </p>
                 <p>
                     Swaps are submitted to the following adapter address: <a target='_blank' href={'https://kovan.etherscan.io/address/'+adapterAddress}>{adapterAddress}</a>
                 </p>
                 <p>
-                    To learn more about building interoperable applications like this with RenVM, check out our <a target='_blank' href='https://renproject.io/developers'>developer center</a> or the following tutorials:
+                    To learn more about building interoperable applications like this with RenVM, check out our <a target='_blank' href='https://renproject.io/developers'>developer center</a> or the following links:
                     <ul>
                         <li><a target='_blank' href={'https://docs.renproject.io/developers/ren-sdk'}>Getting started with RenJS</a></li>
                         <li><a target='_blank' href={'https://docs.renproject.io/developers/gateway-js'}>Getting started with GatewayJS</a></li>
-                        <li><a target='_blank' href={'https://docs.renproject.io/developers/tutorials'}>GSN integration tutorial</a></li>
-                        <li><a target='_blank' href={'https://docs.renproject.io/developers/tutorials'}>Expedited confirmations tutorial</a></li>
+                        <li><a target='_blank' href={'https://github.com/renproject/ren/wiki'}>Github Spec</a></li>
                     </ul>
                 </p>
                 <p>
