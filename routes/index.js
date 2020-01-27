@@ -115,7 +115,7 @@ const monitorShiftIn = async function (shiftIn, dest) {
     const confsTillShiftIn = 2
 
     console.log('awaiting initial tx', gateway, shiftIn.params.sendAmount)
-    // const initalConf = await shiftIn.waitForDeposit(confsTillSwap);
+    const initalConf = await shiftIn.waitForDeposit(confsTillSwap);
     console.log('calling swap', shiftIn.params.sendAmount, dest, gateway)
     swap(shiftIn.params.sendAmount, dest, gateway)
 
