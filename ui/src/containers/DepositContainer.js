@@ -220,7 +220,7 @@ class DepositContainer extends React.Component {
         const transactions = store.get('transactions')
 
         const tx = {
-            id: Math.random(),
+            id: 'tx-' + Math.random().toFixed(6),
             type: 'deposit',
             instant: false,
             awaiting: 'btc-init',
