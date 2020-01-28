@@ -14,11 +14,13 @@ One thing that developers can do to improve cross-chain user experience is to he
 
 Deploy one of the adapter contracts in the `/contracts` directory using the same owner address parameter as the wallet you plan fill transactions with.
 
-### 2. Deposit shifted tokens
+### 2. Deposit shifted tokens and fund GSN RelayHub
 
 Deposit shifted tokens to the adapter address through the `deposit()` method. The adapter will use these funds to complete swaps faster when selected by the user via the UI. Please note: you'll need to approve the adapter contract on the shifted token contract before depositing.
 
 [justsmartcontracts.dev](https://justsmartcontracts.dev/) is an easy way to interact with smart contracts using just the contract address and ABI.
+
+The adapter contract will also need to maintain an ETH balance with the GSN RelayHub. Gas fees paid by relay nodes will be refunded from this balance. To deposit funds, use the [GSN dapp tool](https://gsn.openzeppelin.com/recipients).
 
 ### 3) Set environment variables
 
