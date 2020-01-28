@@ -1,6 +1,6 @@
-## GaaS and CaaS Examples
+## Using GaaS and CaaS for better UX
 
-Developers integrating with RenVM can implements a few different strategies to enhance user experience and create truely interoperable cryptocurrency applications.
+Developers integrating with RenVM can implement a few different strategies to enhance user experience and create truly interoperable cryptocurrency applications.
 
 ### GaaS: remove the need for users to have ETH
 
