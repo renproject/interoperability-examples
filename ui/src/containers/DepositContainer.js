@@ -355,8 +355,8 @@ class DepositContainer extends React.Component {
                 </p>
                 <p>
                     <ul>
-                        <li><a target='_blank' href={'https://docs.renproject.io/developers/tutorials'}>GaaS tutorial</a> (Gas-less tranasactions)</li>
-                        <li><a target='_blank' href={'https://docs.renproject.io/developers/tutorials'}>CaaS tutorial</a> (Faster swaps via expedited confirmations)</li>
+                        <li><a target='_blank' href={'https://docs.renproject.io/developers/tutorials'}>GaaS tutorial</a> (gas-less transactions)</li>
+                        <li><a target='_blank' href={'https://docs.renproject.io/developers/tutorials'}>CaaS tutorial</a> (faster swaps via expedited confirmations)</li>
                     </ul>
                 </p>
                 <p>
