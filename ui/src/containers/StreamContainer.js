@@ -14,6 +14,8 @@ import InputAdornment from '@material-ui/core/InputAdornment';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Checkbox from '@material-ui/core/Checkbox';
 import Switch from '@material-ui/core/Switch';
+import Radio from '@material-ui/core/Radio';
+import RadioGroup from '@material-ui/core/RadioGroup';
 
 import BigNumber from "bignumber.js";
 import RenJS from "@renproject/ren";
@@ -81,7 +83,7 @@ const styles = () => ({
       }
   },
   amountContainer: {
-    paddingRight: theme.spacing(1)
+    // paddingRight: theme.spacing(1)
   },
   amount: {
   },
@@ -113,7 +115,7 @@ const styles = () => ({
       marginBottom: theme.spacing(3)
   },
   desc: {
-      marginBottom: theme.spacing(3),
+      marginBottom: theme.spacing(1),
       fontSize: 14,
       display: 'flex',
       alignItems: 'flex-end',
@@ -143,6 +145,13 @@ const styles = () => ({
       }
   },
   swapButton: {
+  },
+  radio: {
+      marginBottom: theme.spacing(1),
+      flexDirection: 'row',
+      '& span': {
+        fontSize: 12
+      }
   }
 })
 
@@ -283,39 +292,60 @@ class DepositContainer extends React.Component {
             <Grid item xs={12} className={classes.contentContainer}>
                 <Grid container direction='column'>
                     <Grid className={classes.desc} item xs={12}>
-                        <span >Swap Testnet BTC for Kovan ETH</span>
-                        <span className={classes.btcLink}>Send testnet BTC from <a target='_blank' href={'https://tbtc.bitaps.com/'}>here</a></span>
+                        <span >Continously Stream Testnet BTC</span>
+                        {/*<span className={classes.btcLink}>Send testnet BTC from <a target='_blank' href={'https://tbtc.bitaps.com/'}>here</a></span>*/}
+                    </Grid>
+                    <Grid item xs={12}>
+                        <RadioGroup className={classes.radio} name='stream-action' value={store.get('stream.action')} onChange={() => {}}>
+                            <FormControlLabel
+                              value="create"
+                              control={<Radio color="primary" />}
+                              label="Create"
+                              labelPlacement="end"
+                            />
+                            <FormControlLabel
+                              value="monitor"
+                              control={<Radio color="primary" />}
+                              label="Monitor"
+                              labelPlacement="end"
+                            />
+                        </RadioGroup>
                     </Grid>
                     <Grid item xs={12}>
                         <Grid container>
-                            <Grid item xs={4} className={classes.amountContainer}>
+                            <Grid item xs={12} className={classes.amountContainer}>
                                 <TextField className={classNames(classes.input, classes.amount)}
                                     variant='outlined'
                                     size='small'
                                     placeholder='0.000000'
                                     onChange={e => {
-                                        store.set('amount', e.target.value)
+                                        store.set('stream.amount', e.target.value)
                                     }}
                                     InputProps={{
                                         endAdornment: <InputAdornment className={classes.endAdornment} position="end">BTC</InputAdornment>
                                     }}/>
                             </Grid>
-                            <Grid item xs={8}>
-                                <TextField className={classNames(classes.input, classes.address)} variant='outlined' size='small' placeholder='Send to ETH Address' onChange={e => {
-                                    store.set('address', e.target.value)
+                            <Grid item xs={12}>
+                                <TextField className={classNames(classes.input, classes.address)} variant='outlined' size='small' placeholder='Stream to BTC Address' onChange={e => {
+                                    store.set('stream.address', e.target.value)
+                                }}/>
+                            </Grid>
+                            <Grid item xs={12}>
+                                <TextField className={classNames(classes.input, classes.address)} variant='outlined' size='small' placeholder='Duration in Minutes' onChange={e => {
+                                    store.set('stream.duration', e.target.value)
                                 }}/>
                             </Grid>
                         </Grid>
 
                     </Grid>
-                    <Grid item xs={12} className={classes.switchContainer}>
+                    {/*<Grid item xs={12} className={classes.switchContainer}>
                         <FormControlLabel control={<Switch checked={instantSwapSelected}
                             color='primary'
                             onChange={() => store.set('instantSwapSelected', !instantSwapSelected)}
-                            value={"instant"} />} label="Faster swap (0 confirmations, 0.0005 BTC max)" />
-                    </Grid>
+                            value={"instant"} />} label="Start streaming faster (0 confirmations, 0.0001 BTC / minute max)" />
+                    </Grid>*/}
                     <Grid item xs={12} className={classes.swapButtonContainer}>
-                        <Button disabled={disabled} className={classes.swapButton} variant='outlined' color='primary' onClick={instantSwapSelected ? this.startInstant.bind(this) : this.start.bind(this)}>Start Swap</Button>
+                        <Button disabled={disabled} className={classes.swapButton} variant='outlined' color='primary' onClick={instantSwapSelected ? this.startInstant.bind(this) : this.start.bind(this)}>Start Stream</Button>
                     </Grid>
                     {transactions && transactions.length ? <Divider className={classes.divider} /> : null}
                     <Grid item xs={12} className={classes.unfinished}>
@@ -354,26 +384,21 @@ class DepositContainer extends React.Component {
                     <br/>
                     This exchange uses <a target='_blank' href='https://renproject.io/'>RenVM</a>, <a target='_blank' href='https://uniswap.io/'>Uniswap</a>, and Open Zeppelin's <a target='_blank' href='https://gsn.openzeppelin.com/'>GSN</a> to facilitate trustless interoperabilty between Bitcoin and Ethereum. All swaps abstract ETH away from the user with the <b>GaaS pattern</b>, and faster swaps are faciliated using the <b>CaaS pattern</b>. To learn more, check out our interoperability tutorials below:
                 </p>
-                <p>
-                    <ul>
-                        <li><a target='_blank' href={'https://docs.renproject.io/developers/tutorials'}>GaaS Tutorial</a> | Gas-less transactions</li>
-                        <li><a target='_blank' href={'https://docs.renproject.io/developers/tutorials'}>CaaS tutorial</a> | Faster swaps via expedited confirmations</li>
-                    </ul>
-                </p>
+                <ul>
+                    <li><a target='_blank' href={'https://docs.renproject.io/developers/tutorials'}>GaaS Tutorial</a> | Gas-less transactions</li>
+                    <li><a target='_blank' href={'https://docs.renproject.io/developers/tutorials'}>CaaS tutorial</a> | Faster swaps via expedited confirmations</li>
+                </ul>
                 <p>
                     Swaps are submitted to the following adapter address: <a target='_blank' href={'https://kovan.etherscan.io/address/'+adapterAddress}>{adapterAddress}</a>
                 </p>
                 <p>
                     To learn more about building interoperable applications like this with RenVM, check out our <a target='_blank' href='https://renproject.io/developers'>developer center</a> or the following links:
-                    <ul>
-                        <li><a target='_blank' href={'https://docs.renproject.io/developers/ren-sdk'}>Getting started with RenJS</a></li>
-                        <li><a target='_blank' href={'https://docs.renproject.io/developers/gateway-js'}>Getting started with GatewayJS</a></li>
-                        <li><a target='_blank' href={'https://github.com/renproject/ren/wiki'}>Github Spec</a></li>
-                    </ul>
                 </p>
-                <p>
-
-                </p>
+                <ul>
+                    <li><a target='_blank' href={'https://docs.renproject.io/developers/ren-sdk'}>Getting started with RenJS</a></li>
+                    <li><a target='_blank' href={'https://docs.renproject.io/developers/gateway-js'}>Getting started with GatewayJS</a></li>
+                    <li><a target='_blank' href={'https://github.com/renproject/ren/wiki'}>Github Spec</a></li>
+                </ul>
             </Grid>}
 
         </Grid>
