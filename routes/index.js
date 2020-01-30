@@ -53,8 +53,9 @@ let web3Context = null;
 
 const gatewayStatusMap = {
     // address: {
-    //     status: 'pending' | 'completed',
-    //     txHash: '0x'
+    //     status: 'pending' | 'completed' | error,
+    //     txHash: '0x',
+    //     error: {}
     // }
 }
 
@@ -78,6 +79,8 @@ const swap = async function (amount, dest, gateway) {
         gatewayStatusMap[gateway].txHash = result.transactionHash
     } catch(e) {
         console.log(e)
+        gatewayStatusMap[gateway].status = 'error'
+        gatewayStatusMap[gateway].error = e
     }
 }
 
@@ -105,6 +108,8 @@ const completeShiftIn = async function (shiftIn, signature, response) {
         console.log('shift in hash for ' + shiftIn.gatewayAddress, result.transactionHash)
     } catch(e) {
         console.log(e)
+        gatewayStatusMap[gateway].status = 'error'
+        gatewayStatusMap[gateway].error = e
     }
 }
 
