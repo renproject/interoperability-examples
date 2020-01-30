@@ -221,7 +221,7 @@ class DepositContainer extends React.Component {
         const transactions = store.get('transactions')
 
         const tx = {
-            id: 'tx-' + Math.random().toFixed(6),
+            id: 'tx-' + Math.floor(Math.random() * (10 ** 16)),
             type: 'deposit',
             instant: false,
             awaiting: 'btc-init',
@@ -243,7 +243,7 @@ class DepositContainer extends React.Component {
         const transactions = store.get('transactions')
 
         const tx = {
-            id: 'tx-' + Math.random().toFixed(6),
+            id: 'tx-' + Math.floor(Math.random() * (10 ** 16)),
             type: 'deposit',
             instant: true,
             awaiting: 'btc-init',
