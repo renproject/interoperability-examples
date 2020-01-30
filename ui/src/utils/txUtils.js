@@ -226,6 +226,7 @@ export const initInstantMonitoring = function() {
 export const initMonitoring = function() {
     const transactions = this.props.store.get('transactions')
     const pending = transactions.filter(t => (t.awaiting))
+    console.log('pending', pending)
     pending.map(p => {
         initDeposit.bind(this)(p)
     })
