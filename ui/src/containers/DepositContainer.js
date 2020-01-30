@@ -338,7 +338,7 @@ class DepositContainer extends React.Component {
                                     {tx.awaiting === 'btc-init' || tx.error || !tx.awaiting ? <div>
                                         {tx.txHash ? <a className={classes.viewLink} target='_blank' href={'https://kovan.etherscan.io/tx/'+tx.txHash}>View transaction</a> : null}
                                         <a href='javascript:;' onClick={() => {
-                                            removeTx(store, tx.id)
+                                            removeTx(store, tx)
                                         }}>{!tx.awaiting ? 'Clear' : 'Cancel'}</a></div> : null}
                                 </Grid>
                             </Grid>

@@ -5,7 +5,7 @@ import { createStore, withStore } from '@spyna/react-store'
 import NavContainer from './containers/NavContainer'
 import ActionTabsContainer from './containers/ActionTabsContainer'
 import DepositContainer from './containers/DepositContainer'
-import StreamContainer from './containers/StreamContainer'
+import StreamContainer from './containers/Stream/StreamContainer'
 
 
 import theme from './theme/theme'
@@ -22,17 +22,19 @@ const styles = () => ({
 const initialState = {
     'selectedActionTab': 'exchange',
     // exchange
-    'transactions': [],
+    'swap.transactions': [],
     'adapterAddress': '0xade8792c3ee90320cabde200ccab34b27cc88651',
     'instantSwapSelected': false,
     'amount': '',
     'address': '',
     // streaming
-    // 'stream.action': 'create',
+    'stream.adapterAddress': '0x602212F2075bB6F4E50ccD89495c2463E0734C26',
+    'stream.transactions': [],
     'stream.amount': '',
     'stream.destination': '',
     'stream.duration': '',
-    'stream.activeView': 'start'
+    'stream.activeView': 'start',
+    'stream.selectedTx': null
 
 }
 

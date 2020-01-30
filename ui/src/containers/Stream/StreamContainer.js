@@ -1,7 +1,7 @@
 import React from 'react';
 import { withStore } from '@spyna/react-store'
 import { withStyles } from '@material-ui/styles';
-import theme from '../theme/theme'
+import theme from '../../theme/theme'
 import classNames from 'classnames'
 import Grid from '@material-ui/core/Grid';
 import Divider from '@material-ui/core/Divider';
@@ -31,7 +31,9 @@ import {
     initInstantMonitoring,
     removeTx,
     initInstantSwap
-} from '../utils/txUtils'
+} from '../../utils/txUtils'
+
+import ViewStream from './ViewStreamContainer'
 
 const REACT_APP_TX_FEE = 100;
 const signKey = ephemeral();
@@ -184,7 +186,7 @@ class Ellipsis extends React.Component {
     }
 }
 
-class DepositContainer extends React.Component {
+class StreamContainer extends React.Component {
 
     constructor(props) {
         super(props);
@@ -214,6 +216,8 @@ class DepositContainer extends React.Component {
         const { store } = this.props
         const amount = store.get('stream.amount')
         const address = store.get('stream.address')
+        const startTime = Math.round(Date.now() / 1000)
+        const duration = store.get('stream.duration')
 
         const tx = {
             id: 'tx-' + Math.random().toFixed(6),
@@ -224,11 +228,22 @@ class DepositContainer extends React.Component {
             dest: 'eth',
             destAddress: address,
             amount: amount,
+            startTime,
+            duration,
             error: false,
             txHash: ''
         }
 
+        store.set('stream.selectedTx', tx)
+        store.set('stream.activeView', 'view-stream')
+
         initDeposit.bind(this)(tx)
+    }
+
+    viewTx(tx) {
+        const { store } =  this.props
+        store.set('stream.selectedTx', tx)
+        store.set('stream.activeView', 'view-stream')
     }
 
     render() {
@@ -247,8 +262,10 @@ class DepositContainer extends React.Component {
         const address = store.get('stream.address')
         const transactions = store.get('stream.transactions')
         const activeView = store.get('stream.activeView')
+        const selectedTx = store.get('stream.selectedTx')
 
-        const disabled = amount < 0.0001 || !address
+        // const disabled = amount < 0.0001 || !address
+        const disabled = false
 
         return <Grid container>
             <Grid item xs={12} className={classes.contentContainer}>
@@ -256,22 +273,6 @@ class DepositContainer extends React.Component {
                     <Grid className={classes.desc} item xs={12}>
                         <span >Continously Stream Testnet BTC</span>
                     </Grid>
-                    {/*<Grid item xs={12}>
-                        <RadioGroup className={classes.radio} name='stream-action' value={store.get('stream.action')} onChange={() => {}}>
-                            <FormControlLabel
-                              value="create"
-                              control={<Radio color="primary" />}
-                              label="Create"
-                              labelPlacement="end"
-                            />
-                            <FormControlLabel
-                              value="monitor"
-                              control={<Radio color="primary" />}
-                              label="Monitor"
-                              labelPlacement="end"
-                            />
-                        </RadioGroup>
-                    </Grid>*/}
                     {activeView === 'start' && <React.Fragment>
                         <Grid item xs={12}>
                             <Grid container>
@@ -306,7 +307,11 @@ class DepositContainer extends React.Component {
                         {transactions && transactions.length ? <Divider className={classes.divider} /> : null}
                         <Grid item xs={12} className={classes.unfinished}>
                             {transactions && transactions.length ? transactions.map((tx, index) => {
-                                return <Grid key={index} container direction='row' className={classes.depositItem}>
+                                return <Grid key={index}
+                                          container
+                                          direction='row'
+                                          className={classes.depositItem}
+                                          onClick={() => (this.viewTx.bind(this)(tx))}>
                                     <Grid item xs={3}>
                                         {tx.amount} BTC
                                     </Grid>
@@ -331,7 +336,9 @@ class DepositContainer extends React.Component {
                             }) : null}
                         </Grid>
                     </React.Fragment>}
-                    {activeView === 'view-stream'}
+                    {activeView === 'view-stream' && <React.Fragment>
+                        <ViewStream selectedTx={selectedTx} />
+                    </React.Fragment>}
                 </Grid>
             </Grid>
 
@@ -363,4 +370,4 @@ class DepositContainer extends React.Component {
     }
 }
 
-export default withStyles(styles)(withStore(DepositContainer))
+export default withStyles(styles)(withStore(StreamContainer))

@@ -1,47 +1,91 @@
 import RenJS from "@renproject/ren";
 import adapterABI from './exchangeAdapterSimpleABI.json'
+import streamAdapterABI from './streamAdapterSimpleABI.json'
 
 // const API_URL = ''
 const API_URL = 'http://localhost:3000'
 let swapMonitor = null
 
 export const addTx = (store, tx) => {
-    let txs = store.get('transactions')
+    const storeString = tx.type === 'swap' ? 'swap.transactions' : 'stream.transactions'
+    let txs = store.get(storeString)
     txs.push(tx)
-    store.set('transactions', txs)
-    localStorage.setItem('transactions', JSON.stringify(txs))
+    store.set(storeString, txs)
+    localStorage.setItem(storeString, JSON.stringify(txs))
     // for debugging
-    window.txs = txs
+    window[storeString] = txs
 }
 
 export const updateTx = (store, newTx) => {
-    // console.log('updateTx', newTx)
-    const txs = store.get('transactions').map(t => {
+    const storeString = newTx.type === 'swap' ? 'swap.transactions' : 'stream.transactions'
+    const txs = store.get(storeString).map(t => {
         if (t.id === newTx.id) {
             // const newTx = Object.assign(t, props)
             return newTx
         }
         return t
     })
-    store.set('transactions', txs)
-    localStorage.setItem('transactions', JSON.stringify(txs))
+    store.set(storeString, txs)
+    localStorage.setItem(storeString, JSON.stringify(txs))
 
     // for debugging
-    window.txs = txs
+    window[storeString] = txs
 }
 
-export const removeTx = (store, id) => {
-    let txs = store.get('transactions').filter(t => (t.id !== id))
+export const removeTx = (store, tx) => {
+    const storeString = tx.type === 'swap' ? 'swap.transactions' : 'stream.transactions'
+    let txs = store.get(storeString).filter(t => (t.id !== tx.id))
     // console.log(txs)
-    store.set('transactions', txs)
-    localStorage.setItem('transactions', JSON.stringify(txs))
+    store.set(storeString, txs)
+    localStorage.setItem(storeString, JSON.stringify(txs))
 
     // for debugging
-    window.txs = txs
+    window[storeString] = txs
 }
 
 export const txExists = function(tx) {
     return this.props.store.get('transactions').filter(t => t.id === tx.id).length > 0
+}
+
+export const updateStreamInfo = async function(tx) {
+    const { store } =  this.props
+    const web3 = store.get('web3')
+    const adapterAddress = store.get('stream.adapterAddress')
+
+    const adapterContract = new web3.eth.Contract(streamAdapterABI, adapterAddress)
+    const dest = tx.params.contractParams[0].value
+
+    const schedule = await adapterContract.methods.schedules(dest).call()
+    console.log(adapterContract, schedule)
+
+    updateTx(store, Object.assign(tx, {
+        schedule
+    }))
+}
+
+export const claim = async function(tx) {
+    const { store }  = this.props
+    const web3 = store.get('web3')
+    const web3Context = store.get('web3Context')
+
+    const adapterAddress = store.get('stream.adapterAddress')
+    const { params } = tx
+
+    const adapterContract = new web3.eth.Contract(streamAdapterABI, adapterAddress)
+
+    console.log('claiming tx', tx)
+
+    try {
+        const result = await adapterContract.methods.claim(
+            params.contractParams[0].value
+        ).send({
+            from: web3Context.accounts[0]
+        })
+        console.log('result', result)
+        updateStreamInfo.bind(this)(tx)
+    } catch(e) {
+        console.log(e)
+    }
 }
 
 export const completeDeposit = async function(tx) {
@@ -49,25 +93,46 @@ export const completeDeposit = async function(tx) {
     const web3 = store.get('web3')
     const web3Context = store.get('web3Context')
 
-    const adapterAddress = store.get('adapterAddress')
-    const { params, awaiting, renResponse, renSignature } = tx
+    // const adapterAddress = store.get('adapterAddress')
+    const { type, params, awaiting, renResponse, renSignature } = tx
 
-    const adapterContract = new web3.eth.Contract(adapterABI, adapterAddress)
+    let adapterContract
+    if (type === 'swap') {
+        adapterContract = new web3.eth.Contract(adapterABI, store.get('adapterAddress'))
+    } else if (type === 'stream') {
+        adapterContract = new web3.eth.Contract(streamAdapterABI, store.get('stream.adapterAddress'))
+    }
+
     const gasPrice = await web3Context.lib.eth.getGasPrice()
 
     updateTx(store, Object.assign(tx, { awaiting: 'eth-settle' }))
 
     try {
-        const result = await adapterContract.methods.shiftInWithSwap(
-            params.contractParams[0].value,
-            params.sendAmount,
-            renResponse.args.nhash,
-            renSignature
-        ).send({
-            from: web3Context.accounts[0],
-            gasPrice: Math.round(gasPrice * 1.5)
-        })
-        console.log('result', result)
+        let result
+        if (type === 'swap') {
+            result = await adapterContract.methods.shiftInWithSwap(
+                params.contractParams[0].value,
+                params.sendAmount,
+                renResponse.args.nhash,
+                renSignature
+            ).send({
+                from: web3Context.accounts[0],
+                gasPrice: Math.round(gasPrice * 1.5)
+            })
+        } else if (type === 'stream') {
+            result = await adapterContract.methods.addVestingSchedule(
+                params.contractParams[0].value,
+                params.contractParams[1].value,
+                params.contractParams[2].value,
+                params.sendAmount,
+                renResponse.args.nhash,
+                renSignature
+            ).send({
+                from: web3Context.accounts[0],
+                gasPrice: Math.round(gasPrice * 1.5)
+            })
+            await updateStreamInfo.bind(this)(tx)
+        }
         updateTx(store, Object.assign(tx, { awaiting: '', txHash: result.transactionHash }))
     } catch(e) {
         console.log(e)
@@ -76,11 +141,57 @@ export const completeDeposit = async function(tx) {
 }
 
 export const initShiftIn = function(tx) {
-    const { amount, renBtcAddress, params, ethSig, destAddress } = tx
+    const {
+      type,
+      amount,
+      renBtcAddress,
+      params,
+      ethSig,
+      destAddress,
+      // stream
+      startTime,
+      duration
+    } = tx
     const {
         sdk,
-        adapterAddress
+        web3
     } = this.props.store.getState()
+
+    let adapterAddress = ''
+    let contractFn = ''
+    let contractParams = []
+
+    if (type === 'swap') {
+        adapterAddress = this.props.store.get('adapterAddress')
+        contractFn = 'shiftInWithSwap'
+        contractParams = [
+            {
+                name: "_to",
+                type: "address",
+                value: destAddress
+            }
+        ]
+    } else if (type === 'stream') {
+        adapterAddress = this.props.store.get('stream.adapterAddress')
+        contractFn = 'addVestingSchedule'
+        contractParams = [
+            {
+                name: "_beneficiary",
+                type: "bytes",
+                value: web3.utils.fromAscii(destAddress),
+            },
+            {
+                name: "_startTime",
+                type: "uint256",
+                value: startTime,
+            },
+            {
+                name: "_duration",
+                type: "uint16",
+                value: duration,
+            }
+        ]
+    }
 
     // recreate shift in and override with existing data
     let shiftIn
@@ -88,28 +199,16 @@ export const initShiftIn = function(tx) {
         shiftIn = sdk.shiftIn({
             messageID: ethSig.messageID,
             sendTo: adapterAddress,
-            contractFn: "shiftInWithSwap",
-            contractParams: [
-                {
-                    name: "_to",
-                    type: "address",
-                    value: destAddress,
-                }
-            ],
+            contractFn,
+            contractParams,
         });
     } else {
         let data = {
             sendToken: RenJS.Tokens.BTC.Btc2Eth,
             sendAmount: Math.floor(amount * (10 ** 8)), // Convert to Satoshis
             sendTo: adapterAddress,
-            contractFn: "shiftInWithSwap",
-            contractParams: [
-                {
-                    name: "_to",
-                    type: "address",
-                    value: destAddress,
-                }
-            ],
+            contractFn,
+            contractParams,
         }
 
         if (params && params.nonce) {
@@ -226,9 +325,13 @@ export const initInstantMonitoring = function() {
 export const initMonitoring = function() {
     const transactions = this.props.store.get('transactions')
     const pending = transactions.filter(t => (t.awaiting))
-    console.log('pending', pending)
     pending.map(p => {
         initDeposit.bind(this)(p)
+    })
+
+    // streams
+    transactions.filter(t => (!t.awaiting && t.type === 'stream')).map(s => {
+        updateStreamInfo.bind(this)(s)
     })
 }
 
