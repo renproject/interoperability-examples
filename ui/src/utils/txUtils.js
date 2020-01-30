@@ -6,7 +6,9 @@ const API_URL = ''
 let swapMonitor = null
 
 export const addTx = (store, tx) => {
+
     let txs = store.get('transactions')
+    console.log('addTx', txs.length)
     txs.push(tx)
     store.set('transactions', txs)
     localStorage.setItem('transactions', JSON.stringify(txs))
@@ -15,7 +17,7 @@ export const addTx = (store, tx) => {
 }
 
 export const updateTx = (store, newTx) => {
-    // console.log('updateTx', newTx)
+    console.log('updateTx', newTx)
     const txs = store.get('transactions').map(t => {
         if (t.id === newTx.id) {
             // const newTx = Object.assign(t, props)
@@ -174,12 +176,13 @@ export const initDeposit = async function(tx) {
 
 export const initInstantSwap = async function(tx) {
     const { store }  = this.props
-    const { params, awaiting, renResponse, renSignature, error } = tx
-
+    const { id } = tx
+    console.log('initInstantSwap')
     // async getGateway() {
         const {
             amount,
-            address
+            address,
+            transactions
         } = this.props.store.getState()
 
 
@@ -196,15 +199,23 @@ export const initInstantSwap = async function(tx) {
             })
         })
         const data = await request.json()
-        addTx(store, Object.assign(tx, {
-            renBtcAddress: data.gatewayAddress
-        }))
+
+        // protect against duplicates
+        if (!transactions.filter(t => (t.id === id)).length) {
+            addTx(store, Object.assign(tx, {
+                renBtcAddress: data.gatewayAddress
+            }))
+        }
 }
 
 export const initInstantMonitoring = function() {
+    console.log('initInstantMonitoring before', this.props.store.get('transactions'))
     swapMonitor = setInterval(async () => {
-        const transactions = this.props.store.get('transactions')
-        transactions.filter((t) => (t.instant && t.awaiting === 'btc-init')).map(async tx => {
+        const transactions = this.props.store.get('transactions').concat([])
+        const monitor = transactions.filter((t) => (t.instant && t.awaiting === 'btc-init'))
+
+        console.log('initInstantMonitoring', transactions)
+        monitor.map(async tx => {
             const req = await fetch(`${API_URL}/swap-gateway/status?gateway=${tx.renBtcAddress}`, {
                 method: 'GET',
                 headers: {
@@ -225,7 +236,7 @@ export const initInstantMonitoring = function() {
 
 export const initMonitoring = function() {
     const transactions = this.props.store.get('transactions')
-    const pending = transactions.filter(t => (t.awaiting))
+    const pending = transactions.filter(t => (t.awaiting && !t.instant))
     console.log('pending', pending)
     pending.map(p => {
         initDeposit.bind(this)(p)
