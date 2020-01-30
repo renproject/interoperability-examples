@@ -113,7 +113,7 @@ const styles = () => ({
       marginBottom: theme.spacing(3)
   },
   desc: {
-      marginBottom: theme.spacing(3),
+      marginBottom: theme.spacing(4),
       fontSize: 14,
       display: 'flex',
       alignItems: 'flex-end',
