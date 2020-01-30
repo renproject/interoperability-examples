@@ -59,29 +59,37 @@ const gatewayStatusMap = {
     // }
 }
 
+const gatewaySwapIntervalMap = {
+    // address: { function }
+}
+
 // Swap using contract funds
 const swap = async function (amount, dest, gateway) {
     console.log('swap amount', amount, dest)
 
-    const adapterContract = new web3Context.lib.eth.Contract(adapterABI, adapterAddress)
-    const gasPrice = await web3Context.lib.eth.getGasPrice()
+    // in case transaction is rejected by GSN, retry every 30 secs
+    gatewaySwapIntervalMap[gateway] = setInterval(async () => {
+        const adapterContract = new web3Context.lib.eth.Contract(adapterABI, adapterAddress)
+        const gasPrice = await web3Context.lib.eth.getGasPrice()
 
-    try {
-        const result = await adapterContract.methods.swap(
-            amount,
-            dest
-        ).send({
-            from: web3Context.accounts[0],
-            gasPrice: Math.round(gasPrice * 1.5)
-        })
-        // console.log('result', result)
-        gatewayStatusMap[gateway].status = 'complete'
-        gatewayStatusMap[gateway].txHash = result.transactionHash
-    } catch(e) {
-        console.log(e)
-        gatewayStatusMap[gateway].status = 'error'
-        gatewayStatusMap[gateway].error = e
-    }
+        try {
+            const result = await adapterContract.methods.swap(
+                amount,
+                dest
+            ).send({
+                from: web3Context.accounts[0],
+                gasPrice: Math.round(gasPrice * 1.5)
+            })
+            // console.log('result', result)
+            gatewayStatusMap[gateway].status = 'complete'
+            gatewayStatusMap[gateway].txHash = result.transactionHash
+            clearInterval(gatewaySwapIntervalMap[gateway])
+        } catch(e) {
+            console.log(e)
+            gatewayStatusMap[gateway].status = 'error'
+            gatewayStatusMap[gateway].error = e
+        }
+    }, (1000 * 30))
 }
 
 // Complete the shift once RenVM verifies the tx
