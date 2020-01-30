@@ -20,14 +20,20 @@ const styles = () => ({
 })
 
 const initialState = {
-    transactions: [],
-    adapterAddress: '0xade8792c3ee90320cabde200ccab34b27cc88651',
-    selectedTab: 0,
-    instantSwapSelected: false,
-    amount: '',
-    address: '',
-    selectedActionTab: 'exchange',
-    'stream.action': 'create'
+    'selectedActionTab': 'exchange',
+    // exchange
+    'transactions': [],
+    'adapterAddress': '0xade8792c3ee90320cabde200ccab34b27cc88651',
+    'instantSwapSelected': false,
+    'amount': '',
+    'address': '',
+    // streaming
+    // 'stream.action': 'create',
+    'stream.amount': '',
+    'stream.destination': '',
+    'stream.duration': '',
+    'stream.activeView': 'start'
+
 }
 
 const AppWrapper = withStore(function(props) {

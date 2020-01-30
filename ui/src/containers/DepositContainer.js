@@ -113,7 +113,7 @@ const styles = () => ({
       marginBottom: theme.spacing(3)
   },
   desc: {
-      marginBottom: theme.spacing(3),
+      marginBottom: theme.spacing(4),
       fontSize: 14,
       display: 'flex',
       alignItems: 'flex-end',
@@ -221,7 +221,7 @@ class DepositContainer extends React.Component {
         const transactions = store.get('transactions')
 
         const tx = {
-            id: 'tx-' + Math.random().toFixed(6),
+            id: 'tx-' + Math.floor(Math.random() * (10 ** 16)),
             type: 'deposit',
             instant: false,
             awaiting: 'btc-init',
@@ -243,7 +243,7 @@ class DepositContainer extends React.Component {
         const transactions = store.get('transactions')
 
         const tx = {
-            id: 'tx-' + Math.random().toFixed(6),
+            id: 'tx-' + Math.floor(Math.random() * (10 ** 16)),
             type: 'deposit',
             instant: true,
             awaiting: 'btc-init',

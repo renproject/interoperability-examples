@@ -115,7 +115,7 @@ const styles = () => ({
       marginBottom: theme.spacing(3)
   },
   desc: {
-      marginBottom: theme.spacing(1),
+      marginBottom: theme.spacing(4),
       fontSize: 14,
       display: 'flex',
       alignItems: 'flex-end',
@@ -147,7 +147,7 @@ const styles = () => ({
   swapButton: {
   },
   radio: {
-      marginBottom: theme.spacing(1),
+      marginBottom: theme.spacing(2),
       flexDirection: 'row',
       '& span': {
         fontSize: 12
@@ -193,30 +193,17 @@ class DepositContainer extends React.Component {
     async componentDidMount() {
         const { store } = this.props
 
-        const web3Context = await fromConnection(
-            "https://kovan.infura.io/v3/7be66f167c2e4a05981e2ffc4653dec2",
-            {
-                gsn: { signKey, ...relay_client_config }
-            }
-        )
-
-        store.set('web3Context', web3Context)
-        store.set('web3', web3Context.lib)
-
-        const sdk = new RenJS('testnet')
-        store.set('sdk', sdk)
-
-        const txs = localStorage.getItem('transactions')
+        const txs = localStorage.getItem('stream.transactions')
 
         if (txs) {
-            store.set('transactions', JSON.parse(txs))
+            store.set('stream.transactions', JSON.parse(txs))
         }
 
-        // monitor normal swaps
-        initMonitoring.bind(this)()
-
-        // monitor instant swaps
-        initInstantMonitoring.bind(this)()
+        // // monitor normal swaps
+        // initMonitoring.bind(this)()
+        //
+        // // monitor instant swaps
+        // initInstantMonitoring.bind(this)()
     }
 
     componentWillUnmount() {
@@ -225,13 +212,12 @@ class DepositContainer extends React.Component {
 
     async start() {
         const { store } = this.props
-        const amount = store.get('amount')
-        const address = store.get('address')
-        const transactions = store.get('transactions')
+        const amount = store.get('stream.amount')
+        const address = store.get('stream.address')
 
         const tx = {
             id: 'tx-' + Math.random().toFixed(6),
-            type: 'deposit',
+            type: 'stream',
             instant: false,
             awaiting: 'btc-init',
             source: 'btc',
@@ -245,28 +231,6 @@ class DepositContainer extends React.Component {
         initDeposit.bind(this)(tx)
     }
 
-    async startInstant() {
-        const { store } = this.props
-        const amount = store.get('amount')
-        const address = store.get('address')
-        const transactions = store.get('transactions')
-
-        const tx = {
-            id: 'tx-' + Math.random().toFixed(6),
-            type: 'deposit',
-            instant: true,
-            awaiting: 'btc-init',
-            source: 'btc',
-            dest: 'eth',
-            destAddress: address,
-            amount: amount,
-            error: false,
-            txHash: ''
-        }
-
-        initInstantSwap.bind(this)(tx)
-    }
-
     render() {
         const {
             classes,
@@ -274,28 +238,25 @@ class DepositContainer extends React.Component {
         } = this.props
 
         const {
-            transactions,
             adapterAddress,
-            selectedTab,
-            instantSwapSelected,
-            amount,
-            address
         } = store.getState()
 
         console.log(store.getState())
 
-        const disabled = amount < 0.0001 || (amount > 0.0005 && instantSwapSelected) || !address
+        const amount = store.get('stream.amount')
+        const address = store.get('stream.address')
+        const transactions = store.get('stream.transactions')
+        const activeView = store.get('stream.activeView')
+
+        const disabled = amount < 0.0001 || !address
 
         return <Grid container>
-            {/*<Typography variant={'h1'} className={classes.title}>Kovan ETH – Testnet BTC Exchange</Typography>*/}
-
             <Grid item xs={12} className={classes.contentContainer}>
                 <Grid container direction='column'>
                     <Grid className={classes.desc} item xs={12}>
                         <span >Continously Stream Testnet BTC</span>
-                        {/*<span className={classes.btcLink}>Send testnet BTC from <a target='_blank' href={'https://tbtc.bitaps.com/'}>here</a></span>*/}
                     </Grid>
-                    <Grid item xs={12}>
+                    {/*<Grid item xs={12}>
                         <RadioGroup className={classes.radio} name='stream-action' value={store.get('stream.action')} onChange={() => {}}>
                             <FormControlLabel
                               value="create"
@@ -310,70 +271,67 @@ class DepositContainer extends React.Component {
                               labelPlacement="end"
                             />
                         </RadioGroup>
-                    </Grid>
-                    <Grid item xs={12}>
-                        <Grid container>
-                            <Grid item xs={12} className={classes.amountContainer}>
-                                <TextField className={classNames(classes.input, classes.amount)}
-                                    variant='outlined'
-                                    size='small'
-                                    placeholder='0.000000'
-                                    onChange={e => {
-                                        store.set('stream.amount', e.target.value)
-                                    }}
-                                    InputProps={{
-                                        endAdornment: <InputAdornment className={classes.endAdornment} position="end">BTC</InputAdornment>
-                                    }}/>
-                            </Grid>
-                            <Grid item xs={12}>
-                                <TextField className={classNames(classes.input, classes.address)} variant='outlined' size='small' placeholder='Stream to BTC Address' onChange={e => {
-                                    store.set('stream.address', e.target.value)
-                                }}/>
-                            </Grid>
-                            <Grid item xs={12}>
-                                <TextField className={classNames(classes.input, classes.address)} variant='outlined' size='small' placeholder='Duration in Minutes' onChange={e => {
-                                    store.set('stream.duration', e.target.value)
-                                }}/>
-                            </Grid>
-                        </Grid>
-
-                    </Grid>
-                    {/*<Grid item xs={12} className={classes.switchContainer}>
-                        <FormControlLabel control={<Switch checked={instantSwapSelected}
-                            color='primary'
-                            onChange={() => store.set('instantSwapSelected', !instantSwapSelected)}
-                            value={"instant"} />} label="Start streaming faster (0 confirmations, 0.0001 BTC / minute max)" />
                     </Grid>*/}
-                    <Grid item xs={12} className={classes.swapButtonContainer}>
-                        <Button disabled={disabled} className={classes.swapButton} variant='outlined' color='primary' onClick={instantSwapSelected ? this.startInstant.bind(this) : this.start.bind(this)}>Start Stream</Button>
-                    </Grid>
-                    {transactions && transactions.length ? <Divider className={classes.divider} /> : null}
-                    <Grid item xs={12} className={classes.unfinished}>
-                        {transactions && transactions.length ? transactions.map((tx, index) => {
-                            return <Grid key={index} container direction='row' className={classes.depositItem}>
-                                <Grid item xs={3}>
-                                    {tx.amount} BTC
+                    {activeView === 'start' && <React.Fragment>
+                        <Grid item xs={12}>
+                            <Grid container>
+                                <Grid item xs={12} className={classes.amountContainer}>
+                                    <TextField className={classNames(classes.input, classes.amount)}
+                                        variant='outlined'
+                                        size='small'
+                                        placeholder='0.000000'
+                                        onChange={e => {
+                                            store.set('stream.amount', e.target.value)
+                                        }}
+                                        InputProps={{
+                                            endAdornment: <InputAdornment className={classes.endAdornment} position="end">BTC</InputAdornment>
+                                        }}/>
                                 </Grid>
-                                <Grid className={classes.depositStatus} item xs={9}>
-                                    {tx.awaiting === 'btc-init' ? <span>
-                                        {`Waiting for ${tx.instant ? '0' : '2'} confirmations to`}<Ellipsis/>{` ${tx.renBtcAddress}`}
-                                    </span> : null}
-                                    {tx.awaiting === 'ren-settle' ? <span>
-                                        {`Submitting to RenVM`}<Ellipsis/>
-                                    </span> : null}
-                                    {tx.awaiting === 'eth-settle' ? <span>
-                                        {`Submitting to Ethereum`}<Ellipsis/>
-                                    </span> : null}
-                                    {!tx.awaiting ? `Deposit complete` : null}
-                                    {tx.awaiting === 'btc-init' || tx.error || !tx.awaiting ? <div>
-                                        {tx.txHash ? <a className={classes.viewLink} target='_blank' href={'https://kovan.etherscan.io/tx/'+tx.txHash}>View transaction</a> : null}
-                                        <a href='javascript:;' onClick={() => {
-                                            removeTx(store, tx.id)
-                                        }}>{!tx.awaiting ? 'Clear' : 'Cancel'}</a></div> : null}
+                                <Grid item xs={12}>
+                                    <TextField className={classNames(classes.input, classes.address)} variant='outlined' size='small' placeholder='Stream to BTC Address' onChange={e => {
+                                        store.set('stream.address', e.target.value)
+                                    }}/>
+                                </Grid>
+                                <Grid item xs={12}>
+                                    <TextField className={classNames(classes.input, classes.address)} variant='outlined' size='small' placeholder='Duration in Minutes' onChange={e => {
+                                        store.set('stream.duration', e.target.value)
+                                    }}/>
                                 </Grid>
                             </Grid>
-                        }) : null}
-                    </Grid>
+
+                        </Grid>
+                        <Grid item xs={12} className={classes.swapButtonContainer}>
+                            <Button disabled={disabled} className={classes.swapButton} variant='outlined' color='primary' onClick={this.start.bind(this)}>Start Stream</Button>
+                        </Grid>
+                        {transactions && transactions.length ? <Divider className={classes.divider} /> : null}
+                        <Grid item xs={12} className={classes.unfinished}>
+                            {transactions && transactions.length ? transactions.map((tx, index) => {
+                                return <Grid key={index} container direction='row' className={classes.depositItem}>
+                                    <Grid item xs={3}>
+                                        {tx.amount} BTC
+                                    </Grid>
+                                    <Grid className={classes.depositStatus} item xs={9}>
+                                        {tx.awaiting === 'btc-init' ? <span>
+                                            {`Waiting for ${tx.instant ? '0' : '2'} confirmations to`}<Ellipsis/>{` ${tx.renBtcAddress}`}
+                                        </span> : null}
+                                        {tx.awaiting === 'ren-settle' ? <span>
+                                            {`Submitting to RenVM`}<Ellipsis/>
+                                        </span> : null}
+                                        {tx.awaiting === 'eth-settle' ? <span>
+                                            {`Submitting to Ethereum`}<Ellipsis/>
+                                        </span> : null}
+                                        {!tx.awaiting ? `Deposit complete` : null}
+                                        {tx.awaiting === 'btc-init' || tx.error || !tx.awaiting ? <div>
+                                            {tx.txHash ? <a className={classes.viewLink} target='_blank' href={'https://kovan.etherscan.io/tx/'+tx.txHash}>View transaction</a> : null}
+                                            <a href='javascript:;' onClick={() => {
+                                                removeTx(store, tx.id)
+                                            }}>{!tx.awaiting ? 'Clear' : 'Cancel'}</a></div> : null}
+                                    </Grid>
+                                </Grid>
+                            }) : null}
+                        </Grid>
+                    </React.Fragment>}
+                    {activeView === 'view-stream'}
                 </Grid>
             </Grid>
 
