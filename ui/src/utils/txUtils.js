@@ -1,8 +1,8 @@
 import RenJS from "@renproject/ren";
 import adapterABI from './exchangeAdapterSimpleABI.json'
 
-const API_URL = ''
-// const API_URL = 'http://localhost:3000'
+// const API_URL = ''
+const API_URL = 'http://localhost:3000'
 let swapMonitor = null
 
 export const addTx = (store, tx) => {
