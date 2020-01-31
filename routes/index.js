@@ -74,6 +74,8 @@ setInterval(() => {
     Object.keys(gatewayStatusMap).map(g => {
         if (gatewayStatusMap[g].created < (now - (1000 * 60 * 60 * 24))) {
             delete gatewayStatusMap[g]
+            delete gatewaySwapIntervalMap[g]
+            delete gatewaySwapAttemptMap[g]
         }
     })
 }, (1000 * 60 * 60))
