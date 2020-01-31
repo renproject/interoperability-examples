@@ -111,6 +111,7 @@ class ViewStreamContainer extends React.Component {
             availableAmount: '',
             availablePercentage: ''
         }
+        this.initAddressRef = React.createRef()
     }
 
     componentDidMount() {
@@ -144,6 +145,16 @@ class ViewStreamContainer extends React.Component {
 
     componentWillUnmount() {
         clearInterval(this.interval)
+    }
+
+    componentDidUpdate() {
+        const { selectedTx } = this.props
+        // setTimeout(() => {
+            // console.log('ViewStream', this.initAddressRef.current)
+            // if (this.initAddressRef.current) {
+            //     this.initAddressRef.current.value = selectedTx.renBtcAddress
+            // }
+        // }, 10)
     }
 
     monitorStream() {

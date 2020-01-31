@@ -107,6 +107,8 @@ export const completeDeposit = async function(tx) {
 
     updateTx(store, Object.assign(tx, { awaiting: 'eth-settle' }))
 
+    console.log('completeDeposit', tx)
+
     try {
         let result
         if (type === 'swap') {
@@ -123,7 +125,7 @@ export const completeDeposit = async function(tx) {
             result = await adapterContract.methods.addVestingSchedule(
                 params.contractParams[0].value,
                 params.contractParams[1].value,
-                params.contractParams[2].value,
+                Number(params.contractParams[2].value),
                 params.sendAmount,
                 renResponse.args.nhash,
                 renSignature
@@ -230,6 +232,8 @@ export const initDeposit = async function(tx) {
     const { store }  = this.props
     const { params, awaiting, renResponse, renSignature, error } = tx
 
+    console.log('initDeposit', tx)
+
     // completed
     if (!awaiting) return
 
@@ -244,6 +248,8 @@ export const initDeposit = async function(tx) {
     } else {
         // create or re-create shift in
         const shiftIn = await initShiftIn.bind(this)(tx)
+
+        console.log('initDeposit shiftin', shiftIn)
 
         if (!params) {
             addTx(store, Object.assign(tx, {
@@ -302,7 +308,7 @@ export const initInstantSwap = async function(tx) {
 
 export const initInstantMonitoring = function() {
     swapMonitor = setInterval(async () => {
-        const transactions = this.props.store.get('transactions')
+        const transactions = this.props.store.get('swap.transactions')
         transactions.filter((t) => (t.instant && t.awaiting === 'btc-init')).map(async tx => {
             const req = await fetch(`${API_URL}/swap-gateway/status?gateway=${tx.renBtcAddress}`, {
                 method: 'GET',
@@ -323,16 +329,30 @@ export const initInstantMonitoring = function() {
 }
 
 export const initMonitoring = function() {
-    const transactions = this.props.store.get('transactions')
-    const pending = transactions.filter(t => (t.awaiting))
-    pending.map(p => {
-        initDeposit.bind(this)(p)
+    const store = this.props.store
+
+    const txs = store.get('swap.transactions').concat(store.get('stream.transactions'))
+    console.log('initMonitoring', txs)
+    txs.map(tx => {
+        if (tx.awaiting) {
+            initDeposit.bind(this)(tx)
+        } else if (tx.type === 'stream') {
+            updateStreamInfo.bind(this)(tx)
+        }
     })
 
-    // streams
-    transactions.filter(t => (!t.awaiting && t.type === 'stream')).map(s => {
-        updateStreamInfo.bind(this)(s)
-    })
+    // const transactions = store.get('swap.transactions').concat(store.get('stream.transactions'))
+    // const pending = transactions.filter(t => (t.awaiting))
+    // pending.map(p => {
+    //     initDeposit.bind(this)(p)
+    // })
+    //
+    // console.log('initMonitoring', transactions)
+    //
+    // // streams
+    // transactions.filter(t => (!t.awaiting && t.type === 'stream')).map(s => {
+    //     updateStreamInfo.bind(this)(s)
+    // })
 }
 
 export default {

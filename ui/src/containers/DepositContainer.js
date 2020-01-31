@@ -197,10 +197,15 @@ class DepositContainer extends React.Component {
         const sdk = new RenJS('testnet')
         store.set('sdk', sdk)
 
-        const txs = localStorage.getItem('transactions')
+        const swaps = localStorage.getItem('swap.transactions')
+        const streams = localStorage.getItem('stream.transactions')
 
-        if (txs) {
-            store.set('transactions', JSON.parse(txs))
+        if (swaps) {
+            store.set('swap.transactions', JSON.parse(swaps))
+        }
+
+        if (streams) {
+            store.set('stream.transactions', JSON.parse(streams))
         }
 
         // monitor normal swaps

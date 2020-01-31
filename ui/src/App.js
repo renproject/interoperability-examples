@@ -28,7 +28,7 @@ const initialState = {
     'amount': '',
     'address': '',
     // streaming
-    'stream.adapterAddress': '0x602212F2075bB6F4E50ccD89495c2463E0734C26',
+    'stream.adapterAddress': '0x0860983E8A3fd15848BCFb294076F4301b03926E',
     'stream.transactions': [],
     'stream.amount': '',
     'stream.destination': '',
