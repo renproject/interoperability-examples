@@ -53,6 +53,7 @@ let web3Context = null;
 
 const gatewayStatusMap = {
     // address: {
+    //     created: 0,
     //     status: 'pending' | 'completed' | error,
     //     txHash: '0x',
     //     error: {}
@@ -63,12 +64,35 @@ const gatewaySwapIntervalMap = {
     // address: { function }
 }
 
+const gatewaySwapAttemptMap = {
+    // address: count
+}
+
+// prune completed gateways from memory 24 hours after completed
+setInterval(() => {
+    const now = Date.now()
+    Object.keys(gatewayStatusMap).map(g => {
+        if (gatewayStatusMap[g].created < (now - (1000 * 60 * 60 * 24))) {
+            delete gatewayStatusMap[g]
+        }
+    })
+}, (1000 * 60 * 60))
+
 // Swap using contract funds
 const swap = async function (amount, dest, gateway) {
     console.log('swap amount', amount, dest)
 
+    gatewaySwapAttemptMap[gateway] = 0
+
     // in case transaction is rejected by GSN, retry every 30 secs
     gatewaySwapIntervalMap[gateway] = setInterval(async () => {
+        // 3 attempts max
+        gatewaySwapAttemptMap[gateway] = gatewaySwapAttemptMap[gateway] + 1
+        if (gatewaySwapAttemptMap[gateway] > 3) {
+            gatewayStatusMap[gateway].status = 'error'
+            return clearInterval(gatewaySwapIntervalMap[gateway])
+        }
+
         const adapterContract = new web3Context.lib.eth.Contract(adapterABI, adapterAddress)
         const gasPrice = await web3Context.lib.eth.getGasPrice()
 
@@ -161,6 +185,7 @@ router.post('/swap-gateway/create', function(req, res, next) {
     });
     const gatewayAddress = shiftIn.gatewayAddress
     gatewayStatusMap[gatewayAddress] = {
+        created: Date.now(),
         status: 'pending',
         txHash: ''
     }
