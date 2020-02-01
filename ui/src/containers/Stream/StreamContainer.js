@@ -270,10 +270,10 @@ class StreamContainer extends React.Component {
         return <Grid container>
             <Grid item xs={12} className={classes.contentContainer}>
                 <Grid container direction='column'>
-                    <Grid className={classes.desc} item xs={12}>
-                        <span >Continously Stream Testnet BTC</span>
-                    </Grid>
                     {activeView === 'start' && <React.Fragment>
+                        <Grid className={classes.desc} item xs={12}>
+                            <span >Continously Stream Testnet BTC</span>
+                        </Grid>
                         <Grid item xs={12}>
                             <Grid container>
                                 <Grid item xs={12} className={classes.amountContainer}>
@@ -310,8 +310,7 @@ class StreamContainer extends React.Component {
                                 return <Grid key={index}
                                           container
                                           direction='row'
-                                          className={classes.depositItem}
-                                          onClick={() => (this.viewTx.bind(this)(tx))}>
+                                          className={classes.depositItem}>
                                     <Grid item xs={3}>
                                         {tx.amount} BTC
                                     </Grid>
@@ -320,17 +319,19 @@ class StreamContainer extends React.Component {
                                             {`Waiting for ${tx.instant ? '0' : '2'} confirmations to`}<Ellipsis/>{` ${tx.renBtcAddress}`}
                                         </span> : null}
                                         {tx.awaiting === 'ren-settle' ? <span>
-                                            {`Submitting to RenVM`}<Ellipsis/>
+                                            {`Submitting to RenVM`}
                                         </span> : null}
                                         {tx.awaiting === 'eth-settle' ? <span>
-                                            {`Submitting to Ethereum`}<Ellipsis/>
+                                            {`Submitting to Ethereum`}
                                         </span> : null}
-                                        {!tx.awaiting ? `Deposit complete` : null}
+                                        {!tx.awaiting ? `Streaming in progress` : null}
                                         {tx.awaiting === 'btc-init' || tx.error || !tx.awaiting ? <div>
                                             {tx.txHash ? <a className={classes.viewLink} target='_blank' href={'https://kovan.etherscan.io/tx/'+tx.txHash}>View transaction</a> : null}
-                                            <a href='javascript:;' onClick={() => {
-                                                removeTx(store, tx.id)
-                                            }}>{!tx.awaiting ? 'Clear' : 'Cancel'}</a></div> : null}
+                                            {tx.awaiting ? <a href='javascript:;' onClick={() => {
+                                                removeTx(store, tx)
+                                            }}>Cancel</a> : <a href='javascript:;' className={classes.viewLink} onClick={() => (this.viewTx.bind(this)(tx))}>
+                                                View
+                                            </a>}</div> : null}
                                     </Grid>
                                 </Grid>
                             }) : null}

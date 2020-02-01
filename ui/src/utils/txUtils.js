@@ -1,6 +1,7 @@
 import RenJS from "@renproject/ren";
 import adapterABI from './exchangeAdapterSimpleABI.json'
 import streamAdapterABI from './streamAdapterSimpleABI.json'
+import BigNumber from 'bignumber.js'
 
 // const API_URL = ''
 const API_URL = 'http://localhost:3000'
@@ -72,6 +73,7 @@ export const claim = async function(tx) {
     const { params } = tx
 
     const adapterContract = new web3.eth.Contract(streamAdapterABI, adapterAddress)
+    const gasPrice = await web3Context.lib.eth.getGasPrice()
 
     console.log('claiming tx', tx)
 
@@ -79,7 +81,9 @@ export const claim = async function(tx) {
         const result = await adapterContract.methods.claim(
             params.contractParams[0].value
         ).send({
-            from: web3Context.accounts[0]
+            from: web3Context.accounts[0],
+            gasPrice: Math.round(gasPrice * 1.5),
+            gasLimit: 200000
         })
         console.log('result', result)
         updateStreamInfo.bind(this)(tx)
@@ -119,7 +123,8 @@ export const completeDeposit = async function(tx) {
                 renSignature
             ).send({
                 from: web3Context.accounts[0],
-                gasPrice: Math.round(gasPrice * 1.5)
+                gasPrice: Math.round(gasPrice * 1.5),
+                gasLimit: 200000
             })
         } else if (type === 'stream') {
             result = await adapterContract.methods.addVestingSchedule(
@@ -131,7 +136,8 @@ export const completeDeposit = async function(tx) {
                 renSignature
             ).send({
                 from: web3Context.accounts[0],
-                gasPrice: Math.round(gasPrice * 1.5)
+                gasPrice: Math.round(gasPrice * 1.5),
+                gasLimit: 350000
             })
             await updateStreamInfo.bind(this)(tx)
         }
@@ -205,9 +211,10 @@ export const initShiftIn = function(tx) {
             contractParams,
         });
     } else {
+        const amt = new BigNumber(amount)
         let data = {
             sendToken: RenJS.Tokens.BTC.Btc2Eth,
-            sendAmount: Math.floor(amount * (10 ** 8)), // Convert to Satoshis
+            sendAmount: amt.times(10 ** 8).toNumber(), // Convert to Satoshis
             sendTo: adapterAddress,
             contractFn,
             contractParams,
@@ -334,6 +341,7 @@ export const initMonitoring = function() {
     const txs = store.get('swap.transactions').concat(store.get('stream.transactions'))
     console.log('initMonitoring', txs)
     txs.map(tx => {
+        // if (tx.type === 'stream') return
         if (tx.awaiting) {
             initDeposit.bind(this)(tx)
         } else if (tx.type === 'stream') {

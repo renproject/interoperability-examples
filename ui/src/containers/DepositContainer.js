@@ -28,6 +28,7 @@ import {
     initMonitoring,
     initInstantMonitoring,
     removeTx,
+    updateTx,
     initInstantSwap
 } from '../utils/txUtils'
 
@@ -38,8 +39,8 @@ const relay_client_config = {
   txfee: REACT_APP_TX_FEE,
   // force_gasPrice: gasPrice, //override requested gas price
   // gasPrice: gasPrice, //override requested gas price
-  force_gasLimit: 200000, //override requested gas limit.
-  gasLimit: 200000, //override requested gas limit.
+  // force_gasLimit: 200000, //override requested gas limit.
+  // gasLimit: 200000, //override requested gas limit.
   verbose: true
 };
 
@@ -213,6 +214,10 @@ class DepositContainer extends React.Component {
 
         // monitor instant swaps
         initInstantMonitoring.bind(this)()
+
+        window.store = store
+
+        window.updateTx = updateTx.bind(this)
     }
 
     componentWillUnmount() {

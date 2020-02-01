@@ -8,8 +8,10 @@ import CircularProgress from '@material-ui/core/CircularProgress';
 import Grid from '@material-ui/core/Grid';
 import TextField from '@material-ui/core/TextField';
 import InputAdornment from '@material-ui/core/InputAdornment';
+import CountUp from 'react-countup';
+import Button from '@material-ui/core/Button';
 
-
+import { claim } from '../../utils/txUtils'
 
 const styles = () => ({
     progress: {
@@ -28,7 +30,7 @@ const styles = () => ({
         left: 0,
     },
     progressBottom: {
-        color: theme.palette.primary.main,
+        color: '#039BE5',
         animationDuration: '550ms',
         position: 'absolute',
         left: 0,
@@ -101,6 +103,9 @@ const styles = () => ({
       '& a': {
         fontSize: 12
       }
+    },
+    backLink: {
+        fontSize: 12
     }
 })
 
@@ -108,63 +113,85 @@ class ViewStreamContainer extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
+            amountClaimed: '',
+            amountClaimedPercentage: '',
             availableAmount: '',
-            availablePercentage: ''
+            availablePercentage: '',
+            remaingDuration: ''
         }
         this.initAddressRef = React.createRef()
+        this.interval = null
+        this.mounted = false
     }
 
     componentDidMount() {
         const { selectedTx } = this.props
         const schedule = selectedTx.schedule
 
-        if (!schedule) return
+        if (this.initAddressRef.current) {
+            this.initAddressRef.current.value = selectedTx.renBtcAddress
+        }
 
-        const start = Number(schedule.startTime)
-        const end = Number(schedule.startTime) + (Number(schedule.duration * 60))
-        const amount = selectedTx.amount
+        if (schedule) {
+            const start = Number(schedule.startTime)
+            const end = Number(schedule.startTime) + (Number(schedule.duration * 60))
+            const amount = selectedTx.amount
+            const amountClaimed = (schedule.amountClaimed / (10 ** 8)).toFixed(6)
+            const amountClaimedPercentage = (amountClaimed / amount).toFixed(1) * 100
 
-        this.interval = setInterval(() => {
-            const now = Math.floor(Date.now() / 1000)
-            const period = end - start
-            let availablePercentage = 0
-            if (now > end) {
-                availablePercentage = 100
-                clearInterval(this.interval)
-            } else if (start > 0){
-                availablePercentage = Number((((now - start) / period) * 100).toFixed(1))
-            }
-            const availableAmount = ((availablePercentage / 100) * amount).toFixed(6)
+            this.interval = setInterval(() => {
+                const now = Math.floor(Date.now() / 1000)
+                const period = end - start
+                let availablePercentage = 0
+                if (now > end) {
+                    availablePercentage = 100
+                    clearInterval(this.interval)
+                } else if (start > 0){
+                    availablePercentage = Number((((now - start) / period) * 100).toFixed(1))
+                }
+                const availableAmount = ((availablePercentage / 100) * amount).toFixed(6)
+                const remaingDuration = end - now
 
-            this.setState({
-                availableAmount,
-                availablePercentage
-            })
-        }, 10);
+
+                // console.log('mounted', this.mounted)
+
+                if (!this.mounted) {
+                    this.setState({
+                        amountClaimed,
+                        amountClaimedPercentage,
+                        availableAmount,
+                        availablePercentage,
+                        remaingDuration
+                    })
+                    this.mounted = true
+                } else {
+                    this.setState({
+                        availablePercentage
+                    })
+                }
+            }, 10);
+        }
+
     }
 
     componentWillUnmount() {
-        clearInterval(this.interval)
+        if (this.interval) {
+            clearInterval(this.interval)
+        }
     }
 
     componentDidUpdate() {
         const { selectedTx } = this.props
-        // setTimeout(() => {
-            // console.log('ViewStream', this.initAddressRef.current)
-            // if (this.initAddressRef.current) {
-            //     this.initAddressRef.current.value = selectedTx.renBtcAddress
-            // }
-        // }, 10)
     }
 
     monitorStream() {
-
     }
 
     back() {
         const { store } = this.props
         store.set('stream.activeView', 'start')
         store.set('stream.selectedTx', null)
+        console.log('back')
     }
 
     render() {
@@ -175,13 +202,19 @@ class ViewStreamContainer extends React.Component {
         } = this.props
 
         const {
+            amountClaimed,
+            amountClaimedPercentage,
             availableAmount,
-            availablePercentage
+            availablePercentage,
+            remaingDuration
         } = this.state
 
-        console.log(this.state, this.props)
+        // console.log(this.state, this.props)
 
         return <React.Fragment>
+            <div className={classes.backLink}>
+                <a href='javascript:;' onClick={this.back.bind(this)}>{'Back'}</a>
+            </div>
             <Grid item xs={12} className={selectedTx.schedule ? classes.hidden : classes.initContainer}>
                 <Grid container>
                     <Grid item xs={12}>
@@ -236,44 +269,57 @@ class ViewStreamContainer extends React.Component {
                     </Grid>
                 </Grid>
             </Grid>
-            <Grid item xs={12} className={selectedTx.schedule ? classes.progressContainer : classes.hidden}>
-                <div className={classes.progress}>
-                      <CircularProgress
-                        variant="static"
-                        value={100}
-                        className={classes.progressTop}
-                        size={250}
-                        thickness={2}
-                      />
-                      <CircularProgress
-                        variant="static"
-                        className={classes.progressMiddle}
-                        size={250}
-                        value={Number(availablePercentage)}
-                        thickness={2}
-                      />
-                      <CircularProgress
-                        variant="static"
-                        className={classes.progressBottom}
-                        size={250}
-                        value={Number(0.1)}
-                        thickness={2}
-                      />
-                </div>
-                <div className={classes.progressText}>
-                    <div>
-                        <p className={classes.totalStreamed}>
-                            <b>{selectedTx.amount} BTC</b>
+            <div>
+                <Grid item xs={12} className={selectedTx.schedule ? classes.progressContainer : classes.hidden}>
+                    <div className={classes.progress}>
+                          <CircularProgress
+                            variant="static"
+                            value={100}
+                            className={classes.progressTop}
+                            size={250}
+                            thickness={2}
+                          />
+                          <CircularProgress
+                            variant="static"
+                            className={classes.progressMiddle}
+                            size={250}
+                            value={Number(availablePercentage)}
+                            thickness={2}
+                          />
+                          <CircularProgress
+                            variant="static"
+                            className={classes.progressBottom}
+                            size={250}
+                            value={Number(amountClaimedPercentage)}
+                            thickness={2}
+                          />
+                    </div>
+                    <div className={classes.progressText}>
+                        <div>
+                            <p className={classes.totalStreamed}>
+                                <b>{selectedTx.amount} BTC</b>
+                            </p>
+                        </div>
+                        <p>
+                            <b>{amountClaimed} / <CountUp start={availableAmount} end={selectedTx.amount} duration={remaingDuration} decimals={6}>{availableAmount}</CountUp> BTC</b>
+                        </p>
+                        <p>
+                            <span>claimed</span>
                         </p>
                     </div>
-                    <p>
-                        <b>0.000000 / {availableAmount} BTC</b>
-                    </p>
-                    <p>
-                        <span>claimed</span>
-                    </p>
-                </div>
-            </Grid>
+                </Grid>
+                <Grid item xs={12} className={classes.claimButton}>
+                    <Button disabled={false}
+                        className={''}
+                        variant='outlined'
+                        color='primary'
+                        onClick={() => {
+                            claim.bind(this)(selectedTx)
+                        }}>
+                        Claim BTC
+                    </Button>
+                </Grid>
+            </div>
         </React.Fragment>
     }
 }
