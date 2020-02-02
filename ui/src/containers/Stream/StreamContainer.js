@@ -30,7 +30,8 @@ import {
     initMonitoring,
     initInstantMonitoring,
     removeTx,
-    initInstantSwap
+    initInstantSwap,
+    recoverStreams
 } from '../../utils/txUtils'
 
 import ViewStream from './ViewStreamContainer'
@@ -114,7 +115,8 @@ const styles = () => ({
   },
   divider: {
       marginTop: theme.spacing(3),
-      marginBottom: theme.spacing(3)
+      marginBottom: theme.spacing(3),
+      backgroundColor: '#999999'
   },
   desc: {
       marginBottom: theme.spacing(4),
@@ -154,6 +156,10 @@ const styles = () => ({
       '& span': {
         fontSize: 12
       }
+  },
+  searchLink: {
+      fontSize: 12,
+      minWidth: 80
   }
 })
 
@@ -241,7 +247,8 @@ class StreamContainer extends React.Component {
     }
 
     viewTx(tx) {
-        const { store } =  this.props
+        const { store } =  this.props 
+
         store.set('stream.selectedTx', tx)
         store.set('stream.activeView', 'view-stream')
     }
@@ -263,6 +270,7 @@ class StreamContainer extends React.Component {
         const transactions = store.get('stream.transactions')
         const activeView = store.get('stream.activeView')
         const selectedTx = store.get('stream.selectedTx')
+        const searchAddress = store.get('stream.searchAddress')
 
         // const disabled = amount < 0.0001 || !address
         const disabled = false
@@ -304,7 +312,29 @@ class StreamContainer extends React.Component {
                         <Grid item xs={12} className={classes.swapButtonContainer}>
                             <Button disabled={disabled} className={classes.swapButton} variant='outlined' color='primary' onClick={this.start.bind(this)}>Start Stream</Button>
                         </Grid>
-                        {transactions && transactions.length ? <Divider className={classes.divider} /> : null}
+
+                        <Divider className={classes.divider} />
+
+                        <Grid item xs={12} className={classes.swapButtonContainer}>
+                            <TextField
+                                className={classNames(classes.input, classes.address)}
+                                variant='outlined'
+                                size='small'
+                                placeholder='Search by Destination Address'
+                                onChange={e => {
+                                    store.set('stream.searchAddress', e.target.value)
+                                }}
+                                InputProps={{
+                                    endAdornment: <InputAdornment
+                                        className={classes.searchLink}
+                                        position="end">
+                                            <a href='javascript:;' onClick={() => {
+                                                recoverStreams.bind(this)(searchAddress)
+                                            }}>Get Streams</a>
+                                        </InputAdornment>
+                                }}/>
+                        </Grid>
+
                         <Grid item xs={12} className={classes.unfinished}>
                             {transactions && transactions.length ? transactions.map((tx, index) => {
                                 return <Grid key={index}
@@ -324,14 +354,18 @@ class StreamContainer extends React.Component {
                                         {tx.awaiting === 'eth-settle' ? <span>
                                             {`Submitting to Ethereum`}
                                         </span> : null}
-                                        {!tx.awaiting ? `Streaming in progress` : null}
+                                        {!tx.awaiting ? <span>{`Streaming in progress`}<Ellipsis /></span> : null}
                                         {tx.awaiting === 'btc-init' || tx.error || !tx.awaiting ? <div>
+                                            <a href='javascript:;' className={classes.viewLink} onClick={() => (this.viewTx.bind(this)(tx))}>
+                                                View
+                                            </a>
+
                                             {tx.txHash ? <a className={classes.viewLink} target='_blank' href={'https://kovan.etherscan.io/tx/'+tx.txHash}>View transaction</a> : null}
+
                                             {tx.awaiting ? <a href='javascript:;' onClick={() => {
                                                 removeTx(store, tx)
-                                            }}>Cancel</a> : <a href='javascript:;' className={classes.viewLink} onClick={() => (this.viewTx.bind(this)(tx))}>
-                                                View
-                                            </a>}</div> : null}
+                                            }}>Cancel</a> : null}
+                                        </div> : null}
                                     </Grid>
                                 </Grid>
                             }) : null}

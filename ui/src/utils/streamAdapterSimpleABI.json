@@ -1,115 +1,14 @@
 [
 	{
-		"constant": false,
-		"inputs": [
-			{
-				"internalType": "bytes",
-				"name": "_beneficiary",
-				"type": "bytes"
-			},
-			{
-				"internalType": "uint256",
-				"name": "_startTime",
-				"type": "uint256"
-			},
-			{
-				"internalType": "uint16",
-				"name": "_duration",
-				"type": "uint16"
-			},
-			{
-				"internalType": "uint256",
-				"name": "_amount",
-				"type": "uint256"
-			},
-			{
-				"internalType": "bytes32",
-				"name": "_nHash",
-				"type": "bytes32"
-			},
-			{
-				"internalType": "bytes",
-				"name": "_sig",
-				"type": "bytes"
-			}
-		],
-		"name": "addVestingSchedule",
-		"outputs": [],
-		"payable": false,
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"constant": false,
-		"inputs": [
-			{
-				"internalType": "bytes",
-				"name": "_to",
-				"type": "bytes"
-			}
-		],
-		"name": "claim",
-		"outputs": [],
-		"payable": false,
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"constant": false,
-		"inputs": [
-			{
-				"internalType": "bytes",
-				"name": "context",
-				"type": "bytes"
-			},
-			{
-				"internalType": "bool",
-				"name": "success",
-				"type": "bool"
-			},
-			{
-				"internalType": "uint256",
-				"name": "actualCharge",
-				"type": "uint256"
-			},
-			{
-				"internalType": "bytes32",
-				"name": "preRetVal",
-				"type": "bytes32"
-			}
-		],
-		"name": "postRelayedCall",
-		"outputs": [],
-		"payable": false,
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"constant": false,
-		"inputs": [
-			{
-				"internalType": "bytes",
-				"name": "context",
-				"type": "bytes"
-			}
-		],
-		"name": "preRelayedCall",
-		"outputs": [
-			{
-				"internalType": "bytes32",
-				"name": "",
-				"type": "bytes32"
-			}
-		],
-		"payable": false,
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
 		"inputs": [
 			{
 				"internalType": "contract ShifterRegistry",
 				"name": "_registry",
+				"type": "address"
+			},
+			{
+				"internalType": "address",
+				"name": "_owner",
 				"type": "address"
 			}
 		],
@@ -135,6 +34,11 @@
 		],
 		"name": "RelayHubChanged",
 		"type": "event"
+	},
+	{
+		"payable": true,
+		"stateMutability": "payable",
+		"type": "fallback"
 	},
 	{
 		"constant": true,
@@ -203,12 +107,52 @@
 		"type": "function"
 	},
 	{
-		"constant": true,
+		"constant": false,
 		"inputs": [
 			{
 				"internalType": "bytes",
-				"name": "_to",
+				"name": "_beneficiary",
 				"type": "bytes"
+			},
+			{
+				"internalType": "uint256",
+				"name": "_startTime",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint16",
+				"name": "_duration",
+				"type": "uint16"
+			},
+			{
+				"internalType": "uint256",
+				"name": "_amount",
+				"type": "uint256"
+			},
+			{
+				"internalType": "bytes32",
+				"name": "_nHash",
+				"type": "bytes32"
+			},
+			{
+				"internalType": "bytes",
+				"name": "_sig",
+				"type": "bytes"
+			}
+		],
+		"name": "addVestingSchedule",
+		"outputs": [],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "_id",
+				"type": "uint256"
 			}
 		],
 		"name": "calculateClaimable",
@@ -229,6 +173,21 @@
 		"type": "function"
 	},
 	{
+		"constant": false,
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "_id",
+				"type": "uint256"
+			}
+		],
+		"name": "claim",
+		"outputs": [],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
 		"constant": true,
 		"inputs": [],
 		"name": "getHubAddr",
@@ -237,6 +196,58 @@
 				"internalType": "address",
 				"name": "",
 				"type": "address"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [],
+		"name": "getSchedules",
+		"outputs": [
+			{
+				"components": [
+					{
+						"internalType": "uint256",
+						"name": "id",
+						"type": "uint256"
+					},
+					{
+						"internalType": "bytes",
+						"name": "beneficiary",
+						"type": "bytes"
+					},
+					{
+						"internalType": "uint256",
+						"name": "startTime",
+						"type": "uint256"
+					},
+					{
+						"internalType": "uint16",
+						"name": "duration",
+						"type": "uint16"
+					},
+					{
+						"internalType": "uint256",
+						"name": "amount",
+						"type": "uint256"
+					},
+					{
+						"internalType": "uint256",
+						"name": "minutesClaimed",
+						"type": "uint256"
+					},
+					{
+						"internalType": "uint256",
+						"name": "amountClaimed",
+						"type": "uint256"
+					}
+				],
+				"internalType": "struct Vesting.VestingSchedule[]",
+				"name": "",
+				"type": "tuple[]"
 			}
 		],
 		"payable": false,
@@ -256,6 +267,57 @@
 		],
 		"payable": false,
 		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": false,
+		"inputs": [
+			{
+				"internalType": "bytes",
+				"name": "context",
+				"type": "bytes"
+			},
+			{
+				"internalType": "bool",
+				"name": "success",
+				"type": "bool"
+			},
+			{
+				"internalType": "uint256",
+				"name": "actualCharge",
+				"type": "uint256"
+			},
+			{
+				"internalType": "bytes32",
+				"name": "preRetVal",
+				"type": "bytes32"
+			}
+		],
+		"name": "postRelayedCall",
+		"outputs": [],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"constant": false,
+		"inputs": [
+			{
+				"internalType": "bytes",
+				"name": "context",
+				"type": "bytes"
+			}
+		],
+		"name": "preRelayedCall",
+		"outputs": [
+			{
+				"internalType": "bytes32",
+				"name": "",
+				"type": "bytes32"
+			}
+		],
+		"payable": false,
+		"stateMutability": "nonpayable",
 		"type": "function"
 	},
 	{
@@ -292,9 +354,9 @@
 		"constant": true,
 		"inputs": [
 			{
-				"internalType": "bytes",
+				"internalType": "uint256",
 				"name": "",
-				"type": "bytes"
+				"type": "uint256"
 			}
 		],
 		"name": "schedules",
@@ -303,6 +365,11 @@
 				"internalType": "uint256",
 				"name": "id",
 				"type": "uint256"
+			},
+			{
+				"internalType": "bytes",
+				"name": "beneficiary",
+				"type": "bytes"
 			},
 			{
 				"internalType": "uint256",
@@ -328,27 +395,6 @@
 				"internalType": "uint256",
 				"name": "amountClaimed",
 				"type": "uint256"
-			}
-		],
-		"payable": false,
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"constant": true,
-		"inputs": [
-			{
-				"internalType": "uint256",
-				"name": "",
-				"type": "uint256"
-			}
-		],
-		"name": "schedulesToBeneficiaries",
-		"outputs": [
-			{
-				"internalType": "bytes",
-				"name": "",
-				"type": "bytes"
 			}
 		],
 		"payable": false,

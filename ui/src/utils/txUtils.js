@@ -48,20 +48,77 @@ export const txExists = function(tx) {
     return this.props.store.get('transactions').filter(t => t.id === tx.id).length > 0
 }
 
+export const getStreams = async function() {
+    // console.log('search', destAddress)
+    const { store }  = this.props
+    const web3 = store.get('web3')
+    // const web3Context = store.get('web3Context')
+    const adapterAddress = store.get('stream.adapterAddress')
+    const adapterContract = new web3.eth.Contract(streamAdapterABI, adapterAddress)
+    console.log(adapterContract)
+    window.adapter = adapterContract
+    const schedules = await adapterContract.methods.getSchedules().call()
+    console.log(schedules)
+    return schedules
+}
+
+export const recoverStreams = async function(destAddress) {
+    const { store } = this.props
+    const web3 = store.get('web3')
+    const schedules = await getStreams.bind(this)()
+    const beneficiary = web3.utils.fromAscii(destAddress)
+
+    schedules.map(s => {
+        console.log(s.beneficiary)
+        if (s.beneficiary === beneficiary) {
+            const amount = new BigNumber(s.amount)
+            const tx = {
+                id: 'tx-' + Math.random().toFixed(6),
+                type: 'stream',
+                instant: false,
+                awaiting: '',
+                source: 'btc',
+                dest: 'eth',
+                destAddress,
+                amount: amount.div(10 ** 8).toNumber(),
+                startTime: s.startTime,
+                duration: s.duration,
+                error: false,
+                txHash: '',
+                schedule: s
+            }
+
+            addTx(store, tx)
+        } else {
+            // show no results ui
+        }
+    })
+}
+
+// make this better
 export const updateStreamInfo = async function(tx) {
     const { store } =  this.props
     const web3 = store.get('web3')
     const adapterAddress = store.get('stream.adapterAddress')
+    const { startTime, destAddress } = tx
 
     const adapterContract = new web3.eth.Contract(streamAdapterABI, adapterAddress)
-    const dest = tx.params.contractParams[0].value
 
-    const schedule = await adapterContract.methods.schedules(dest).call()
-    console.log(adapterContract, schedule)
+    const beneficiary = web3.utils.fromAscii(destAddress)
+    const schedules = await getStreams.bind(this)()
 
-    updateTx(store, Object.assign(tx, {
-        schedule
-    }))
+    const schedule = schedules.filter(s => (
+        Number(s.startTime) === Number(startTime) &&
+        s.beneficiary === beneficiary
+    ))[0]
+
+    console.log('updateStreamInfo', schedules, schedule)
+
+    if (schedule) {
+        updateTx(store, Object.assign(tx, {
+            schedule
+        }))
+    }
 }
 
 export const claim = async function(tx) {
@@ -70,7 +127,7 @@ export const claim = async function(tx) {
     const web3Context = store.get('web3Context')
 
     const adapterAddress = store.get('stream.adapterAddress')
-    const { params } = tx
+    const { destAddress, schedule } = tx
 
     const adapterContract = new web3.eth.Contract(streamAdapterABI, adapterAddress)
     const gasPrice = await web3Context.lib.eth.getGasPrice()
@@ -79,11 +136,11 @@ export const claim = async function(tx) {
 
     try {
         const result = await adapterContract.methods.claim(
-            params.contractParams[0].value
+            schedule.id
         ).send({
             from: web3Context.accounts[0],
             gasPrice: Math.round(gasPrice * 1.5),
-            gasLimit: 200000
+            gasLimit: 300000
         })
         console.log('result', result)
         updateStreamInfo.bind(this)(tx)
@@ -341,26 +398,12 @@ export const initMonitoring = function() {
     const txs = store.get('swap.transactions').concat(store.get('stream.transactions'))
     console.log('initMonitoring', txs)
     txs.map(tx => {
-        // if (tx.type === 'stream') return
         if (tx.awaiting) {
             initDeposit.bind(this)(tx)
         } else if (tx.type === 'stream') {
             updateStreamInfo.bind(this)(tx)
         }
     })
-
-    // const transactions = store.get('swap.transactions').concat(store.get('stream.transactions'))
-    // const pending = transactions.filter(t => (t.awaiting))
-    // pending.map(p => {
-    //     initDeposit.bind(this)(p)
-    // })
-    //
-    // console.log('initMonitoring', transactions)
-    //
-    // // streams
-    // transactions.filter(t => (!t.awaiting && t.type === 'stream')).map(s => {
-    //     updateStreamInfo.bind(this)(s)
-    // })
 }
 
 export default {

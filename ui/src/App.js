@@ -28,14 +28,14 @@ const initialState = {
     'amount': '',
     'address': '',
     // streaming
-    'stream.adapterAddress': '0x0860983E8A3fd15848BCFb294076F4301b03926E',
+    'stream.adapterAddress': '0x49ADDF7Cae3552C3f6991b6931DbcfAc28E11846',
     'stream.transactions': [],
     'stream.amount': '',
     'stream.destination': '',
     'stream.duration': '',
     'stream.activeView': 'start',
-    'stream.selectedTx': null
-
+    'stream.selectedTx': null,
+    'stream.searchAddress': ''
 }
 
 const AppWrapper = withStore(function(props) {

@@ -11,7 +11,7 @@ import InputAdornment from '@material-ui/core/InputAdornment';
 import CountUp from 'react-countup';
 import Button from '@material-ui/core/Button';
 
-import { claim } from '../../utils/txUtils'
+import { claim, updateStreamInfo } from '../../utils/txUtils'
 
 const styles = () => ({
     progress: {
@@ -37,6 +37,7 @@ const styles = () => ({
     },
     progressContainer: {
         position: 'relative',
+        // paddingTop: theme.spacing(3),
         marginBottom: theme.spacing(4)
     },
     progressText: {
@@ -100,12 +101,17 @@ const styles = () => ({
         display: 'none'
     },
     initContainer: {
-      '& a': {
-        fontSize: 12
-      }
+        // paddingTop: theme.spacing(3),
+        '& a': {
+            fontSize: 12
+        }
     },
     backLink: {
-        fontSize: 12
+        fontSize: 12,
+        marginBottom: theme.spacing(3)
+    },
+    loadingContianer: {
+        // paddingTop: theme.spacing(3)
     }
 })
 
@@ -113,6 +119,8 @@ class ViewStreamContainer extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
+            loaded: false,
+            totalClaimable: '',
             amountClaimed: '',
             amountClaimedPercentage: '',
             availableAmount: '',
@@ -124,8 +132,13 @@ class ViewStreamContainer extends React.Component {
         this.mounted = false
     }
 
-    componentDidMount() {
+    async componentDidMount() {
         const { selectedTx } = this.props
+        await updateStreamInfo.bind(this)(selectedTx)
+        this.setState({
+            loaded: true
+        })
+
         const schedule = selectedTx.schedule
 
         if (this.initAddressRef.current) {
@@ -135,9 +148,9 @@ class ViewStreamContainer extends React.Component {
         if (schedule) {
             const start = Number(schedule.startTime)
             const end = Number(schedule.startTime) + (Number(schedule.duration * 60))
-            const amount = selectedTx.amount
+            const totalClaimable = (schedule.amount / (10 ** 8)).toFixed(6)
             const amountClaimed = (schedule.amountClaimed / (10 ** 8)).toFixed(6)
-            const amountClaimedPercentage = (amountClaimed / amount).toFixed(1) * 100
+            const amountClaimedPercentage = (amountClaimed / totalClaimable).toFixed(1) * 100
 
             this.interval = setInterval(() => {
                 const now = Math.floor(Date.now() / 1000)
@@ -149,7 +162,7 @@ class ViewStreamContainer extends React.Component {
                 } else if (start > 0){
                     availablePercentage = Number((((now - start) / period) * 100).toFixed(1))
                 }
-                const availableAmount = ((availablePercentage / 100) * amount).toFixed(6)
+                const availableAmount = ((availablePercentage / 100) * totalClaimable).toFixed(6)
                 const remaingDuration = end - now
 
 
@@ -157,6 +170,7 @@ class ViewStreamContainer extends React.Component {
 
                 if (!this.mounted) {
                     this.setState({
+                        totalClaimable,
                         amountClaimed,
                         amountClaimedPercentage,
                         availableAmount,
@@ -202,6 +216,8 @@ class ViewStreamContainer extends React.Component {
         } = this.props
 
         const {
+            loaded,
+            totalClaimable,
             amountClaimed,
             amountClaimedPercentage,
             availableAmount,
@@ -215,99 +231,119 @@ class ViewStreamContainer extends React.Component {
             <div className={classes.backLink}>
                 <a href='javascript:;' onClick={this.back.bind(this)}>{'Back'}</a>
             </div>
-            <Grid item xs={12} className={selectedTx.schedule ? classes.hidden : classes.initContainer}>
-                <Grid container>
-                    <Grid item xs={12}>
-                        <div className={classes.spinner}>
-                              <CircularProgress
-                                variant="determinate"
-                                value={100}
-                                className={classes.spinnerTop}
-                                size={24}
-                                thickness={4}
-                              />
-                              <CircularProgress
-                                variant="indeterminate"
-                                disableShrink
-                                className={classes.spinnerBottom}
-                                size={24}
-                                thickness={4}
-                              />
-                        </div>
-                    </Grid>
-                    <Grid item xs={12} className={classes.awaitingStatus}>
-                        <span></span>
-                        {selectedTx.awaiting === 'btc-init' ? <span>
-                            {`Waiting for ${selectedTx.amount} BTC transaction to be initiated to the address below`}
-                        </span> : null}
-                        {selectedTx.awaiting === 'ren-settle' ? <span>
-                            {`Submitting to RenVM`}
-                        </span> : null}
-                        {selectedTx.awaiting === 'eth-settle' ? <span>
-                            {`Submitting to Ethereum`}
-                        </span> : null}
-                        {!selectedTx.awaiting ? `Deposit complete` : null}
+            {!loaded ? <Grid item xs={12} className={classes.loadingContianer}>
+                <div className={classes.spinner}>
+                      <CircularProgress
+                        variant="determinate"
+                        value={100}
+                        className={classes.spinnerTop}
+                        size={24}
+                        thickness={4}
+                      />
+                      <CircularProgress
+                        variant="indeterminate"
+                        disableShrink
+                        className={classes.spinnerBottom}
+                        size={24}
+                        thickness={4}
+                      />
+                </div>
+            </Grid> :
+            <React.Fragment>
+                <Grid item xs={12} className={selectedTx.schedule ? classes.hidden : classes.initContainer}>
+                    <Grid container>
+                        <Grid item xs={12}>
+                            <div className={classes.spinner}>
+                                  <CircularProgress
+                                    variant="determinate"
+                                    value={100}
+                                    className={classes.spinnerTop}
+                                    size={24}
+                                    thickness={4}
+                                  />
+                                  <CircularProgress
+                                    variant="indeterminate"
+                                    disableShrink
+                                    className={classes.spinnerBottom}
+                                    size={24}
+                                    thickness={4}
+                                  />
+                            </div>
+                        </Grid>
+                        <Grid item xs={12} className={classes.awaitingStatus}>
+                            <span></span>
+                            {selectedTx.awaiting === 'btc-init' ? <span>
+                                {`Waiting for ${selectedTx.amount} BTC transaction to be initiated to the address below`}
+                            </span> : null}
+                            {selectedTx.awaiting === 'ren-settle' ? <span>
+                                {`Submitting to RenVM`}
+                            </span> : null}
+                            {selectedTx.awaiting === 'eth-settle' ? <span>
+                                {`Submitting to Ethereum`}
+                            </span> : null}
+                            {!selectedTx.awaiting ? `Deposit complete` : null}
 
-                    </Grid>
-                    <Grid item xs={12} onClick={() => {}}>
-                        <TextField className={classNames(classes.input, classes.address)}
-                            variant='outlined'
-                            size='small'
-                            placeholder='Deposit Address'
-                            inputRef={this.initAddressRef}
-                            InputProps={{
-                                endAdornment: <InputAdornment className={classes.endAdornment} position="end">COPY</InputAdornment>
-                            }}/>
-                    </Grid>
-                    <Grid item xs={12}>
-                        <Grid container justify='center'>
-                            {selectedTx.awaiting === 'btc-init' || selectedTx.error || !selectedTx.awaiting ? <div className={classes.cancelLink}>
-                                {selectedTx.txHash ? <a className={classes.viewLink} target='_blank' href={'https://kovan.etherscan.io/tx/'+selectedTx.txHash}>View transaction</a> : null}
-                                <a href='javascript:;' onClick={this.back.bind(this)}>{'Back'}</a></div> : null}
-                            {/*<span  onClick={() => store.set('activeStreamView', 'start')}>Cancel</span>*/}
+                        </Grid>
+                        <Grid item xs={12} onClick={() => {}}>
+                            <TextField className={classNames(classes.input, classes.address)}
+                                variant='outlined'
+                                size='small'
+                                placeholder='Deposit Address'
+                                inputRef={this.initAddressRef}
+                                InputProps={{
+                                    endAdornment: <InputAdornment className={classes.endAdornment} position="end">COPY</InputAdornment>
+                                }}/>
+                        </Grid>
+                        <Grid item xs={12}>
+                            <Grid container justify='center'>
+                                {selectedTx.awaiting === 'btc-init' || selectedTx.error || !selectedTx.awaiting ? <div className={classes.cancelLink}>
+                                    {selectedTx.txHash ? <a className={classes.viewLink} target='_blank' href={'https://kovan.etherscan.io/tx/'+selectedTx.txHash}>View transaction</a> : null}
+                                </div> : null}
+                                {/*<span  onClick={() => store.set('activeStreamView', 'start')}>Cancel</span>*/}
+                            </Grid>
                         </Grid>
                     </Grid>
                 </Grid>
-            </Grid>
-            <div>
-                <Grid item xs={12} className={selectedTx.schedule ? classes.progressContainer : classes.hidden}>
-                    <div className={classes.progress}>
-                          <CircularProgress
-                            variant="static"
-                            value={100}
-                            className={classes.progressTop}
-                            size={250}
-                            thickness={2}
-                          />
-                          <CircularProgress
-                            variant="static"
-                            className={classes.progressMiddle}
-                            size={250}
-                            value={Number(availablePercentage)}
-                            thickness={2}
-                          />
-                          <CircularProgress
-                            variant="static"
-                            className={classes.progressBottom}
-                            size={250}
-                            value={Number(amountClaimedPercentage)}
-                            thickness={2}
-                          />
-                    </div>
-                    <div className={classes.progressText}>
-                        <div>
-                            <p className={classes.totalStreamed}>
-                                <b>{selectedTx.amount} BTC</b>
+                <div className={selectedTx.schedule && loaded ? classes.progressContainer : classes.hidden}>
+                    <Grid item xs={12}>
+                        <div className={classes.progress}>
+                              <CircularProgress
+                                variant="static"
+                                value={100}
+                                className={classes.progressTop}
+                                size={250}
+                                thickness={2}
+                              />
+                              <CircularProgress
+                                variant="static"
+                                className={classes.progressMiddle}
+                                size={250}
+                                value={Number(availablePercentage)}
+                                thickness={2}
+                              />
+                              <CircularProgress
+                                variant="static"
+                                className={classes.progressBottom}
+                                size={250}
+                                value={Number(amountClaimedPercentage)}
+                                thickness={2}
+                              />
+                        </div>
+                        <div className={classes.progressText}>
+                            <div>
+                                <p className={classes.totalStreamed}>
+                                    <b>{selectedTx.amount} BTC</b>
+                                </p>
+                            </div>
+                            <p>
+                                <b>{amountClaimed} / <CountUp start={availableAmount} end={selectedTx.amount} duration={remaingDuration} decimals={6}>{availableAmount}</CountUp> BTC</b>
+                            </p>
+                            <p>
+                                <span>claimed</span>
                             </p>
                         </div>
-                        <p>
-                            <b>{amountClaimed} / <CountUp start={availableAmount} end={selectedTx.amount} duration={remaingDuration} decimals={6}>{availableAmount}</CountUp> BTC</b>
-                        </p>
-                        <p>
-                            <span>claimed</span>
-                        </p>
-                    </div>
-                </Grid>
+                    </Grid>
+                </div>
                 <Grid item xs={12} className={classes.claimButton}>
                     <Button disabled={false}
                         className={''}
@@ -319,7 +355,7 @@ class ViewStreamContainer extends React.Component {
                         Claim BTC
                     </Button>
                 </Grid>
-            </div>
+            </React.Fragment>}
         </React.Fragment>
     }
 }
