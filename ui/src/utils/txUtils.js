@@ -132,7 +132,7 @@ export const claim = async function(tx) {
     const adapterContract = new web3.eth.Contract(streamAdapterABI, adapterAddress)
     const gasPrice = await web3Context.lib.eth.getGasPrice()
 
-    console.log('claiming tx', tx)
+    console.log('claiming tx', tx, schedule, schedule.id)
 
     try {
         const result = await adapterContract.methods.claim(

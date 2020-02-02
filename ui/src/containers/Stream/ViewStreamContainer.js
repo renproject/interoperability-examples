@@ -332,7 +332,7 @@ class ViewStreamContainer extends React.Component {
                         <div className={classes.progressText}>
                             <div>
                                 <p className={classes.totalStreamed}>
-                                    <b>{selectedTx.amount} BTC</b>
+                                    <b>{totalClaimable} BTC</b>
                                 </p>
                             </div>
                             <p>

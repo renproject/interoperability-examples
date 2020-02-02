@@ -247,7 +247,7 @@ class StreamContainer extends React.Component {
     }
 
     viewTx(tx) {
-        const { store } =  this.props 
+        const { store } =  this.props
 
         store.set('stream.selectedTx', tx)
         store.set('stream.activeView', 'view-stream')
@@ -267,17 +267,18 @@ class StreamContainer extends React.Component {
 
         const amount = store.get('stream.amount')
         const address = store.get('stream.address')
+        const duration = store.get('stream.duration')
         const transactions = store.get('stream.transactions')
         const activeView = store.get('stream.activeView')
         const selectedTx = store.get('stream.selectedTx')
         const searchAddress = store.get('stream.searchAddress')
 
-        // const disabled = amount < 0.0001 || !address
-        const disabled = false
+        const disabled = amount < 0.00011 || !address || !duration
+        // const disabled = false
 
         return <Grid container>
             <Grid item xs={12} className={classes.contentContainer}>
-                <Grid container direction='column'>
+                <Grid container direction='row'>
                     {activeView === 'start' && <React.Fragment>
                         <Grid className={classes.desc} item xs={12}>
                             <span >Continously Stream Testnet BTC</span>
@@ -313,8 +314,9 @@ class StreamContainer extends React.Component {
                             <Button disabled={disabled} className={classes.swapButton} variant='outlined' color='primary' onClick={this.start.bind(this)}>Start Stream</Button>
                         </Grid>
 
-                        <Divider className={classes.divider} />
-
+                        <Grid item xs={12}>
+                            <Divider className={classes.divider} />
+                        </Grid>
                         <Grid item xs={12} className={classes.swapButtonContainer}>
                             <TextField
                                 className={classNames(classes.input, classes.address)}
@@ -371,9 +373,11 @@ class StreamContainer extends React.Component {
                             }) : null}
                         </Grid>
                     </React.Fragment>}
-                    {activeView === 'view-stream' && <React.Fragment>
-                        <ViewStream selectedTx={selectedTx} />
-                    </React.Fragment>}
+                    {activeView === 'view-stream' && <Grid container direction='column'>
+                        <Grid item xs={12}>
+                            <ViewStream selectedTx={selectedTx} />
+                        </Grid>
+                    </Grid>}
                 </Grid>
             </Grid>
 
