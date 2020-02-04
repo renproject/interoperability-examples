@@ -7,6 +7,10 @@ import { withStyles } from '@material-ui/styles';
 import Input from '@material-ui/core/Input';
 import TextField from '@material-ui/core/TextField';
 import Grid from '@material-ui/core/Grid';
+import CircularProgress from '@material-ui/core/CircularProgress';
+
+import StreamTransactionStatus from './StreamTransactionStatus'
+import { calculateStreamProgress } from '../utils/txUtils'
 
 const styles = () => ({
     depositItem: {
@@ -16,6 +20,38 @@ const styles = () => ({
     depositStatus: {
         display: 'flex',
         justifyContent: 'space-between'
+    },
+    links: {
+        '& a': {
+            marginLeft: theme.spacing(1),
+        },
+    },
+    progress: {
+        position: 'relative',
+        marginRight: theme.spacing(1),
+        width: 18,
+        height: 18
+        // marginBottom: theme.spacing(2)
+    },
+    progressTop: {
+        color: '#eee',
+    },
+    progressMiddle: {
+        color: '#63ccff78',
+        animationDuration: '550ms',
+        position: 'absolute',
+        left: 0,
+    },
+    progressBottom: {
+        color: '#039BE5',
+        animationDuration: '550ms',
+        position: 'absolute',
+        left: 0,
+    },
+    progressContainer: {
+        position: 'relative',
+        // paddingTop: theme.spacing(3),
+        marginBottom: theme.spacing(4)
     },
 })
 
@@ -28,38 +64,61 @@ const StreamTransaction = function(props) {
             onView,
             onCancel
         } = props
+
+        const {
+            schedule
+        } = tx
+
+        const {
+            totalClaimablePercentrage,
+            amountClaimedPercentage
+        } = calculateStreamProgress(tx)
+
         return <Grid key={index}
                   container
                   direction='row'
                   className={classes.depositItem}>
-            <Grid item xs={3}>
-                {tx.amount} BTC
+            <Grid item xs={4}>
+                <Grid container alignItems='center'>
+                    <div className={classes.progress}>
+                          <CircularProgress
+                            variant="static"
+                            value={100}
+                            className={classes.progressTop}
+                            size={18}
+                            thickness={4}
+                          />
+                          <CircularProgress
+                            variant="static"
+                            className={classes.progressMiddle}
+                            size={18}
+                            value={totalClaimablePercentrage}
+                            thickness={4}
+                          />
+                          <CircularProgress
+                            variant="static"
+                            className={classes.progressBottom}
+                            size={18}
+                            value={amountClaimedPercentage}
+                            thickness={4}
+                          />
+                    </div>
+                    <span>{tx.amount} BTC</span>
+                </Grid>
             </Grid>
-            <Grid className={classes.depositStatus} item xs={9}>
-                {tx.awaiting === 'btc-init' ? <span>
-                    {`Waiting for ${tx.instant ? '0' : '2'} confirmations to`}{` ${tx.renBtcAddress}`}
-                </span> : null}
-                {tx.awaiting === 'btc-settle' ? <span>
-                    {`${tx.btcConfirmations}/${'2'} confirmations complete to`}<br />{` ${tx.renBtcAddress}`}
-                </span> : null}
-                {tx.awaiting === 'ren-settle' ? <span>
-                    {`Submitting to RenVM`}
-                </span> : null}
-                {tx.awaiting === 'eth-settle' ? <span>
-                    {`Submitting to Ethereum`}
-                </span> : null}
-                {!tx.awaiting ? <span>{`Streaming in progress`}</span> : null}
-                {tx.awaiting === 'btc-init' || tx.error || !tx.awaiting ? <div>
+            <Grid className={classes.depositStatus} item xs={8}>
+                <StreamTransactionStatus tx={tx} />
+                <div className={classes.links}>
                     <a href='javascript:;' className={classes.viewLink} onClick={() => (onView(tx))}>
                         View
                     </a>
 
-                    {tx.txHash ? <a className={classes.viewLink} target='_blank' href={'https://kovan.etherscan.io/tx/'+tx.txHash}>View transaction</a> : null}
+                    {/*tx.txHash ? <a className={classes.viewLink} target='_blank' href={'https://kovan.etherscan.io/tx/'+tx.txHash}>View transaction</a> : null*/}
 
-                    {tx.awaiting ? <a href='javascript:;' onClick={() => {
+                    {/*tx.awaiting === 'btc-init' || tx.error ? <a href='javascript:;' onClick={() => {
                         onCancel(tx)
-                    }}>Cancel</a> : null}
-                </div> : null}
+                    }}>Cancel</a> : null*/}
+                </div>
             </Grid>
         </Grid>
     // }

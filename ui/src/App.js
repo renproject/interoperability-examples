@@ -35,7 +35,8 @@ const initialState = {
     'stream.duration': '',
     'stream.activeView': 'start',
     'stream.selectedTx': null,
-    'stream.searchAddress': ''
+    'stream.searchAddress': '',
+    'stream.claimRequesting': false
 }
 
 const AppWrapper = withStore(function(props) {

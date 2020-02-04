@@ -232,12 +232,14 @@ class StreamContainer extends React.Component {
             instant: false,
             awaiting: 'btc-init',
             btcConfirmations: 0,
+            btcTxHash: '',
             destAddress: address,
             amount: amount,
             startTime,
             duration,
             error: false,
-            txHash: ''
+            txHash: '',
+            claimTransactions: []
         }
 
         store.set('stream.selectedTx', tx)
@@ -259,11 +261,7 @@ class StreamContainer extends React.Component {
             store
         } = this.props
 
-        const {
-            adapterAddress,
-        } = store.getState()
-
-        console.log(store.getState())
+        // console.log(store.getState())
 
         const amount = store.get('stream.amount')
         const address = store.get('stream.address')
@@ -272,6 +270,7 @@ class StreamContainer extends React.Component {
         const activeView = store.get('stream.activeView')
         const selectedTx = store.get('stream.selectedTx')
         const searchAddress = store.get('stream.searchAddress')
+        const adapterAddress = store.get('stream.adapterAddress')
 
         const disabled = amount < 0.00011 || !address || !duration
         // const disabled = false
@@ -364,19 +363,16 @@ class StreamContainer extends React.Component {
                     <b className={classes.caption}>How it Works</b>
                     <br/>
                     <br/>
-                    This exchange uses <a target='_blank' href='https://renproject.io/'>RenVM</a>, <a target='_blank' href='https://uniswap.io/'>Uniswap</a>, and Open Zeppelin's <a target='_blank' href='https://gsn.openzeppelin.com/'>GSN</a> to facilitate trustless interoperabilty between Bitcoin and Ethereum. All swaps abstract ETH away from the user with the <b>GaaS pattern</b>, and faster swaps are faciliated using the <b>CaaS pattern</b>. To learn more, check out our interoperability tutorials below:
+                    This exchange uses <a target='_blank' href='https://renproject.io/'>RenVM</a> and Open Zeppelin's <a target='_blank' href='https://gsn.openzeppelin.com/'>GSN</a> to facilitate trustless interoperabilty between Bitcoin and Ethereum. Active streams are held in a smart contract that allows anyone to shift out a valid amount of earned BTC to the recipient BTC address at any time.
                 </p>
-                <ul>
-                    <li><a target='_blank' href={'https://docs.renproject.io/developers/tutorials'}>GaaS Tutorial</a> | Gas-less transactions</li>
-                    <li><a target='_blank' href={'https://docs.renproject.io/developers/tutorials'}>CaaS tutorial</a> | Faster swaps via expedited confirmations</li>
-                </ul>
                 <p>
-                    Swaps are submitted to the following adapter address: <a target='_blank' href={'https://kovan.etherscan.io/address/'+adapterAddress}>{adapterAddress}</a>
+                    Streams are facilitated through the following adapter address: <a target='_blank' href={'https://kovan.etherscan.io/address/'+adapterAddress}>{adapterAddress}</a>
                 </p>
                 <p>
                     To learn more about building interoperable applications like this with RenVM, check out our <a target='_blank' href='https://renproject.io/developers'>developer center</a> or the following links:
                 </p>
                 <ul>
+                    <li><a target='_blank' href={'https://docs.renproject.io/developers/tutorials'}>Bitcoin Payments Tutorial</a> | Scheduled Bitcoin Payments</li>
                     <li><a target='_blank' href={'https://docs.renproject.io/developers/ren-sdk'}>Getting started with RenJS</a></li>
                     <li><a target='_blank' href={'https://docs.renproject.io/developers/gateway-js'}>Getting started with GatewayJS</a></li>
                     <li><a target='_blank' href={'https://github.com/renproject/ren/wiki'}>Github Spec</a></li>

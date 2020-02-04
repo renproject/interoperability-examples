@@ -3,9 +3,12 @@ import adapterABI from './exchangeAdapterSimpleABI.json'
 import streamAdapterABI from './streamAdapterSimpleABI.json'
 import BigNumber from 'bignumber.js'
 
-// const API_URL = ''
-const API_URL = 'http://localhost:3000'
+// export const API_URL = ''
+export const API_URL = 'http://localhost:3000'
+export const MIN_CLAIM_AMOUNT = 0.0001
+
 let swapMonitor = null
+
 
 export const addTx = (store, tx) => {
     const storeString = tx.type === 'swap' ? 'swap.transactions' : 'stream.transactions'
@@ -95,6 +98,30 @@ export const recoverStreams = async function(destAddress) {
     })
 }
 
+export const calculateStreamProgress = function(tx) {
+    const schedule = tx.schedule
+    let totalClaimablePercentrage = 0
+    let amountClaimedPercentage = 0
+
+    if (schedule) {
+        const start = Number(schedule.startTime)
+        const now = Math.floor(Date.now() / 1000)
+        const end = Number(schedule.startTime) + (Number(schedule.duration * 60))
+        const period = end - start
+        if (now > end) {
+            totalClaimablePercentrage = 100
+        } else {
+            totalClaimablePercentrage = Number((((now - start) / period) * 100).toFixed(1))
+        }
+        amountClaimedPercentage = Number(((schedule.amountClaimed / schedule.amount) * 100).toFixed(1))
+    }
+
+    return {
+        totalClaimablePercentrage,
+        amountClaimedPercentage
+    }
+}
+
 // make this better
 export const updateStreamInfo = async function(tx) {
     const { store } =  this.props
@@ -112,12 +139,20 @@ export const updateStreamInfo = async function(tx) {
         s.beneficiary === beneficiary
     ))[0]
 
-    console.log('updateStreamInfo', schedules, schedule)
-
-    if (schedule) {
-        updateTx(store, Object.assign(tx, {
-            schedule
-        }))
+    if (schedule && schedule.beneficiary) {
+        console.log('updateStreamInfo', schedules, schedule)
+        const sched = {
+            id: schedule.id,
+            beneficiary: schedule.beneficiary,
+            startTime: schedule.startTime,
+            duration: schedule.duration,
+            amount: schedule.amount,
+            amountClaimed: schedule.amountClaimed,
+            minutesClaimed: schedule.minutesClaimed
+        }
+        let newTx = Object.assign(tx, {})
+        newTx.schedule = sched
+        updateTx(store, newTx)
     }
 }
 
@@ -128,6 +163,15 @@ export const claim = async function(tx) {
 
     const adapterAddress = store.get('stream.adapterAddress')
     const { destAddress, schedule } = tx
+
+    store.set('stream.claimRequesting', true)
+
+    const {
+        totalClaimablePercentrage,
+        amountClaimedPercentage
+    } = calculateStreamProgress(tx)
+
+    const claimAmount = (((totalClaimablePercentrage - amountClaimedPercentage) / 100) * tx.amount).toFixed(6)
 
     const adapterContract = new web3.eth.Contract(streamAdapterABI, adapterAddress)
     const gasPrice = await web3Context.lib.eth.getGasPrice()
@@ -140,12 +184,24 @@ export const claim = async function(tx) {
         ).send({
             from: web3Context.accounts[0],
             gasPrice: Math.round(gasPrice * 1.5),
-            gasLimit: 300000
+            gasLimit: 250000
+        }).on('transactionHash', (hash) => {
+            updateTx(store, Object.assign(tx, {
+                claimTransactions: tx.claimTransactions.concat([{
+                    timestamp: Date.now(),
+                    amount: claimAmount,
+                    txHash: hash
+                }])
+            }))
+            store.set('stream.claimRequesting', false)
+        }).on('confirmation', (confirmationNumber, receipt) => {
+            console.log('receipt', receipt)
+            updateStreamInfo.bind(this)(tx)
         })
         console.log('result', result)
-        updateStreamInfo.bind(this)(tx)
     } catch(e) {
         console.log(e)
+        store.set('stream.claimRequesting', false)
     }
 }
 
@@ -338,11 +394,13 @@ export const initDeposit = async function(tx) {
                     if (awaiting === 'btc-init') {
                         updateTx(store, Object.assign(tx, {
                             awaiting: 'btc-settle',
-                            btcConfirmations: dep.utxo.confirmations
+                            btcConfirmations: dep.utxo.confirmations,
+                            btcTxHash: dep.utxo.txid
                         }))
                     } else {
                         updateTx(store, Object.assign(tx, {
-                            btcConfirmations: dep.utxo.confirmations
+                            btcConfirmations: dep.utxo.confirmations,
+                            btcTxHash: dep.utxo.txid
                         }))
                     }
                 }

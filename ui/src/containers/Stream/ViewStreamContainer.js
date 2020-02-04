@@ -10,8 +10,17 @@ import TextField from '@material-ui/core/TextField';
 import InputAdornment from '@material-ui/core/InputAdornment';
 import CountUp from 'react-countup';
 import Button from '@material-ui/core/Button';
+import Divider from '@material-ui/core/Divider';
 
-import { claim, updateStreamInfo } from '../../utils/txUtils'
+import {
+    claim,
+    updateStreamInfo,
+    removeTx,
+    calculateStreamProgress,
+    MIN_CLAIM_AMOUNT
+} from '../../utils/txUtils'
+import StreamTransactionStatus from '../../components/StreamTransactionStatus'
+import ClaimStreamTransaction from '../../components/ClaimStreamTransaction'
 
 const styles = () => ({
     progress: {
@@ -82,7 +91,10 @@ const styles = () => ({
     claimButton: {
         // margin: '0px auto'
         textAlign: 'center',
-        paddingBottom: theme.spacing(3)
+        paddingBottom: theme.spacing(3),
+        '& span': {
+            fontSize: 12
+        }
     },
     input: {
         marginBottom: theme.spacing(2),
@@ -112,7 +124,23 @@ const styles = () => ({
     },
     loadingContianer: {
         // paddingTop: theme.spacing(3)
-    }
+    },
+    depositAddress: {
+        fontSize: 12,
+        textAlign: 'center',
+        '& span': {
+            paddingBottom: theme.spacing(1)
+        }
+    },
+    address: {
+        minWidth: 300,
+        width: 'auto'
+    },
+    divider: {
+        marginTop: theme.spacing(3),
+        marginBottom: theme.spacing(3),
+        backgroundColor: '#999999'
+    },
 })
 
 class ViewStreamContainer extends React.Component {
@@ -225,6 +253,16 @@ class ViewStreamContainer extends React.Component {
             remaingDuration
         } = this.state
 
+        const {
+            totalClaimablePercentrage,
+            // amountClaimedPercentage
+        } = calculateStreamProgress(selectedTx)
+
+        const claimableAmount = selectedTx.schedule ? Number((selectedTx.schedule.amount * ((totalClaimablePercentrage - amountClaimedPercentage)/100)) / (10 ** 8)) : 0
+
+        const { claimTransactions } = selectedTx
+        const claimRequesting = store.get('stream.claimRequesting')
+
         // console.log(this.state, this.props)
 
         return <React.Fragment>
@@ -271,28 +309,36 @@ class ViewStreamContainer extends React.Component {
                             </div>
                         </Grid>
                         <Grid item xs={12} className={classes.awaitingStatus}>
-                            <span></span>
-                            {selectedTx.awaiting === 'btc-init' ? <span>
-                                {`Waiting for ${selectedTx.amount} BTC transaction to be initiated to the address below`}
-                            </span> : null}
-                            {selectedTx.awaiting === 'ren-settle' ? <span>
-                                {`Submitting to RenVM`}
-                            </span> : null}
-                            {selectedTx.awaiting === 'eth-settle' ? <span>
-                                {`Submitting to Ethereum`}
-                            </span> : null}
-                            {!selectedTx.awaiting ? `Deposit complete` : null}
+                            <StreamTransactionStatus tx={selectedTx} />
+                            {(selectedTx.awaiting === 'btc-init' || selectedTx.error) &&
+                                <p><a href='javascript:;'
+                                    className={classes.cancelLink}
+                                    onClick={() => {
+                                        removeTx(store, selectedTx)
+                                        store.set('stream.selectedTx', null)
+                                        store.set('stream.activeView', 'start')
+                                    }}>
+                                    Cancel
+                                </a></p>}
 
+                            {selectedTx.awaiting === 'btc-settle' && <p><a target='_blank' href={`https://live.blockcypher.com/btc-testnet/tx/${selectedTx.btcTxHash}`}
+                                className={classes.cancelLink}>
+                                View pending transaction
+                            </a></p>}
                         </Grid>
                         <Grid item xs={12} onClick={() => {}}>
-                            <TextField className={classNames(classes.input, classes.address)}
-                                variant='outlined'
-                                size='small'
-                                placeholder='Deposit Address'
-                                inputRef={this.initAddressRef}
-                                InputProps={{
-                                    endAdornment: <InputAdornment className={classes.endAdornment} position="end">COPY</InputAdornment>
-                                }}/>
+                            <Grid container justify='center'>
+                                {selectedTx.awaiting === 'btc-init' && <div className={classes.depositAddress}>
+                                    <p><span>{`Send ${selectedTx.amount} BTC to the following address:`}</span></p>
+                                    <TextField className={classNames(classes.input, classes.address)}
+                                        label={''}
+                                        variant='outlined'
+                                        size='small'
+                                        placeholder='Deposit Address'
+                                        inputRef={this.initAddressRef}/>
+                                </div>}
+                            </Grid>
+
                         </Grid>
                         <Grid item xs={12}>
                             <Grid container justify='center'>
@@ -344,8 +390,8 @@ class ViewStreamContainer extends React.Component {
                         </div>
                     </Grid>
                 </div>
-                <Grid item xs={12} className={classes.claimButton}>
-                    <Button disabled={false}
+                <Grid item xs={12} className={selectedTx.schedule && loaded ?classes.claimButton : classes.hidden}>
+                    {claimableAmount > MIN_CLAIM_AMOUNT ? <Button disabled={claimRequesting}
                         className={''}
                         variant='outlined'
                         color='primary'
@@ -353,7 +399,21 @@ class ViewStreamContainer extends React.Component {
                             claim.bind(this)(selectedTx)
                         }}>
                         Claim BTC
-                    </Button>
+                    </Button> : <span>{totalClaimablePercentrage < 100 ? `Minimum claim amount is ${MIN_CLAIM_AMOUNT} BTC` : 'All available funds claimed'}</span>}
+                </Grid>
+                {claimTransactions.length ? <Grid item xs={12}>
+                    <Divider className={classes.divider} />
+                </Grid> : null}
+                <Grid item xs={12} className={selectedTx.schedule && loaded ? classes.claimTransactions : classes.hidden}>
+                    {claimTransactions && claimTransactions.length ? claimTransactions.map((tx, index) => {
+                        return <ClaimStreamTransaction
+                            tx={tx}
+                            index={index}
+                            onView={t => {
+                            }}
+                            onCancel={t => {
+                            }}/>
+                    }) : null}
                 </Grid>
             </React.Fragment>}
         </React.Fragment>
