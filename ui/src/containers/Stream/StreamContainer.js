@@ -35,6 +35,7 @@ import {
 } from '../../utils/txUtils'
 
 import ViewStream from './ViewStreamContainer'
+import StreamTransaction from '../../components/StreamTransaction'
 
 const REACT_APP_TX_FEE = 100;
 const signKey = ephemeral();
@@ -230,8 +231,7 @@ class StreamContainer extends React.Component {
             type: 'stream',
             instant: false,
             awaiting: 'btc-init',
-            source: 'btc',
-            dest: 'eth',
+            btcConfirmations: 0,
             destAddress: address,
             amount: amount,
             startTime,
@@ -339,37 +339,15 @@ class StreamContainer extends React.Component {
 
                         <Grid item xs={12} className={classes.unfinished}>
                             {transactions && transactions.length ? transactions.map((tx, index) => {
-                                return <Grid key={index}
-                                          container
-                                          direction='row'
-                                          className={classes.depositItem}>
-                                    <Grid item xs={3}>
-                                        {tx.amount} BTC
-                                    </Grid>
-                                    <Grid className={classes.depositStatus} item xs={9}>
-                                        {tx.awaiting === 'btc-init' ? <span>
-                                            {`Waiting for ${tx.instant ? '0' : '2'} confirmations to`}<Ellipsis/>{` ${tx.renBtcAddress}`}
-                                        </span> : null}
-                                        {tx.awaiting === 'ren-settle' ? <span>
-                                            {`Submitting to RenVM`}
-                                        </span> : null}
-                                        {tx.awaiting === 'eth-settle' ? <span>
-                                            {`Submitting to Ethereum`}
-                                        </span> : null}
-                                        {!tx.awaiting ? <span>{`Streaming in progress`}<Ellipsis /></span> : null}
-                                        {tx.awaiting === 'btc-init' || tx.error || !tx.awaiting ? <div>
-                                            <a href='javascript:;' className={classes.viewLink} onClick={() => (this.viewTx.bind(this)(tx))}>
-                                                View
-                                            </a>
-
-                                            {tx.txHash ? <a className={classes.viewLink} target='_blank' href={'https://kovan.etherscan.io/tx/'+tx.txHash}>View transaction</a> : null}
-
-                                            {tx.awaiting ? <a href='javascript:;' onClick={() => {
-                                                removeTx(store, tx)
-                                            }}>Cancel</a> : null}
-                                        </div> : null}
-                                    </Grid>
-                                </Grid>
+                                return <StreamTransaction
+                                    tx={tx}
+                                    index={index}
+                                    onView={t => {
+                                        this.viewTx.bind(this)(t)
+                                    }}
+                                    onCancel={t => {
+                                        removeTx(store, t)
+                                    }}/>
                             }) : null}
                         </Grid>
                     </React.Fragment>}

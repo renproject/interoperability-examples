@@ -294,7 +294,14 @@ export const initShiftIn = function(tx) {
 
 export const initDeposit = async function(tx) {
     const { store }  = this.props
-    const { params, awaiting, renResponse, renSignature, error } = tx
+    const {
+        params,
+        awaiting,
+        renResponse,
+        renSignature,
+        error,
+        btcConfirmations
+    } = tx
 
     console.log('initDeposit', tx)
 
@@ -323,7 +330,23 @@ export const initDeposit = async function(tx) {
         }
 
         // wait for btc
-        const deposit = await shiftIn.waitForDeposit(2);
+        const deposit = await shiftIn
+            .waitForDeposit(2)
+            .on("deposit", dep => {
+                console.log('on deposit', dep)
+                if (dep.utxo) {
+                    if (awaiting === 'btc-init') {
+                        updateTx(store, Object.assign(tx, {
+                            awaiting: 'btc-settle',
+                            btcConfirmations: dep.utxo.confirmations
+                        }))
+                    } else {
+                        updateTx(store, Object.assign(tx, {
+                            btcConfirmations: dep.utxo.confirmations
+                        }))
+                    }
+                }
+            })
 
         updateTx(store, Object.assign(tx, { awaiting: 'ren-settle' }))
 
