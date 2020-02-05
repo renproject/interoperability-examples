@@ -179,7 +179,7 @@ export const claim = async function(tx) {
         ).send({
             from: web3Context.accounts[0],
             gasPrice: Math.round(gasPrice * 1.5),
-            gasLimit: 250000
+            gasLimit: 150000
         }).on('transactionHash', (hash) => {
             updateTx(store, Object.assign(tx, {
                 claimTransactions: tx.claimTransactions.concat([{
