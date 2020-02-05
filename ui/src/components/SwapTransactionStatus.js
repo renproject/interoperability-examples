@@ -13,7 +13,7 @@ const StreamTransactionStatus = function(props) {
 
     return <React.Fragment>
             {tx.awaiting === 'btc-init' ? <span>
-                {`Waiting for BTC transaction to be intitated `}<br />{`${tx.renBtcAddress}`}
+                {`Waiting for BTC transaction to be initiated `}<br />{`${tx.renBtcAddress}`}
             </span> : null}
             {tx.awaiting === 'btc-settle' ? <span>
                 {`BTC transaction confirming (${tx.btcConfirmations}/${'2'} complete)`}
