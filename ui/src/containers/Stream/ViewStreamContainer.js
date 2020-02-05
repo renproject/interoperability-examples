@@ -141,8 +141,11 @@ const styles = () => ({
         marginBottom: theme.spacing(3),
         backgroundColor: '#999999'
     },
+    claims: {
+    }
 })
 
+// clean up logic in this component
 class ViewStreamContainer extends React.Component {
     constructor(props) {
         super(props);
@@ -157,6 +160,7 @@ class ViewStreamContainer extends React.Component {
         }
         this.initAddressRef = React.createRef()
         this.interval = null
+        this.scheduleInterval = null
         this.mounted = false
     }
 
@@ -167,12 +171,29 @@ class ViewStreamContainer extends React.Component {
             loaded: true
         })
 
-        const schedule = selectedTx.schedule
-
         if (this.initAddressRef.current) {
             this.initAddressRef.current.value = selectedTx.renBtcAddress
         }
 
+        this.calculateStats()
+    }
+
+    componentWillUnmount() {
+        if (this.interval) {
+            clearInterval(this.interval)
+        }
+
+        if (this.scheduleInterval) {
+            clearInterval(this.scheduleInterval)
+        }
+    }
+
+    componentDidUpdate() {
+    }
+
+    calculateStats() {
+        const { selectedTx } = this.props
+        const schedule = selectedTx.schedule
         if (schedule) {
             const start = Number(schedule.startTime)
             const end = Number(schedule.startTime) + (Number(schedule.duration * 60))
@@ -180,6 +201,7 @@ class ViewStreamContainer extends React.Component {
             const amountClaimed = (schedule.amountClaimed / (10 ** 8)).toFixed(6)
             const amountClaimedPercentage = (amountClaimed / totalClaimable).toFixed(1) * 100
 
+            // animation
             this.interval = setInterval(() => {
                 const now = Math.floor(Date.now() / 1000)
                 const period = end - start
@@ -212,28 +234,19 @@ class ViewStreamContainer extends React.Component {
                     })
                 }
             }, 10);
+
+            // update schedule data
+            this.scheduleInterval = setInterval(() => {
+                updateStreamInfo.bind(this)(selectedTx)
+            }, (1000 * 10))
         }
-
-    }
-
-    componentWillUnmount() {
-        if (this.interval) {
-            clearInterval(this.interval)
-        }
-    }
-
-    componentDidUpdate() {
-        const { selectedTx } = this.props
-    }
-
-    monitorStream() {
     }
 
     back() {
         const { store } = this.props
         store.set('stream.activeView', 'start')
         store.set('stream.selectedTx', null)
-        console.log('back')
+        // console.log('back')
     }
 
     render() {
@@ -254,8 +267,7 @@ class ViewStreamContainer extends React.Component {
         } = this.state
 
         const {
-            totalClaimablePercentrage,
-            // amountClaimedPercentage
+            totalClaimablePercentrage
         } = calculateStreamProgress(selectedTx)
 
         const claimableAmount = selectedTx.schedule ? Number((selectedTx.schedule.amount * ((totalClaimablePercentrage - amountClaimedPercentage)/100)) / (10 ** 8)) : 0
@@ -263,7 +275,7 @@ class ViewStreamContainer extends React.Component {
         const { claimTransactions } = selectedTx
         const claimRequesting = store.get('stream.claimRequesting')
 
-        // console.log(this.state, this.props)
+        // console.log(availableAmount, claimableAmount)
 
         return <React.Fragment>
             <div className={classes.backLink}>
@@ -398,13 +410,13 @@ class ViewStreamContainer extends React.Component {
                         onClick={() => {
                             claim.bind(this)(selectedTx)
                         }}>
-                        Claim BTC
+                        Claim {claimableAmount.toFixed(6)} BTC
                     </Button> : <span>{totalClaimablePercentrage < 100 ? `Minimum claim amount is ${MIN_CLAIM_AMOUNT} BTC` : 'All available funds claimed'}</span>}
                 </Grid>
                 {claimTransactions.length ? <Grid item xs={12}>
                     <Divider className={classes.divider} />
                 </Grid> : null}
-                <Grid item xs={12} className={selectedTx.schedule && loaded ? classes.claimTransactions : classes.hidden}>
+                <div className={selectedTx.schedule && loaded ? classes.claimTransactions : classes.hidden}>
                     {claimTransactions && claimTransactions.length ? claimTransactions.map((tx, index) => {
                         return <ClaimStreamTransaction
                             tx={tx}
@@ -414,7 +426,7 @@ class ViewStreamContainer extends React.Component {
                             onCancel={t => {
                             }}/>
                     }) : null}
-                </Grid>
+                </div>
             </React.Fragment>}
         </React.Fragment>
     }

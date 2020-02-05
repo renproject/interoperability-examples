@@ -13,10 +13,11 @@ import StreamTransactionStatus from './StreamTransactionStatus'
 import { calculateStreamProgress } from '../utils/txUtils'
 
 const styles = () => ({
-    depositItem: {
+    claimItem: {
         fontSize: 12,
         marginBottom: theme.spacing(1),
-        display: 'flex'
+        display: 'flex',
+        width: '100%'
     },
     depositStatus: {
         display: 'flex',
@@ -67,8 +68,7 @@ const ClaimStreamTransaction = function(props) {
         classes,
     } = props
 
-    return <div key={index}><Grid
-              className={classes.depositItem}>
+    return <Grid className={classes.claimItem} key={index}>
         <Grid item xs={4}>
             <Grid container alignItems='center'>
                 <span>{tx.amount} BTC</span>
@@ -84,7 +84,7 @@ const ClaimStreamTransaction = function(props) {
                 <span>{(new Date(tx.timestamp).toLocaleString())}</span>
             </div>
         </Grid>
-    </Grid></div>
+    </Grid>
 }
 
 export default withStyles(styles)(ClaimStreamTransaction);

@@ -3,10 +3,9 @@ import adapterABI from './exchangeAdapterSimpleABI.json'
 import streamAdapterABI from './streamAdapterSimpleABI.json'
 import BigNumber from 'bignumber.js'
 
-// export const API_URL = ''
-export const API_URL = 'http://localhost:3000'
+export const API_URL = ''
+// export const API_URL = 'http://localhost:3000'
 export const MIN_CLAIM_AMOUNT = 0.0001
-
 let swapMonitor = null
 
 
@@ -58,10 +57,10 @@ export const getStreams = async function() {
     // const web3Context = store.get('web3Context')
     const adapterAddress = store.get('stream.adapterAddress')
     const adapterContract = new web3.eth.Contract(streamAdapterABI, adapterAddress)
-    console.log(adapterContract)
+    // console.log(adapterContract)
     window.adapter = adapterContract
     const schedules = await adapterContract.methods.getSchedules().call()
-    console.log(schedules)
+    // console.log(schedules)
     return schedules
 }
 
@@ -72,7 +71,7 @@ export const recoverStreams = async function(destAddress) {
     const beneficiary = web3.utils.fromAscii(destAddress)
 
     schedules.map(s => {
-        console.log(s.beneficiary)
+        // console.log(s.beneficiary)
         if (s.beneficiary === beneficiary) {
             const amount = new BigNumber(s.amount)
             const tx = {
@@ -140,7 +139,7 @@ export const updateStreamInfo = async function(tx) {
     ))[0]
 
     if (schedule && schedule.beneficiary) {
-        console.log('updateStreamInfo', schedules, schedule)
+        // console.log('updateStreamInfo', schedules, schedule)
         const sched = {
             id: schedule.id,
             beneficiary: schedule.beneficiary,
@@ -176,7 +175,7 @@ export const claim = async function(tx) {
     const adapterContract = new web3.eth.Contract(streamAdapterABI, adapterAddress)
     const gasPrice = await web3Context.lib.eth.getGasPrice()
 
-    console.log('claiming tx', tx, schedule, schedule.id)
+    // console.log('claiming tx', tx, schedule, schedule.id)
 
     try {
         const result = await adapterContract.methods.claim(
@@ -195,10 +194,10 @@ export const claim = async function(tx) {
             }))
             store.set('stream.claimRequesting', false)
         }).on('confirmation', (confirmationNumber, receipt) => {
-            console.log('receipt', receipt)
+            // console.log('receipt', receipt)
             updateStreamInfo.bind(this)(tx)
         })
-        console.log('result', result)
+        // console.log('result', result)
     } catch(e) {
         console.log(e)
         store.set('stream.claimRequesting', false)
@@ -224,7 +223,7 @@ export const completeDeposit = async function(tx) {
 
     updateTx(store, Object.assign(tx, { awaiting: 'eth-settle' }))
 
-    console.log('completeDeposit', tx)
+    // console.log('completeDeposit', tx)
 
     try {
         let result
@@ -256,7 +255,7 @@ export const completeDeposit = async function(tx) {
         }
         updateTx(store, Object.assign(tx, { awaiting: '', txHash: result.transactionHash }))
     } catch(e) {
-        console.log(e)
+        // console.log(e)
         updateTx(store, Object.assign(tx, { error: true }))
     }
 }
@@ -359,7 +358,7 @@ export const initDeposit = async function(tx) {
         btcConfirmations
     } = tx
 
-    console.log('initDeposit', tx)
+    // console.log('initDeposit', tx)
 
     // completed
     if (!awaiting) return
@@ -376,7 +375,7 @@ export const initDeposit = async function(tx) {
         // create or re-create shift in
         const shiftIn = await initShiftIn.bind(this)(tx)
 
-        console.log('initDeposit shiftin', shiftIn)
+        // console.log('initDeposit shiftin', shiftIn)
 
         if (!params) {
             addTx(store, Object.assign(tx, {
@@ -389,7 +388,7 @@ export const initDeposit = async function(tx) {
         const deposit = await shiftIn
             .waitForDeposit(2)
             .on("deposit", dep => {
-                console.log('on deposit', dep)
+                // console.log('on deposit', dep)
                 if (dep.utxo) {
                     if (awaiting === 'btc-init') {
                         updateTx(store, Object.assign(tx, {
@@ -477,7 +476,7 @@ export const initMonitoring = function() {
     const store = this.props.store
 
     const txs = store.get('swap.transactions').concat(store.get('stream.transactions'))
-    console.log('initMonitoring', txs)
+    // console.log('initMonitoring', txs)
     txs.map(tx => {
         if (tx.awaiting) {
             initDeposit.bind(this)(tx)

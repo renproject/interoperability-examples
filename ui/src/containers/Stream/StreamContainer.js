@@ -350,7 +350,7 @@ class StreamContainer extends React.Component {
                             }) : null}
                         </Grid>
                     </React.Fragment>}
-                    {activeView === 'view-stream' && <Grid container direction='column'>
+                    {activeView === 'view-stream' && <Grid container direction='row'>
                         <Grid item xs={12}>
                             <ViewStream selectedTx={selectedTx} />
                         </Grid>
