@@ -183,9 +183,9 @@ class ViewStreamContainer extends React.Component {
             clearInterval(this.interval)
         }
 
-        if (this.scheduleInterval) {
-            clearInterval(this.scheduleInterval)
-        }
+        // if (this.scheduleInterval) {
+        //     clearInterval(this.scheduleInterval)
+        // }
     }
 
     componentDidUpdate() {
@@ -235,10 +235,10 @@ class ViewStreamContainer extends React.Component {
                 }
             }, 10);
 
-            // update schedule data
-            this.scheduleInterval = setInterval(() => {
-                updateStreamInfo.bind(this)(selectedTx)
-            }, (1000 * 10))
+            // // update schedule data
+            // this.scheduleInterval = setInterval(() => {
+            //     updateStreamInfo.bind(this)(selectedTx)
+            // }, (1000 * 10))
         }
     }
 

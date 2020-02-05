@@ -23,10 +23,10 @@ const initialState = {
     'selectedActionTab': 'exchange',
     // exchange
     'swap.transactions': [],
-    'adapterAddress': '0xade8792c3ee90320cabde200ccab34b27cc88651',
-    'instantSwapSelected': false,
-    'amount': '',
-    'address': '',
+    'swap.adapterAddress': '0xade8792c3ee90320cabde200ccab34b27cc88651',
+    'swap.instantSwapSelected': false,
+    'swap.amount': '',
+    'swap.address': '',
     // streaming
     'stream.adapterAddress': '0x49ADDF7Cae3552C3f6991b6931DbcfAc28E11846',
     'stream.transactions': [],

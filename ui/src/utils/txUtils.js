@@ -46,10 +46,6 @@ export const removeTx = (store, tx) => {
     window[storeString] = txs
 }
 
-export const txExists = function(tx) {
-    return this.props.store.get('transactions').filter(t => t.id === tx.id).length > 0
-}
-
 export const getStreams = async function() {
     // console.log('search', destAddress)
     const { store }  = this.props
@@ -214,7 +210,7 @@ export const completeDeposit = async function(tx) {
 
     let adapterContract
     if (type === 'swap') {
-        adapterContract = new web3.eth.Contract(adapterABI, store.get('adapterAddress'))
+        adapterContract = new web3.eth.Contract(adapterABI, store.get('swap.adapterAddress'))
     } else if (type === 'stream') {
         adapterContract = new web3.eth.Contract(streamAdapterABI, store.get('stream.adapterAddress'))
     }
@@ -282,7 +278,7 @@ export const initShiftIn = function(tx) {
     let contractParams = []
 
     if (type === 'swap') {
-        adapterAddress = this.props.store.get('adapterAddress')
+        adapterAddress = this.props.store.get('swap.adapterAddress')
         contractFn = 'shiftInWithSwap'
         contractParams = [
             {
@@ -425,29 +421,25 @@ export const initInstantSwap = async function(tx) {
     const { store }  = this.props
     const { params, awaiting, renResponse, renSignature, error } = tx
 
-    // async getGateway() {
-        const {
-            amount,
-            address
-        } = this.props.store.getState()
+    const address = store.get('swap.address')
+    const amount = store.get('swap.amount')
 
-
-        const request = await fetch(`${API_URL}/swap-gateway/create`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                sourceAmount: amount,
-                sourceAsset: 'BTC',
-                destinationAsset: 'ETH',
-                destinationAddress: address
-            })
+    const request = await fetch(`${API_URL}/swap-gateway/create`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            sourceAmount: amount,
+            sourceAsset: 'BTC',
+            destinationAsset: 'ETH',
+            destinationAddress: address
         })
-        const data = await request.json()
-        addTx(store, Object.assign(tx, {
-            renBtcAddress: data.gatewayAddress
-        }))
+    })
+    const data = await request.json()
+    addTx(store, Object.assign(tx, {
+        renBtcAddress: data.gatewayAddress
+    }))
 }
 
 export const initInstantMonitoring = function() {
@@ -478,7 +470,7 @@ export const initMonitoring = function() {
     const txs = store.get('swap.transactions').concat(store.get('stream.transactions'))
     // console.log('initMonitoring', txs)
     txs.map(tx => {
-        if (tx.awaiting) {
+        if (tx.awaiting && !tx.instant) {
             initDeposit.bind(this)(tx)
         } else if (tx.type === 'stream') {
             updateStreamInfo.bind(this)(tx)
@@ -490,7 +482,6 @@ export default {
     addTx,
     updateTx,
     removeTx,
-    txExists,
     completeDeposit,
     initShiftIn,
     initDeposit,

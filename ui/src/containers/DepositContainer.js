@@ -23,6 +23,8 @@ import {
     ephemeral
 } from "@openzeppelin/network/lib";
 
+import SwapTransactionStatus from '../components/SwapTransactionStatus'
+
 import {
     initDeposit,
     initMonitoring,
@@ -227,17 +229,15 @@ class DepositContainer extends React.Component {
 
     async start() {
         const { store } = this.props
-        const amount = store.get('amount')
-        const address = store.get('address')
-        const transactions = store.get('transactions')
+        const amount = store.get('swap.amount')
+        const address = store.get('swap.address')
+        const transactions = store.get('swap.transactions')
 
         const tx = {
             id: 'tx-' + Math.floor(Math.random() * (10 ** 16)),
-            type: 'deposit',
+            type: 'swap',
             instant: false,
             awaiting: 'btc-init',
-            source: 'btc',
-            dest: 'eth',
             destAddress: address,
             amount: amount,
             error: false,
@@ -249,17 +249,15 @@ class DepositContainer extends React.Component {
 
     async startInstant() {
         const { store } = this.props
-        const amount = store.get('amount')
-        const address = store.get('address')
-        const transactions = store.get('transactions')
+        const amount = store.get('swap.amount')
+        const address = store.get('swap.address')
+        const transactions = store.get('swap.transactions')
 
         const tx = {
             id: 'tx-' + Math.floor(Math.random() * (10 ** 16)),
-            type: 'deposit',
+            type: 'swap',
             instant: true,
             awaiting: 'btc-init',
-            source: 'btc',
-            dest: 'eth',
             destAddress: address,
             amount: amount,
             error: false,
@@ -275,14 +273,11 @@ class DepositContainer extends React.Component {
             store
         } = this.props
 
-        const {
-            transactions,
-            adapterAddress,
-            selectedTab,
-            instantSwapSelected,
-            amount,
-            address
-        } = store.getState()
+        const adapterAddress = store.get('swap.adapterAddress')
+        const instantSwapSelected = store.get('swap.instantSwapSelected')
+        const transactions = store.get('swap.transactions')
+        const amount = store.get('swap.amount')
+        const address = store.get('swap.address')
 
         console.log(store.getState())
 
@@ -292,7 +287,7 @@ class DepositContainer extends React.Component {
             {/*<Typography variant={'h1'} className={classes.title}>Kovan ETH – Testnet BTC Exchange</Typography>*/}
 
             <Grid item xs={12} className={classes.contentContainer}>
-                <Grid container direction='column'>
+                <Grid container direction='row'>
                     <Grid className={classes.desc} item xs={12}>
                         <span >Swap Testnet BTC for Kovan ETH</span>
                         <span className={classes.btcLink}>Send testnet BTC from <a target='_blank' href={'https://tbtc.bitaps.com/'}>here</a></span>
@@ -305,7 +300,7 @@ class DepositContainer extends React.Component {
                                     size='small'
                                     placeholder='0.000000'
                                     onChange={e => {
-                                        store.set('amount', e.target.value)
+                                        store.set('swap.amount', e.target.value)
                                     }}
                                     InputProps={{
                                         endAdornment: <InputAdornment className={classes.endAdornment} position="end">BTC</InputAdornment>
@@ -313,7 +308,7 @@ class DepositContainer extends React.Component {
                             </Grid>
                             <Grid item xs={8}>
                                 <TextField className={classNames(classes.input, classes.address)} variant='outlined' size='small' placeholder='Send to ETH Address' onChange={e => {
-                                    store.set('address', e.target.value)
+                                    store.set('swap.address', e.target.value)
                                 }}/>
                             </Grid>
                         </Grid>
@@ -322,13 +317,13 @@ class DepositContainer extends React.Component {
                     <Grid item xs={12} className={classes.switchContainer}>
                         <FormControlLabel control={<Switch checked={instantSwapSelected}
                             color='primary'
-                            onChange={() => store.set('instantSwapSelected', !instantSwapSelected)}
+                            onChange={() => store.set('swap.instantSwapSelected', !instantSwapSelected)}
                             value={"instant"} />} label="Faster swap (0 confirmations, 0.0005 BTC max)" />
                     </Grid>
                     <Grid item xs={12} className={classes.swapButtonContainer}>
                         <Button disabled={disabled} className={classes.swapButton} variant='outlined' color='primary' onClick={instantSwapSelected ? this.startInstant.bind(this) : this.start.bind(this)}>Start Swap</Button>
                     </Grid>
-                    {transactions && transactions.length ? <Divider className={classes.divider} /> : null}
+                    {transactions && transactions.length ? <Grid item xs={12}><Divider className={classes.divider} /></Grid> : null}
                     <Grid item xs={12} className={classes.unfinished}>
                         {transactions && transactions.length ? transactions.map((tx, index) => {
                             return <Grid key={index} container direction='row' className={classes.depositItem}>
@@ -336,21 +331,15 @@ class DepositContainer extends React.Component {
                                     {tx.amount} BTC
                                 </Grid>
                                 <Grid className={classes.depositStatus} item xs={9}>
-                                    {tx.awaiting === 'btc-init' ? <span>
-                                        {`Waiting for ${tx.instant ? '0' : '2'} confirmations to`}<Ellipsis/>{` ${tx.renBtcAddress}`}
-                                    </span> : null}
-                                    {tx.awaiting === 'ren-settle' ? <span>
-                                        {`Submitting to RenVM`}<Ellipsis/>
-                                    </span> : null}
-                                    {tx.awaiting === 'eth-settle' ? <span>
-                                        {`Submitting to Ethereum`}<Ellipsis/>
-                                    </span> : null}
-                                    {!tx.awaiting ? `Deposit complete` : null}
-                                    {tx.awaiting === 'btc-init' || tx.error || !tx.awaiting ? <div>
-                                        {tx.txHash ? <a className={classes.viewLink} target='_blank' href={'https://kovan.etherscan.io/tx/'+tx.txHash}>View transaction</a> : null}
-                                        <a href='javascript:;' onClick={() => {
-                                            removeTx(store, tx)
-                                        }}>{!tx.awaiting ? 'Clear' : 'Cancel'}</a></div> : null}
+                                    <SwapTransactionStatus tx={tx} />
+                                    <div>
+                                        {tx.awaiting === 'btc-settle' ? <a className={classes.viewLink} target='_blank' href={`https://live.blockcypher.com/btc-testnet/tx/${tx.btcTxHash}`}>View transaction</a> : null}
+                                        {tx.awaiting === 'btc-init' || tx.error || !tx.awaiting ? <div>
+                                            {tx.txHash ? <a className={classes.viewLink} target='_blank' href={'https://kovan.etherscan.io/tx/'+tx.txHash}>View transaction</a> : null}
+                                            <a href='javascript:;' onClick={() => {
+                                                removeTx(store, tx)
+                                            }}>{!tx.awaiting ? 'Clear' : 'Cancel'}</a></div> : null}
+                                    </div>
                                 </Grid>
                             </Grid>
                         }) : null}
