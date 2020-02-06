@@ -1,4 +1,4 @@
-const RenJS = require("@renproject/ren");
+const RenJS = require("@renproject/ren").default;
 const Web3 = require("web3");
 const ethers = require('ethers');
 const Tx = require('ethereumjs-tx').Transaction;
@@ -6,6 +6,8 @@ const { fromConnection } = require('@openzeppelin/network/lib')
 
 const express = require('express');
 const router = express.Router();
+
+// console.log(RenJS, typeof RenJS, RenJS.default('testnet'))
 
 // const ren = new RenJS('chaosnet')
 const ren = new RenJS('testnet')
