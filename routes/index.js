@@ -1,4 +1,4 @@
-const RenJS = require("@renproject/ren");
+const RenJS = require("@renproject/ren").default;
 const Web3 = require("web3");
 const ethers = require('ethers');
 const Tx = require('ethereumjs-tx').Transaction;
