@@ -1179,37 +1179,47 @@
     web3-eth-contract "1.2.2"
     web3-utils "1.2.2"
 
-"@renproject/contracts@^0.3.28":
-  version "0.3.29"
-  resolved "https://registry.yarnpkg.com/@renproject/contracts/-/contracts-0.3.29.tgz#7d394b8e6a1d5da96a6c2f796660ac5c4aaa4122"
-  integrity sha512-ysnICgvikMRoV/UfKAEo4VnDC4Qw5VthDobMBMBvjsDUTU6j3yCP9sHs98d7zqVwJhflkPckDuHUH77AunOU6A==
+"@renproject/contracts@^0.3.32":
+  version "0.3.33"
+  resolved "https://registry.yarnpkg.com/@renproject/contracts/-/contracts-0.3.33.tgz#bc98848d83981b66df355e8e54c2e6eb0f2533f7"
+  integrity sha512-ygq/178LHvYbuJRn7ApcawVftlatDAJecp0mPvMnGoM4tpk5TdWjFWFaOogvCy4YZjr8+9ytjaHBWfdAKfXlhg==
   dependencies:
-    darknode-sol "https://github.com/renproject/darknode-sol#3b0d0b88930f7b39d41c60d876de2d59067a8766"
+    darknode-sol "https://github.com/renproject/darknode-sol#58af2b1be7b26e6e53c9a9c90169e30b8f83a3f2"
 
 "@renproject/gateway-js@0.0.1":
   version "0.0.1"
   resolved "https://registry.yarnpkg.com/@renproject/gateway-js/-/gateway-js-0.0.1.tgz#688d270d45357073f1cfd53554f036dbb0340f85"
   integrity sha512-+kBofAsaLSRSNLvt4PFgZGC4wwQOffFvhgJ1mSGggP04Pryw0a8nLPtptDG9UpMIfRLs9lR/NinxFeooIfJLqw==
 
-"@renproject/ren@^0.3.2":
-  version "0.3.2"
-  resolved "https://registry.yarnpkg.com/@renproject/ren/-/ren-0.3.2.tgz#43580fff7fa92335d08d4b1db30de7f96b9f80bd"
-  integrity sha512-iYbN9EmBZNy/NOdLh17jNt8EPIqJ7u4EgU2fa20zkZxX/Z2W+S9O2PixzCKK+lbfNoIdbwa0VipzhcNueE782A==
+"@renproject/ren-js-common@^0.1.2":
+  version "0.1.2"
+  resolved "https://registry.yarnpkg.com/@renproject/ren-js-common/-/ren-js-common-0.1.2.tgz#6711115d119809408848742a0198ae84941341e3"
+  integrity sha512-vpe3iRGHZUqui+8Umkft1wVgX49QGbtP5j7dTT5ydyTmOAS9qR0dzyg69spF83ozIUN2bDT0IzPV2w+bsegUIQ==
   dependencies:
-    "@renproject/contracts" "^0.3.28"
-    "@types/bn.js" "^4.11.5"
-    "@types/bs58" "^4.0.1"
-    "@types/node" "^12.12.21"
-    axios "^0.19.0"
+    "@types/bn.js" "^4.11.6"
     bignumber.js "^9.0.0"
-    bitcore-lib "^8.13.2"
-    bitcore-lib-cash "^8.13.2"
+    events "^3.1.0"
+
+"@renproject/ren@^0.6.0":
+  version "0.6.0"
+  resolved "https://registry.yarnpkg.com/@renproject/ren/-/ren-0.6.0.tgz#4d6973202dbc5a1a7eb8237eb2eb8ac0c8bba687"
+  integrity sha512-tHuO35FYPw8wgxz0kfGcs9K2J1CdEeYpvgoxFqfxUpLRSCeRwB7G4HXLlHQldw+c8AWn7GPzV4YDkaLvHnLDcw==
+  dependencies:
+    "@renproject/contracts" "^0.3.32"
+    "@renproject/ren-js-common" "^0.1.2"
+    "@types/bn.js" "^4.11.6"
+    "@types/bs58" "^4.0.1"
+    "@types/node" "^13.7.0"
+    axios "^0.19.2"
+    bignumber.js "^9.0.0"
+    bitcore-lib "^8.15.0"
+    bitcore-lib-cash "^8.15.0"
     bitcore-lib-zcash zcash-hackworks/bitcore-lib-zcash
-    bn.js "^5.0.0"
+    bn.js "^5.1.1"
     bs58 "^4.0.1"
     ethereumjs-util "^6.2.0"
     immutable "^4.0.0-rc.12"
-    send-crypto "0.1.9"
+    send-crypto "0.1.11"
     sha3 "^2.1.1"
     wallet-address-validator "^0.2.4"
     web3 "^2.0.0-alpha.1"
@@ -1430,7 +1440,7 @@
   dependencies:
     bignumber.js "*"
 
-"@types/bn.js@4.11.6", "@types/bn.js@^4.11.3", "@types/bn.js@^4.11.5":
+"@types/bn.js@4.11.6", "@types/bn.js@^4.11.3", "@types/bn.js@^4.11.6":
   version "4.11.6"
   resolved "https://registry.yarnpkg.com/@types/bn.js/-/bn.js-4.11.6.tgz#c306c70d9358aaea33cd4eda092a742b9505967c"
   integrity sha512-pqr857jrp2kPuO9uRjZ3PwnJTjoQy+fcdxvBTvHm6dkmEL9q+hDD/2j/0ELOBPtPnS8LjCX0gI9nbl8lVkadpg==
@@ -1505,10 +1515,10 @@
   resolved "https://registry.yarnpkg.com/@types/node/-/node-10.14.16.tgz#4d690c96cbb7b2728afea0e260d680501b3da5cf"
   integrity sha512-/opXIbfn0P+VLt+N8DE4l8Mn8rbhiJgabU96ZJ0p9mxOkIks5gh6RUnpHak7Yh0SFkyjO/ODbxsQQPV2bpMmyA==
 
-"@types/node@^12.12.21":
-  version "12.12.24"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-12.12.24.tgz#d4606afd8cf6c609036b854360367d1b2c78931f"
-  integrity sha512-1Ciqv9pqwVtW6FsIUKSZNB82E5Cu1I2bBTj1xuIHXLe/1zYLl3956Nbhg2MzSYHVfl9/rmanjbQIb7LibfCnug==
+"@types/node@^13.7.0":
+  version "13.7.0"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-13.7.0.tgz#b417deda18cf8400f278733499ad5547ed1abec4"
+  integrity sha512-GnZbirvmqZUzMgkFn70c74OQpTTUcCzlhQliTzYjQMqg+hVKcDnxdL19Ne3UdYzdMA/+W3eb646FWn/ZaT1NfQ==
 
 "@types/prop-types@*":
   version "15.7.1"
@@ -2218,6 +2228,13 @@ axios@^0.19.0:
   version "0.19.1"
   resolved "https://registry.yarnpkg.com/axios/-/axios-0.19.1.tgz#8a6a04eed23dfe72747e1dd43c604b8f1677b5aa"
   integrity sha512-Yl+7nfreYKaLRvAvjNPkvfjnQHJM1yLBY3zhqAwcJSwR/6ETkanUgylgtIvkvz0xJ+p/vZuNw8X7Hnb7Whsbpw==
+  dependencies:
+    follow-redirects "1.5.10"
+
+axios@^0.19.2:
+  version "0.19.2"
+  resolved "https://registry.yarnpkg.com/axios/-/axios-0.19.2.tgz#3ea36c5d8818d0d5f8a8a97a6d36b86cdc00cb27"
+  integrity sha512-fjgm5MvRHLhx+osE2xoekY70AhARk3a6hkN+3Io1jc00jtquGvxYlKlsFUhmUET0V5te6CcZI7lcv2Ym61mjHA==
   dependencies:
     follow-redirects "1.5.10"
 
@@ -3002,12 +3019,12 @@ bitcoin-ops@^1.3.0:
   resolved "https://registry.yarnpkg.com/bitcoin-ops/-/bitcoin-ops-1.4.1.tgz#e45de620398e22fd4ca6023de43974ff42240278"
   integrity sha512-pef6gxZFztEhaE9RY9HmWVmiIHqCb2OyS4HPKkpc6CIiiOa3Qmuoylxc5P2EkU3w+5eTSifI9SEZC88idAIGow==
 
-bitcore-lib-cash@^8.13.2:
-  version "8.14.4"
-  resolved "https://registry.yarnpkg.com/bitcore-lib-cash/-/bitcore-lib-cash-8.14.4.tgz#35595d4355b64eeb0839648656b42c24d58d8c5c"
-  integrity sha512-76pGRxgop1zQop1oMmb/IM/EzRwtp9X4AdLwaPWU3LL0JhTXQssKQY6BZ6bDN7pySVs4gMN/gUQoPITwltdYLA==
+bitcore-lib-cash@^8.15.0:
+  version "8.15.0"
+  resolved "https://registry.yarnpkg.com/bitcore-lib-cash/-/bitcore-lib-cash-8.15.0.tgz#359f3a60cda904068f25d1e89548e5775debd9ab"
+  integrity sha512-mLXOg6O0nqWXaJDIAibYWf/38KqoIzh9SRQIBkfm7vKn4ypqUMPB3dNXMTqABzrjxgGjPUw6T0IlyiIj8J//NQ==
   dependencies:
-    bitcore-lib "^8.14.4"
+    bitcore-lib "^8.15.0"
     bn.js "=4.11.8"
     bs58 "^4.0.1"
     buffer-compare "=1.1.1"
@@ -3026,10 +3043,10 @@ bitcore-lib-zcash@zcash-hackworks/bitcore-lib-zcash:
     inherits "=2.0.1"
     lodash "=3.10.1"
 
-bitcore-lib@^8.13.2, bitcore-lib@^8.14.4:
-  version "8.14.4"
-  resolved "https://registry.yarnpkg.com/bitcore-lib/-/bitcore-lib-8.14.4.tgz#61803c446a78f83d4733e55d08a938555cd17ce6"
-  integrity sha512-YkIGObg2CvZ+kIbVtNkLnzMW5PEPPzm+fwjrdzSRwhU5YeuY3VjT+V1ldksGusM7wz5kywFL9KASsiB6NDFj7A==
+bitcore-lib@^8.15.0:
+  version "8.15.0"
+  resolved "https://registry.yarnpkg.com/bitcore-lib/-/bitcore-lib-8.15.0.tgz#5e379120fc833624484443783322e3300dfb757e"
+  integrity sha512-OhAdINElZa/Q63W23xNg+0HZfX0xHOp10UnJygpUZgHv15pRVfgPoyxdMIkQNuH/dBgF9o2Y9h4w2Z7qwqdKHg==
   dependencies:
     bech32 "=1.1.3"
     bn.js "=4.11.8"
@@ -3110,7 +3127,7 @@ bn.js@^2.0.0:
   resolved "https://registry.yarnpkg.com/bn.js/-/bn.js-2.2.0.tgz#12162bc2ae71fc40a5626c33438f3a875cd37625"
   integrity sha1-EhYrwq5x/EClYmwzQ486h1zTdiU=
 
-bn.js@^5.0.0:
+bn.js@^5.0.0, bn.js@^5.1.1:
   version "5.1.1"
   resolved "https://registry.yarnpkg.com/bn.js/-/bn.js-5.1.1.tgz#48efc4031a9c4041b9c99c6941d903463ab62eb5"
   integrity sha512-IUTD/REb78Z2eodka1QZyyEk66pciRcP6Sroka0aI3tG/iwIdYLrBD62RsubR7vqdt3WyX8p4jxeatzmRSphtA==
@@ -4433,9 +4450,9 @@ damerau-levenshtein@^1.0.4:
   resolved "https://registry.yarnpkg.com/damerau-levenshtein/-/damerau-levenshtein-1.0.5.tgz#780cf7144eb2e8dbd1c3bb83ae31100ccc31a414"
   integrity sha512-CBCRqFnpu715iPmw1KrdOrzRqbdFwQTwAWyyyYS42+iAgHCuXZ+/TdMgQkUENPomxEz9z1BEzuQU2Xw0kUuAgA==
 
-"darknode-sol@https://github.com/renproject/darknode-sol#3b0d0b88930f7b39d41c60d876de2d59067a8766":
+"darknode-sol@https://github.com/renproject/darknode-sol#58af2b1be7b26e6e53c9a9c90169e30b8f83a3f2":
   version "0.0.3"
-  resolved "https://github.com/renproject/darknode-sol#3b0d0b88930f7b39d41c60d876de2d59067a8766"
+  resolved "https://github.com/renproject/darknode-sol#58af2b1be7b26e6e53c9a9c90169e30b8f83a3f2"
   dependencies:
     "@openzeppelin/upgrades" "^2.6.0"
     openzeppelin-solidity "2.4.0"
@@ -5814,6 +5831,11 @@ events@^3.0.0:
   version "3.0.0"
   resolved "https://registry.yarnpkg.com/events/-/events-3.0.0.tgz#9a0a0dfaf62893d92b875b8f2698ca4114973e88"
   integrity sha512-Dc381HFWJzEOhQ+d8pkNon++bk9h6cdAoAj4iE6Q4y6xgTzySWXlKn05/TVNpjnfRqi/X0EpJEJohPjNI3zpVA==
+
+events@^3.1.0:
+  version "3.1.0"
+  resolved "https://registry.yarnpkg.com/events/-/events-3.1.0.tgz#84279af1b34cb75aa88bf5ff291f6d0bd9b31a59"
+  integrity sha512-Rv+u8MLHNOdMjTAFeT3nCjHn2aGlx435FP/sDHNaRhDEMwyI/aB22Kj2qIN8R0cw3z28psEQLYwxVKLsKrMgWg==
 
 eventsource@^1.0.7:
   version "1.0.7"
@@ -12028,28 +12050,7 @@ semver@~5.4.1:
   resolved "https://registry.yarnpkg.com/semver/-/semver-5.4.1.tgz#e059c09d8571f0540823733433505d3a2f00b18e"
   integrity sha512-WfG/X9+oATh81XtllIo/I8gOiY9EXRdv1cQdyykeXK17YcUW3EXUAi2To4pcH6nZtJPr7ZOpM5OMyWJZm+8Rsg==
 
-send-crypto@0.1.9:
-  version "0.1.9"
-  resolved "https://registry.yarnpkg.com/send-crypto/-/send-crypto-0.1.9.tgz#72af3b469f97bba94617f261d802e515b282a373"
-  integrity sha512-jnfywNW98YBTi3Cks9fnQfg0jNwKkKEGtvXKSGEYjytY0Lz+OfnLNGRnU19TqyQcfTFJ8IU/jAzmUPFQfn1MbA==
-  dependencies:
-    "@truffle/hdwallet-provider" "^1.0.28"
-    "@types/bchaddrjs" "^0.4.0"
-    "@types/web3-provider-engine" "^14.0.0"
-    axios "^0.19.0"
-    bchaddrjs "^0.4.4"
-    bignumber.js "^9.0.0"
-    bitgo-utxo-lib "^1.7.0"
-    bn.js "^5.0.0"
-    dotenv "^8.2.0"
-    immutable "^4.0.0-rc.12"
-    patch-package "^6.2.0"
-    send-crypto "^0.1.6"
-    web3 "^1.2.4"
-    web3-core "^1.2.4"
-    web3-utils "^1.2.4"
-
-send-crypto@^0.1.6:
+send-crypto@0.1.11, send-crypto@^0.1.6:
   version "0.1.11"
   resolved "https://registry.yarnpkg.com/send-crypto/-/send-crypto-0.1.11.tgz#2e055996811a9f4e5e1574360b5d4d2c0c163100"
   integrity sha512-pGAvOZrEZyPcYmXTbweDfBw2eiqZY8xtQfYkWtzjd19F/9522q02JcpNmjjaKlBqH7ybjdZn0NzjBIE4+IPxXw==
