@@ -225,9 +225,9 @@ export const completeDeposit = async function(tx) {
         let result
         if (type === 'swap') {
             result = await adapterContract.methods.shiftInWithSwap(
-                params.contractParams[0].value,
+                params.contractCalls[0].contractParams[0].value,
                 params.sendAmount,
-                renResponse.args.nhash,
+                renResponse.autogen.nhash,
                 renSignature
             ).send({
                 from: web3Context.accounts[0],
@@ -236,11 +236,11 @@ export const completeDeposit = async function(tx) {
             })
         } else if (type === 'stream') {
             result = await adapterContract.methods.addVestingSchedule(
-                params.contractParams[0].value,
-                params.contractParams[1].value,
-                Number(params.contractParams[2].value),
+                params.contractCalls[0].contractParams[0].value,
+                params.contractCalls[0].contractParams[1].value,
+                Number(params.contractCalls[0].contractParams[2].value),
                 params.sendAmount,
-                renResponse.args.nhash,
+                renResponse.autogen.nhash,
                 renSignature
             ).send({
                 from: web3Context.accounts[0],
@@ -309,32 +309,16 @@ export const initShiftIn = function(tx) {
         ]
     }
 
-    // recreate shift in and override with existing data
-    let shiftIn
-    if (ethSig) {
-        shiftIn = sdk.shiftIn({
-            messageID: ethSig.messageID,
-            sendTo: adapterAddress,
-            contractFn,
-            contractParams,
-        });
-    } else {
-        const amt = new BigNumber(amount)
-        let data = {
-            sendToken: RenJS.Tokens.BTC.Btc2Eth,
-            sendAmount: amt.times(10 ** 8).toNumber(), // Convert to Satoshis
-            sendTo: adapterAddress,
-            contractFn,
-            contractParams,
-        }
-
-        if (params && params.nonce) {
-            data.nonce = params.nonce
-        }
-
-        shiftIn = sdk.shiftIn(data)
+    // // store data or update params with nonce
+    const data = {
+        sendToken: RenJS.Tokens.BTC.Btc2Eth,
+        sendAmount: RenJS.utils.value(amount, "btc").sats(), // Convert to Satoshis
+        sendTo: adapterAddress,
+        contractFn,
+        contractParams,
+        nonce: params && params.nonce ? params.nonce : RenJS.utils.randomNonce(),
     }
-    // store data or update params with nonce
+    
     const shiftIn = sdk.shiftIn(data)
 
     window.shiftIns.push(shiftIn)
