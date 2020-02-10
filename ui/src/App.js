@@ -1,7 +1,12 @@
 import React from 'react';
 import { createStore, withStore } from '@spyna/react-store'
 
+
+import NavContainer from './containers/NavContainer'
+import ActionTabsContainer from './containers/ActionTabsContainer'
 import DepositContainer from './containers/DepositContainer'
+import StreamContainer from './containers/Stream/StreamContainer'
+
 
 import theme from './theme/theme'
 import classNames from 'classnames'
@@ -9,19 +14,52 @@ import classNames from 'classnames'
 import { withStyles, ThemeProvider } from '@material-ui/styles';
 import Container from '@material-ui/core/Container'
 import Grid from '@material-ui/core/Grid'
+// import TabPanel from '@material-ui/core/TabPanel'
 
-
-
-const styles = () => ({})
+const styles = () => ({
+})
 
 const initialState = {
-    transactions: [],
-    adapterAddress: '0xade8792c3ee90320cabde200ccab34b27cc88651',
-    selectedTab: 0,
-    instantSwapSelected: false,
-    amount: '',
-    address: ''
+    'selectedActionTab': 'exchange',
+    // exchange
+    'swap.transactions': [],
+    'swap.adapterAddress': '0xade8792c3ee90320cabde200ccab34b27cc88651',
+    'swap.instantSwapSelected': false,
+    'swap.amount': '',
+    'swap.address': '',
+    // streaming
+    'stream.adapterAddress': '0x49ADDF7Cae3552C3f6991b6931DbcfAc28E11846',
+    'stream.transactions': [],
+    'stream.amount': '',
+    'stream.destination': '',
+    'stream.duration': '',
+    'stream.activeView': 'start',
+    'stream.selectedTx': null,
+    'stream.searchAddress': '',
+    'stream.claimRequesting': false
 }
+
+const AppWrapper = withStore(function(props) {
+    const { store } = props
+    const {
+        selectedActionTab
+    } = store.getState()
+
+    return <Container maxWidth="lg">
+        <Grid container>
+            {/*<Grid item xs={12}>
+                <NavContainer />
+            </Grid>*/}
+            <Grid item sm={3}>
+                <ActionTabsContainer />
+            </Grid>
+            <Grid item sm={6}>
+                {selectedActionTab === 'exchange' && <DepositContainer />}
+                {selectedActionTab === 'stream' && <StreamContainer />}
+            </Grid>
+        </Grid>
+    </Container>
+})
 
 class App extends React.Component {
     constructor(props) {
@@ -33,12 +71,10 @@ class App extends React.Component {
     }
 
     render() {
-        const { classes, store } = this.props
+        const { classes } = this.props
         return (
             <ThemeProvider theme={theme}>
-                <Container maxWidth="sm">
-                    <DepositContainer />
-                </Container>
+                <AppWrapper />
             </ThemeProvider>
         );
     }

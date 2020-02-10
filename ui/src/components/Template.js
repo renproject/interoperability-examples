@@ -1,6 +1,8 @@
 import React from 'react';
 import theme from '../theme/theme'
 import classNames from 'classnames'
+import { withStyles } from '@material-ui/styles';
+
 
 import Input from '@material-ui/core/Input';
 import TextField from '@material-ui/core/TextField';
@@ -14,3 +16,5 @@ class CurrencyInput extends React.Component {
         return <div />
     }
 }
+
+export default withStyles(styles)(CurrencyInput);
