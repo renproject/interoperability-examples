@@ -188,6 +188,8 @@ class DepositContainer extends React.Component {
     async componentDidMount() {
         const { store } = this.props
 
+
+
         const web3Context = await fromConnection(
             "https://kovan.infura.io/v3/7be66f167c2e4a05981e2ffc4653dec2",
             {

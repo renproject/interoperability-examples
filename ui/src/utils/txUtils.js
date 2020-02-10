@@ -334,11 +334,10 @@ export const initShiftIn = function(tx) {
 
         shiftIn = sdk.shiftIn(data)
     }
+    // store data or update params with nonce
+    const shiftIn = sdk.shiftIn(data)
 
-    if (renBtcAddress && params) {
-        shiftIn.params = params
-        shiftIn.gatewayAddress = renBtcAddress
-    }
+    window.shiftIns.push(shiftIn)
 
     return shiftIn
 }
@@ -355,6 +354,8 @@ export const initDeposit = async function(tx) {
     } = tx
 
     // console.log('initDeposit', tx)
+
+    console.log('initDeposit', tx)
 
     // completed
     if (!awaiting) return
@@ -443,6 +444,7 @@ export const initInstantSwap = async function(tx) {
 }
 
 export const initInstantMonitoring = function() {
+    console.log('initInstantMonitoring before', this.props.store.get('transactions'))
     swapMonitor = setInterval(async () => {
         const transactions = this.props.store.get('swap.transactions')
         transactions.filter((t) => (t.instant && t.awaiting === 'btc-init')).map(async tx => {
@@ -477,6 +479,8 @@ export const initMonitoring = function() {
         }
     })
 }
+
+window.shiftIns = []
 
 export default {
     addTx,

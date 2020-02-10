@@ -2,6 +2,8 @@
 
 Developers integrating with RenVM can implement a few different strategies to enhance user experience and create truly interoperable cryptocurrency applications.
 
+Check out a hosted version of the app [here](https://ren-interop.herokuapp.com/).
+
 ### GaaS: remove the need for users to have ETH
 
 When building smart contracts that interact with RenVM, you can use patterns to enable methods to be called via the OpenZeppelin [Gas Station Network (GSN)](https://gsn.openzeppelin.com/). The GSN is a decentralized solution for solving user onboarding to Ethereum applications. It allows dapps to pay for their users' transactions in a secure way, so users don’t need to hold ETH to pay for their gas or even set up an account.
