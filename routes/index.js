@@ -124,9 +124,9 @@ const swap = async function (amount, dest, gateway) {
 const completeShiftIn = async function (shiftIn, signature, response) {
     console.log('completeShiftIn', signature, response)
     const params = shiftIn.params
-    const msg = params.contractParams[0].value
+    const msg = params.contractCalls[0].contractParams[0].value
     const amount = params.sendAmount
-    const nHash = response.args.nhash
+    const nHash = response.autogen.nhash
     const adapterContract = new web3Context.lib.eth.Contract(adapterABI, adapterAddress)
     const gasPrice = await web3Context.lib.eth.getGasPrice()
 
