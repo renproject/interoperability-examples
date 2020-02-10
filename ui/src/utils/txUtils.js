@@ -57,13 +57,15 @@ export const completeDeposit = async function(tx) {
     const adapterContract = new web3.eth.Contract(adapterABI, adapterAddress)
     const gasPrice = await web3Context.lib.eth.getGasPrice()
 
+    console.log('completeDeposit', tx)
+
     updateTx(store, Object.assign(tx, { awaiting: 'eth-settle' }))
 
     try {
         const result = await adapterContract.methods.shiftInWithSwap(
-            params.contractParams[0].value,
+            params.contractCalls[0].contractParams[0].value,
             params.sendAmount,
-            renResponse.args.nhash,
+            renResponse.autogen.nhash,
             renSignature
         ).send({
             from: web3Context.accounts[0],
@@ -84,47 +86,26 @@ export const initShiftIn = function(tx) {
         adapterAddress
     } = this.props.store.getState()
 
-    // recreate shift in and override with existing data
-    let shiftIn
-    if (ethSig) {
-        shiftIn = sdk.shiftIn({
-            messageID: ethSig.messageID,
-            sendTo: adapterAddress,
-            contractFn: "shiftInWithSwap",
-            contractParams: [
-                {
-                    name: "_to",
-                    type: "address",
-                    value: destAddress,
-                }
-            ],
-        });
-    } else {
-        let data = {
-            sendToken: RenJS.Tokens.BTC.Btc2Eth,
-            sendAmount: Math.floor(amount * (10 ** 8)), // Convert to Satoshis
-            sendTo: adapterAddress,
-            contractFn: "shiftInWithSwap",
-            contractParams: [
-                {
-                    name: "_to",
-                    type: "address",
-                    value: destAddress,
-                }
-            ],
-        }
+    console.log('initShiftIn', tx)
 
-        if (params && params.nonce) {
-            data.nonce = params.nonce
-        }
-
-        shiftIn = sdk.shiftIn(data)
+    const data = {
+        sendToken: RenJS.Tokens.BTC.Btc2Eth,
+        requiredAmount: RenJS.utils.value(amount, "btc").sats(), // Convert to Satoshis
+        sendTo: adapterAddress,
+        contractFn: "shiftInWithSwap",
+        contractParams: [
+            {
+                name: "_to",
+                type: "address",
+                value: destAddress,
+            }
+        ],
+        nonce: params && params.nonce ? params.nonce : RenJS.utils.randomNonce(),
     }
+    // store data or update params with nonce
+    const shiftIn = sdk.shiftIn(data)
 
-    if (renBtcAddress && params) {
-        shiftIn.params = params
-        shiftIn.gatewayAddress = renBtcAddress
-    }
+    window.shiftIns.push(shiftIn)
 
     return shiftIn
 }
@@ -132,6 +113,8 @@ export const initShiftIn = function(tx) {
 export const initDeposit = async function(tx) {
     const { store }  = this.props
     const { params, awaiting, renResponse, renSignature, error } = tx
+
+    console.log('initDeposit', tx)
 
     // completed
     if (!awaiting) return
@@ -214,7 +197,7 @@ export const initInstantMonitoring = function() {
         const transactions = this.props.store.get('transactions').concat([])
         const monitor = transactions.filter((t) => (t.instant && t.awaiting === 'btc-init'))
 
-        console.log('initInstantMonitoring', transactions)
+        // console.log('initInstantMonitoring', transactions)
         monitor.map(async tx => {
             const req = await fetch(`${API_URL}/swap-gateway/status?gateway=${tx.renBtcAddress}`, {
                 method: 'GET',
@@ -242,6 +225,8 @@ export const initMonitoring = function() {
         initDeposit.bind(this)(p)
     })
 }
+
+window.shiftIns = []
 
 export default {
     addTx,
