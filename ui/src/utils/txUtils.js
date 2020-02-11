@@ -110,26 +110,51 @@ export const recoverStreams = async function(destAddress) {
 
 export const calculateStreamProgress = function(tx) {
     const schedule = tx.schedule
-    let totalClaimablePercentrage = 0
-    let amountClaimedPercentage = 0
 
     if (schedule) {
         const start = Number(schedule.startTime)
         const now = Math.floor(Date.now() / 1000)
         const end = Number(schedule.startTime) + (Number(schedule.duration * 60))
         const period = end - start
+        let totalClaimablePercentrage = 0
+        let amountClaimedPercentage = 0
         if (now > end) {
             totalClaimablePercentrage = 100
         } else {
             totalClaimablePercentrage = Number((((now - start) / period) * 100).toFixed(1))
         }
         amountClaimedPercentage = Number(((schedule.amountClaimed / schedule.amount) * 100).toFixed(1))
+        const amountClaimablePercentage = totalClaimablePercentrage - amountClaimedPercentage
+
+        const amount = tx.schedule ? (tx.schedule.amount / (10 ** 8)).toFixed(6) : 0
+        const totalClaimableAmount = amount * (totalClaimablePercentrage / 100)
+        const claimedAmount = Number(amount * (amountClaimedPercentage / 100))
+        const claimableAmount = Number(amount * (amountClaimablePercentage / 100))
+
+        return {
+            amount,
+            totalClaimablePercentrage,
+            totalClaimableAmount,
+            amountClaimedPercentage,
+            claimedAmount,
+            amountClaimablePercentage,
+            claimableAmount,
+            remaingDuration: end - start
+        }
+    } else {
+        return {
+            amount: 0,
+            totalClaimablePercentrage: 0,
+            totalClaimableAmount: 0,
+            amountClaimedPercentage: 0,
+            claimedAmount: 0,
+            amountClaimablePercentage: 0,
+            claimableAmount: 0,
+            remaingDuration: 0
+        }
     }
 
-    return {
-        totalClaimablePercentrage,
-        amountClaimedPercentage
-    }
+
 }
 
 // make this better
@@ -145,7 +170,6 @@ export const updateStreamInfo = async function(tx) {
         Number(s.startTime) === Number(startTime) &&
         s.beneficiary === beneficiary
     ))[0]
-
     if (schedule && schedule.beneficiary) {
         // console.log('updateStreamInfo', schedules, schedule)
         const sched = {
@@ -159,7 +183,8 @@ export const updateStreamInfo = async function(tx) {
         }
         let newTx = Object.assign(tx, {})
         newTx.schedule = sched
-        updateTx(store, newTx)
+        updateTx(store, tx, newTx)
+        return newTx
     }
 }
 
@@ -185,33 +210,37 @@ export const claim = async function(tx) {
 
     // console.log('claiming tx', tx, schedule, schedule.id)
 
-    try {
-        const result = await adapterContract.methods.claim(
-            schedule.id
-        ).send({
-            from: web3Context.accounts[0],
-            gasPrice: Math.round(gasPrice * 1.5),
-            gasLimit: 150000
-        }).on('transactionHash', (hash) => {
-            updateTx(store, Object.assign(tx, {
-                claimTransactions: tx.claimTransactions.concat([{
-                    timestamp: Date.now(),
-                    amount: claimAmount,
-                    txHash: hash
-                }])
-            }))
-        }).on('confirmation', (confirmationNumber, receipt) => {
-            if (confirmationNumber === 3) {
-                store.set('stream.claimRequesting', false)
-            }
-            console.log('confirmation', confirmationNumber, receipt)
-            updateStreamInfo.bind(this)(tx)
-        })
-        // console.log('result', result)
-    } catch(e) {
-        console.log(e)
-        store.set('stream.claimRequesting', false)
-    }
+    return new Promise(async (resolve, reject) => {
+        try {
+            const result = await adapterContract.methods.claim(
+                schedule.id
+            ).send({
+                from: web3Context.accounts[0],
+                gasPrice: Math.round(gasPrice * 1.5),
+                gasLimit: 150000
+            }).on('transactionHash', (hash) => {
+                updateTx(store, Object.assign(tx, {
+                    claimTransactions: tx.claimTransactions.concat([{
+                        timestamp: Date.now(),
+                        amount: claimAmount,
+                        txHash: hash
+                    }])
+                }))
+            }).on('confirmation', (confirmationNumber, receipt) => {
+                if (confirmationNumber === 1) {
+                    store.set('stream.claimRequesting', false)
+                    console.log('confirmation', confirmationNumber, receipt)
+                    updateStreamInfo.bind(this)(tx)
+                    resolve()
+                }
+            })
+            // console.log('result', result)
+        } catch(e) {
+            console.log(e)
+            store.set('stream.claimRequesting', false)
+            reject()
+        }
+    })
 }
 
 export const completeDeposit = async function(tx) {
@@ -470,7 +499,7 @@ export const initMonitoring = function() {
     const txs = store.get('swap.transactions').concat(store.get('stream.transactions'))
     // console.log('initMonitoring', txs)
     txs.map(tx => {
-        if (tx.awaiting && !tx.instant) {
+        if (tx.awaiting && !tx.instant && !tx.error) {
             initDeposit.bind(this)(tx)
         } else if (tx.type === 'stream') {
             updateStreamInfo.bind(this)(tx)

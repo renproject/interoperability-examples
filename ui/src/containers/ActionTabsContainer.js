@@ -18,14 +18,40 @@ import Tab from '@material-ui/core/Tab'
 
 import { withRouter } from "react-router";
 
+import RenVMLogo from '../assets/renvm-logo.svg'
+
 const styles = () => ({
     tabs: {
-        paddingTop: theme.spacing(4),
-        paddingRight: theme.spacing(2),
+        paddingTop: theme.spacing(2),
+        paddingRight: theme.spacing(4),
+        '& .MuiTabs-flexContainer': {
+            alignItems: 'flex-end',
+        },
         '& .MuiTab-wrapper': {
             alignItems: 'flex-end',
             // paddingRight: theme.spacing(1)
-        }
+        },
+        '& span.MuiTabs-indicator': {
+            backgroundColor: 'transparent'
+        },
+        '& button.MuiTab-textColorInherit': {
+            color: '#7f7f7f',
+        },
+        '& button.MuiTab-textColorInherit.Mui-selected': {
+            color: '#333',
+        },
+        width: '100%'
+    },
+    logo: {
+        width: 120,
+        height: 'auto',
+        marginRight: theme.spacing(5.5)
+    },
+    container: {
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'flex-end',
+        paddingTop: theme.spacing(4)
     }
 })
 
@@ -59,18 +85,21 @@ class ActionTabsContainer extends React.Component {
 
         // console.log(this.props, this.state)
 
-        return <Tabs
-          orientation="vertical"
-          value={store.get('selectedActionTab')}
-          onChange={(e, value) => {
-              this.changeTabs.bind(this)(value)
-              history.push(value === 'exchange' ? '/' : '/stream')
-          }}
-          className={classes.tabs}
-        >
-          <Tab value={'exchange'} label="Exchange" />
-          <Tab value={'stream'} label="Stream" />
-        </Tabs>
+        return <div className={classes.container}>
+            <img className={classes.logo} src={RenVMLogo} />
+            <Tabs
+                orientation="vertical"
+                value={store.get('selectedActionTab')}
+                onChange={(e, value) => {
+                    this.changeTabs.bind(this)(value)
+                    history.push(value === 'exchange' ? '/' : '/stream')
+                }}
+                className={classes.tabs}
+              >
+                <Tab value={'exchange'} label="Exchange" />
+                <Tab value={'stream'} label="Stream" />
+            </Tabs>
+        </div>
     }
 }
 

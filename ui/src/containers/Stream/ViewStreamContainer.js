@@ -165,7 +165,7 @@ class ViewStreamContainer extends React.Component {
     }
 
     async componentDidMount() {
-        const { selectedTx } = this.props
+        const selectedTx = this.props.store.get('stream.selectedTx')
         await updateStreamInfo.bind(this)(selectedTx)
         this.setState({
             loaded: true
@@ -175,71 +175,18 @@ class ViewStreamContainer extends React.Component {
             this.initAddressRef.current.value = selectedTx.renBtcAddress
         }
 
-        this.calculateStats()
+        // this.interval = setInterval(() => {
+        //     updateStreamInfo.bind(this)(selectedTx)
+        // }, 5000)
     }
 
     componentWillUnmount() {
         if (this.interval) {
             clearInterval(this.interval)
         }
-
-        // if (this.scheduleInterval) {
-        //     clearInterval(this.scheduleInterval)
-        // }
     }
 
     componentDidUpdate() {
-    }
-
-    calculateStats() {
-        const { selectedTx } = this.props
-        const schedule = selectedTx.schedule
-        if (schedule) {
-            const start = Number(schedule.startTime)
-            const end = Number(schedule.startTime) + (Number(schedule.duration * 60))
-            const totalClaimable = (schedule.amount / (10 ** 8)).toFixed(6)
-            const amountClaimed = (schedule.amountClaimed / (10 ** 8)).toFixed(6)
-            const amountClaimedPercentage = (amountClaimed / totalClaimable).toFixed(1) * 100
-
-            // animation
-            this.interval = setInterval(() => {
-                const now = Math.floor(Date.now() / 1000)
-                const period = end - start
-                let availablePercentage = 0
-                if (now > end) {
-                    availablePercentage = 100
-                    clearInterval(this.interval)
-                } else if (start > 0){
-                    availablePercentage = Number((((now - start) / period) * 100).toFixed(1))
-                }
-                const availableAmount = ((availablePercentage / 100) * totalClaimable).toFixed(6)
-                const remaingDuration = end - now
-
-
-                // console.log('mounted', this.mounted)
-
-                if (!this.mounted) {
-                    this.setState({
-                        totalClaimable,
-                        amountClaimed,
-                        amountClaimedPercentage,
-                        availableAmount,
-                        availablePercentage,
-                        remaingDuration
-                    })
-                    this.mounted = true
-                } else {
-                    this.setState({
-                        availablePercentage
-                    })
-                }
-            }, 10);
-
-            // // update schedule data
-            // this.scheduleInterval = setInterval(() => {
-            //     updateStreamInfo.bind(this)(selectedTx)
-            // }, (1000 * 10))
-        }
     }
 
     back() {
@@ -249,33 +196,41 @@ class ViewStreamContainer extends React.Component {
         // console.log('back')
     }
 
+    async claim() {
+        const { store } = this.props
+        const selectedTx = store.get('stream.selectedTx')
+        await claim.bind(this)(selectedTx)
+    }
+
     render() {
         const {
             classes,
-            selectedTx,
             store
         } = this.props
 
+        const selectedTx = store.get('stream.selectedTx')
+
         const {
-            loaded,
-            totalClaimable,
-            amountClaimed,
-            amountClaimedPercentage,
-            availableAmount,
-            availablePercentage,
-            remaingDuration
+            loaded
         } = this.state
 
-        const {
-            totalClaimablePercentrage
-        } = calculateStreamProgress(selectedTx)
+        const progress = calculateStreamProgress(selectedTx)
 
-        const claimableAmount = selectedTx.schedule ? Number((selectedTx.schedule.amount * ((totalClaimablePercentrage - amountClaimedPercentage)/100)) / (10 ** 8)) : 0
+        const {
+            totalClaimablePercentrage,
+            amountClaimedPercentage,
+            amountClaimablePercentage,
+            remaingDuration,
+            amount,
+            totalClaimableAmount,
+            claimedAmount,
+            claimableAmount,
+        } = progress
 
         const { claimTransactions } = selectedTx
         const claimRequesting = store.get('stream.claimRequesting')
 
-        // console.log(availableAmount, claimableAmount)
+        console.log('progress', progress)
 
         return <React.Fragment>
             <div className={classes.backLink}>
@@ -376,7 +331,7 @@ class ViewStreamContainer extends React.Component {
                                 variant="static"
                                 className={classes.progressMiddle}
                                 size={250}
-                                value={Number(availablePercentage)}
+                                value={Number(amountClaimablePercentage)}
                                 thickness={2}
                               />
                               <CircularProgress
@@ -390,11 +345,11 @@ class ViewStreamContainer extends React.Component {
                         <div className={classes.progressText}>
                             <div>
                                 <p className={classes.totalStreamed}>
-                                    <b>{totalClaimable} BTC</b>
+                                    <b>{amount} BTC</b>
                                 </p>
                             </div>
                             <p>
-                                <b>{amountClaimed} / <CountUp start={availableAmount} end={selectedTx.amount} duration={remaingDuration} decimals={6}>{availableAmount}</CountUp> BTC</b>
+                                <b>{claimedAmount.toFixed(6)} / <CountUp start={totalClaimableAmount} end={selectedTx.amount} duration={remaingDuration} decimals={6}>{claimableAmount}</CountUp> BTC</b>
                             </p>
                             <p>
                                 <span>claimed</span>
@@ -408,7 +363,7 @@ class ViewStreamContainer extends React.Component {
                         variant='outlined'
                         color='primary'
                         onClick={() => {
-                            claim.bind(this)(selectedTx)
+                            this.claim.bind(this)()
                         }}>
                         Claim {claimableAmount.toFixed(6)} BTC
                     </Button> : <span>{totalClaimablePercentrage < 100 ? `Minimum claim amount is ${MIN_CLAIM_AMOUNT} BTC` : 'All available funds claimed'}</span>}
