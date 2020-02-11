@@ -31,6 +31,8 @@ import classNames from 'classnames'
 import { withStyles, ThemeProvider } from '@material-ui/styles';
 import Container from '@material-ui/core/Container'
 import Grid from '@material-ui/core/Grid'
+import Chip from '@material-ui/core/Chip'
+import WarningIcon from '@material-ui/icons/Warning';
 // import TabPanel from '@material-ui/core/TabPanel'
 
 const REACT_APP_TX_FEE = 100;
@@ -46,11 +48,16 @@ const relay_client_config = {
 };
 
 const styles = () => ({
+    warning: {
+        marginTop: theme.spacing(4),
+        marginBottom: theme.spacing(3),
+        width: '100%'
+    }
 })
 
 const initialState = {
     'selectedActionTab': 'exchange',
-    'selectedNetwork': 'testnet',
+    'selectedNetwork': 'chaosnet',
     // exchange
     'swap.transactions': [],
     'swap.adapterAddress': '0xade8792c3ee90320cabde200ccab34b27cc88651',
@@ -117,7 +124,7 @@ class AppWrapper extends React.Component {
     }
 
     render(){
-        const { store } = this.props
+        const { store, classes } = this.props
         const {
             selectedActionTab
         } = store.getState()
@@ -129,10 +136,16 @@ class AppWrapper extends React.Component {
                     {/*<Grid item xs={12}>
                         <NavContainer />
                     </Grid>*/}
-                    <Grid item sm={3}>
+                    <Grid item xs={12} sm={3} md={3}>
                         <ActionTabsContainer />
                     </Grid>
-                    <Grid item sm={6}>
+                    <Grid item xs={12} sm={9} md={6}>
+                        <Chip
+                            className={classes.warning}
+                            icon={<WarningIcon />}
+                            label={<span><a href='https://chaos.renproject.io/' target='_blank'>Chaosnet</a> is unaudited and this project is in beta. Use at your own risk.</span>}
+
+                        />
                         <Switch>
                             <Route exact path="/" component={<DepositContainer />}>
                                 {<DepositContainer />}
@@ -163,7 +176,7 @@ class App extends React.Component {
         const { classes } = this.props
         return (
             <ThemeProvider theme={theme}>
-                <AppWrapperComponent/>
+                <AppWrapperComponent classes={classes}/>
             </ThemeProvider>
         );
     }

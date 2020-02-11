@@ -14,7 +14,8 @@ import InputAdornment from '@material-ui/core/InputAdornment';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Checkbox from '@material-ui/core/Checkbox';
 import Switch from '@material-ui/core/Switch';
-import Radio from '@material-ui/core/Radio';
+import Select from '@material-ui/core/Select';
+import FormControl from '@material-ui/core/FormControl';
 import RadioGroup from '@material-ui/core/RadioGroup';
 
 import BigNumber from "bignumber.js";
@@ -68,7 +69,7 @@ const styles = () => ({
       border: '1px solid #7f7f7f',
       padding: theme.spacing(3),
 
-      marginTop: theme.spacing(4),
+      // marginTop: theme.spacing(4),
       marginBottom: theme.spacing(3),
       '& input': {
       }

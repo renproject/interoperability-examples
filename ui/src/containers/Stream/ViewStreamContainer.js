@@ -331,7 +331,7 @@ class ViewStreamContainer extends React.Component {
                                 variant="static"
                                 className={classes.progressMiddle}
                                 size={250}
-                                value={Number(amountClaimablePercentage)}
+                                value={Number(totalClaimablePercentrage)}
                                 thickness={2}
                               />
                               <CircularProgress

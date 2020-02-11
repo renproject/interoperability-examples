@@ -124,7 +124,7 @@ export const calculateStreamProgress = function(tx) {
             totalClaimablePercentrage = Number((((now - start) / period) * 100).toFixed(1))
         }
         amountClaimedPercentage = Number(((schedule.amountClaimed / schedule.amount) * 100).toFixed(1))
-        const amountClaimablePercentage = totalClaimablePercentrage - amountClaimedPercentage
+        const amountClaimablePercentage = Number((totalClaimablePercentrage - amountClaimedPercentage).toFixed(1))
 
         const amount = tx.schedule ? (tx.schedule.amount / (10 ** 8)).toFixed(6) : 0
         const totalClaimableAmount = amount * (totalClaimablePercentrage / 100)
@@ -181,7 +181,11 @@ export const updateStreamInfo = async function(tx) {
             amountClaimed: schedule.amountClaimed,
             minutesClaimed: schedule.minutesClaimed
         }
-        let newTx = Object.assign(tx, {})
+        // in-case tx was never updated
+        let newTx = Object.assign(tx, {
+            awaiting: '',
+            error: false
+        })
         newTx.schedule = sched
         updateTx(store, tx, newTx)
         return newTx

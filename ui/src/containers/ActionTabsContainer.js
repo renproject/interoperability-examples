@@ -15,6 +15,8 @@ import Backdrop from '@material-ui/core/Backdrop';
 import Fade from '@material-ui/core/Fade';
 import Tabs from '@material-ui/core/Tabs'
 import Tab from '@material-ui/core/Tab'
+import Select from '@material-ui/core/Select';
+import FormControl from '@material-ui/core/FormControl';
 
 import { withRouter } from "react-router";
 
@@ -52,6 +54,10 @@ const styles = () => ({
         flexDirection: 'column',
         alignItems: 'flex-end',
         paddingTop: theme.spacing(4)
+    },
+    networkChooser: {
+        marginRight: theme.spacing(5.5),
+        marginTop: theme.spacing(1)
     }
 })
 
@@ -87,6 +93,22 @@ class ActionTabsContainer extends React.Component {
 
         return <div className={classes.container}>
             <img className={classes.logo} src={RenVMLogo} />
+            <FormControl variant="outlined" className={classes.networkChooser}>
+                <Select
+                    native
+                    value={store.get('selectedNetwork')}
+                    onChange={(event)=>{
+                        console.log(event.target.value)
+                        store.set('selectedNetwork', event.target.value)
+                    }}
+                    inputProps={{
+                        name: '',
+                        id: 'age-native-simple',
+                    }}>
+                    <option value="chaosnet">Chaosnet</option>
+                    <option value="testnet">Testnet</option>
+                </Select>
+            </FormControl>
             <Tabs
                 orientation="vertical"
                 value={store.get('selectedActionTab')}
