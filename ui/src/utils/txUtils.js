@@ -5,7 +5,7 @@ import BigNumber from 'bignumber.js'
 
 export const API_URL = ''
 // export const API_URL = 'http://localhost:3000'
-export const MIN_CLAIM_AMOUNT = 0.0001
+export const MIN_CLAIM_AMOUNT = 0.00011
 let swapMonitor = null
 
 
@@ -46,10 +46,22 @@ export const removeTx = (store, tx) => {
     window[storeString] = txs
 }
 
+export const streamExists = function(streams, beneficiary, startTime) {
+    return streams.filter(stream => {
+        console.log(stream, beneficiary, startTime)
+        if (stream.destAddress === beneficiary && stream.startTime === startTime)  {
+            return false
+        } else {
+            return true
+        }
+    }).length > 0
+}
+
 export const getStreams = async function() {
     // console.log('search', destAddress)
     const { store }  = this.props
     const web3 = store.get('web3')
+    console.log(store.getState())
     // const web3Context = store.get('web3Context')
     const adapterAddress = store.get('stream.adapterAddress')
     const adapterContract = new web3.eth.Contract(streamAdapterABI, adapterAddress)
@@ -65,6 +77,8 @@ export const recoverStreams = async function(destAddress) {
     const web3 = store.get('web3')
     const schedules = await getStreams.bind(this)()
     const beneficiary = web3.utils.fromAscii(destAddress)
+    const transactions = store.get('stream.transactions')
+    // const alreadyExists = !streamExists(transactions, web3.utils.toAscii(s.beneficiary), Number(s.startTime))
 
     schedules.map(s => {
         // console.log(s.beneficiary)
@@ -83,7 +97,8 @@ export const recoverStreams = async function(destAddress) {
                 duration: s.duration,
                 error: false,
                 txHash: '',
-                schedule: s
+                schedule: s,
+                claimTransactions: []
             }
 
             addTx(store, tx)
@@ -121,10 +136,7 @@ export const calculateStreamProgress = function(tx) {
 export const updateStreamInfo = async function(tx) {
     const { store } =  this.props
     const web3 = store.get('web3')
-    const adapterAddress = store.get('stream.adapterAddress')
     const { startTime, destAddress } = tx
-
-    const adapterContract = new web3.eth.Contract(streamAdapterABI, adapterAddress)
 
     const beneficiary = web3.utils.fromAscii(destAddress)
     const schedules = await getStreams.bind(this)()
@@ -188,9 +200,11 @@ export const claim = async function(tx) {
                     txHash: hash
                 }])
             }))
-            store.set('stream.claimRequesting', false)
         }).on('confirmation', (confirmationNumber, receipt) => {
-            // console.log('receipt', receipt)
+            if (confirmationNumber === 3) {
+                store.set('stream.claimRequesting', false)
+            }
+            console.log('confirmation', confirmationNumber, receipt)
             updateStreamInfo.bind(this)(tx)
         })
         // console.log('result', result)
@@ -318,7 +332,7 @@ export const initShiftIn = function(tx) {
         contractParams,
         nonce: params && params.nonce ? params.nonce : RenJS.utils.randomNonce(),
     }
-    
+
     const shiftIn = sdk.shiftIn(data)
 
     window.shiftIns.push(shiftIn)

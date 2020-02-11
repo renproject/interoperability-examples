@@ -16,6 +16,7 @@ import Fade from '@material-ui/core/Fade';
 import Tabs from '@material-ui/core/Tabs'
 import Tab from '@material-ui/core/Tab'
 
+import { withRouter } from "react-router";
 
 const styles = () => ({
     tabs: {
@@ -37,6 +38,13 @@ class ActionTabsContainer extends React.Component {
         this.state = props.store.getState()
     }
 
+    componentWillMount() {
+        const { location, store } = this.props
+        if (location.pathname && location.pathname.match(/stream/)) {
+            store.set('selectedActionTab', 'stream')
+        }
+    }
+
     changeTabs(value) {
         const { store } = this.props
         store.set('selectedActionTab', value)
@@ -45,7 +53,8 @@ class ActionTabsContainer extends React.Component {
     render() {
         const {
             classes,
-            store
+            store,
+            history
         } = this.props
 
         // console.log(this.props, this.state)
@@ -54,14 +63,15 @@ class ActionTabsContainer extends React.Component {
           orientation="vertical"
           value={store.get('selectedActionTab')}
           onChange={(e, value) => {
-            this.changeTabs.bind(this)(value)
+              this.changeTabs.bind(this)(value)
+              history.push(value === 'exchange' ? '/' : '/stream')
           }}
           className={classes.tabs}
         >
           <Tab value={'exchange'} label="Exchange" />
-          <Tab value={'stream'} label="Streaming Payments" />
+          <Tab value={'stream'} label="Stream" />
         </Tabs>
     }
 }
 
-export default withStyles(styles)(withStore(ActionTabsContainer))
+export default withRouter(withStyles(styles)(withStore(ActionTabsContainer)))

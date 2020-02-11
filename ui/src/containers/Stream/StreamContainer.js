@@ -64,8 +64,8 @@ const styles = () => ({
   },
   contentContainer: {
       // boxShadow: '0px 0px 30px 0px rgba(0, 0, 0, 0.05)',
-      // borderRadius: theme.shape.borderRadius,
-      border: '1px solid #333',
+      borderRadius: theme.shape.borderRadius,
+      border: '1px solid #7f7f7f',
       padding: theme.spacing(3),
 
       marginTop: theme.spacing(4),
@@ -280,7 +280,7 @@ class StreamContainer extends React.Component {
                 <Grid container direction='row'>
                     {activeView === 'start' && <React.Fragment>
                         <Grid className={classes.desc} item xs={12}>
-                            <span >Continously Stream Testnet BTC</span>
+                            <span >Stream BTC</span>
                         </Grid>
                         <Grid item xs={12}>
                             <Grid container>

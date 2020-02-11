@@ -61,8 +61,8 @@ const styles = () => ({
   },
   contentContainer: {
       // boxShadow: '0px 0px 30px 0px rgba(0, 0, 0, 0.05)',
-      // borderRadius: theme.shape.borderRadius,
-      border: '1px solid #333',
+      borderRadius: theme.shape.borderRadius,
+      border: '1px solid #7f7f7f',
       padding: theme.spacing(3),
 
       marginTop: theme.spacing(4),
@@ -186,43 +186,6 @@ class DepositContainer extends React.Component {
     }
 
     async componentDidMount() {
-        const { store } = this.props
-
-
-
-        const web3Context = await fromConnection(
-            "https://kovan.infura.io/v3/7be66f167c2e4a05981e2ffc4653dec2",
-            {
-                gsn: { signKey, ...relay_client_config }
-            }
-        )
-
-        store.set('web3Context', web3Context)
-        store.set('web3', web3Context.lib)
-
-        const sdk = new RenJS('testnet')
-        store.set('sdk', sdk)
-
-        const swaps = localStorage.getItem('swap.transactions')
-        const streams = localStorage.getItem('stream.transactions')
-
-        if (swaps) {
-            store.set('swap.transactions', JSON.parse(swaps))
-        }
-
-        if (streams) {
-            store.set('stream.transactions', JSON.parse(streams))
-        }
-
-        // monitor normal swaps
-        initMonitoring.bind(this)()
-
-        // monitor instant swaps
-        initInstantMonitoring.bind(this)()
-
-        window.store = store
-
-        window.updateTx = updateTx.bind(this)
     }
 
     componentWillUnmount() {
@@ -283,7 +246,7 @@ class DepositContainer extends React.Component {
 
         console.log(store.getState())
 
-        const disabled = amount < 0.0001 || (amount > 0.0005 && instantSwapSelected) || !address
+        const disabled = amount <= 0.0001 || (amount > 0.0005 && instantSwapSelected) || !address
 
         return <Grid container>
             {/*<Typography variant={'h1'} className={classes.title}>Kovan ETH – Testnet BTC Exchange</Typography>*/}
@@ -291,8 +254,8 @@ class DepositContainer extends React.Component {
             <Grid item xs={12} className={classes.contentContainer}>
                 <Grid container direction='row'>
                     <Grid className={classes.desc} item xs={12}>
-                        <span >Swap Testnet BTC for Kovan ETH</span>
-                        <span className={classes.btcLink}>Send testnet BTC from <a target='_blank' href={'https://tbtc.bitaps.com/'}>here</a></span>
+                        <span >Swap BTC for ETH</span>
+                        {/*<span className={classes.btcLink}>Send testnet BTC from <a target='_blank' href={'https://tbtc.bitaps.com/'}>here</a></span>*/}
                     </Grid>
                     <Grid item xs={12}>
                         <Grid container>

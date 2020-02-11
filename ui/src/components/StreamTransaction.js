@@ -74,6 +74,8 @@ const StreamTransaction = function(props) {
             amountClaimedPercentage
         } = calculateStreamProgress(tx)
 
+        const completed = totalClaimablePercentrage === 100
+
         return <Grid key={index}
                   container
                   direction='row'
@@ -112,6 +114,9 @@ const StreamTransaction = function(props) {
                     <a href='javascript:;' className={classes.viewLink} onClick={() => (onView(tx))}>
                         View
                     </a>
+                    {completed && <a href='javascript:;' className={classes.viewLink} onClick={() => (onCancel(tx))}>
+                        Clear
+                    </a>}
 
                     {/*tx.txHash ? <a className={classes.viewLink} target='_blank' href={'https://kovan.etherscan.io/tx/'+tx.txHash}>View transaction</a> : null*/}
 

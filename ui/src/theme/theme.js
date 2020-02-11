@@ -30,15 +30,18 @@ export default createMuiTheme({
         //     borderColor: '#EBEBEB !important'
         // },
         MuiOutlinedInput: {
-            // root:{
+            root:{
+                '& input': {
+                    // minHeight: 32
+                },
             //     '&:hover': {
             //         // notchedOutline: {
             //             borderColor: '#EBEBEB'
             //         // }
             //     }
-            // },
+            },
             notchedOutline: {
-                borderColor: '#EBEBEB !important',
+                borderColor: '#eee !important',
                 borderWidth: '1px !important'
             }
         },
