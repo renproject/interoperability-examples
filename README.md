@@ -2,7 +2,7 @@
 
 Developers integrating with RenVM can implement a few different strategies to enhance user experience and create truly interoperable cryptocurrency applications.
 
-Check out a hosted version of the app [here](https://ren-interop.herokuapp.com/).
+Check out a hosted version of the app [here](https://examples.renproject.io/).
 
 ### GaaS: remove the need for users to have ETH
 

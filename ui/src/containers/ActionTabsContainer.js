@@ -17,6 +17,8 @@ import Tabs from '@material-ui/core/Tabs'
 import Tab from '@material-ui/core/Tab'
 import Select from '@material-ui/core/Select';
 import FormControl from '@material-ui/core/FormControl';
+import Hidden from '@material-ui/core/Hidden';
+
 
 import { withRouter } from "react-router";
 
@@ -28,9 +30,6 @@ const styles = () => ({
         paddingRight: theme.spacing(4),
         '& .MuiTabs-flexContainer': {
             alignItems: 'flex-end',
-            [theme.breakpoints.down('xs')]: {
-                alignItems: 'flex-start',
-            }
         },
         '& .MuiTab-wrapper': {
             alignItems: 'flex-end',
@@ -47,6 +46,27 @@ const styles = () => ({
         },
         width: '100%'
     },
+    tabsMobile: {
+        // paddingTop: theme.spacing(2),
+        // paddingRight: theme.spacing(4),
+        '& .MuiTabs-flexContainer': {
+            alignItems: 'flex-end',
+        },
+        '& .MuiTab-wrapper': {
+            alignItems: 'flex-end',
+            // paddingRight: theme.spacing(1)
+        },
+        '& span.MuiTabs-indicator': {
+            backgroundColor: 'transparent'
+        },
+        '& button.MuiTab-textColorInherit': {
+            color: '#7f7f7f',
+        },
+        '& button.MuiTab-textColorInherit.Mui-selected': {
+            color: '#333',
+        },
+        // width: '100%'
+    },
     logo: {
         width: 120,
         height: 'auto',
@@ -58,7 +78,10 @@ const styles = () => ({
         alignItems: 'flex-end',
         paddingTop: theme.spacing(4),
         [theme.breakpoints.down('xs')]: {
-            alignItems: 'flex-start',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            flexDirection: 'row',
+            paddingTop: theme.spacing(2),
         }
     },
     networkChooser: {
@@ -99,18 +122,33 @@ class ActionTabsContainer extends React.Component {
 
         return <div className={classes.container}>
             <img className={classes.logo} src={RenVMLogo} />
-            <Tabs
-                orientation="vertical"
-                value={store.get('selectedActionTab')}
-                onChange={(e, value) => {
-                    this.changeTabs.bind(this)(value)
-                    history.push(value === 'exchange' ? '/' : '/stream')
-                }}
-                className={classes.tabs}
-              >
-                <Tab value={'exchange'} label="Exchange" />
-                <Tab value={'stream'} label="Stream" />
-            </Tabs>
+            <Hidden xsDown>
+                <Tabs
+                    orientation="vertical"
+                    value={store.get('selectedActionTab')}
+                    onChange={(e, value) => {
+                        this.changeTabs.bind(this)(value)
+                        history.push(value === 'exchange' ? '/' : '/stream')
+                    }}
+                    className={classes.tabs}
+                  >
+                    <Tab value={'exchange'} label="Exchange" />
+                    <Tab value={'stream'} label="Stream" />
+                </Tabs>
+            </Hidden>
+            <Hidden smUp>
+                <Tabs
+                    value={store.get('selectedActionTab')}
+                    onChange={(e, value) => {
+                        this.changeTabs.bind(this)(value)
+                        history.push(value === 'exchange' ? '/' : '/stream')
+                    }}
+                    className={classes.tabsMobile}
+                  >
+                    <Tab value={'exchange'} label="Exchange" />
+                    <Tab value={'stream'} label="Stream" />
+                </Tabs>
+            </Hidden>
         </div>
     }
 }

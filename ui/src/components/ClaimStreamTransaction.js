@@ -76,7 +76,7 @@ const ClaimStreamTransaction = function(props) {
         </Grid>
         <Grid item xs={8} className={classes.info}>
             <div className={classes.links}>
-                <a target='_blank' href={'https://kovan.etherscan.io/tx/'+tx.txHash}className={classes.viewLink}>
+                <a target='_blank' href={'https://'+ (tx.network === 'testnet' ? 'kovan.' : '') +'etherscan.io/tx/'+tx.txHash}className={classes.viewLink}>
                     View transaction
                 </a>
             </div>

@@ -42,7 +42,12 @@ const styles = () => ({
     warning: {
         marginTop: theme.spacing(4),
         marginBottom: theme.spacing(1),
-        width: '100%'
+        width: '100%',
+        '& span': {
+            padding: theme.spacing(0.5),
+            whiteSpace: 'normal',
+            // fontSize: 12
+        },
     }
 })
 

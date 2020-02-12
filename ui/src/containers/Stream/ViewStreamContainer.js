@@ -229,6 +229,7 @@ class ViewStreamContainer extends React.Component {
 
         const { claimTransactions } = selectedTx
         const claimRequesting = store.get('stream.claimRequesting')
+        const network = store.get('selectedNetwork')
 
         console.log('progress', progress)
 
@@ -288,7 +289,7 @@ class ViewStreamContainer extends React.Component {
                                     Cancel
                                 </a></p>}
 
-                            {selectedTx.awaiting === 'btc-settle' && <p><a target='_blank' href={`https://live.blockcypher.com/btc-testnet/tx/${selectedTx.btcTxHash}`}
+                            {selectedTx.awaiting === 'btc-settle' && <p><a target='_blank' href={`https://live.blockcypher.com/${network === 'testnet' ? 'btc-testnet' : 'btc'}/tx/${selectedTx.btcTxHash}`}
                                 className={classes.cancelLink}>
                                 View pending transaction
                             </a></p>}
@@ -310,7 +311,7 @@ class ViewStreamContainer extends React.Component {
                         <Grid item xs={12}>
                             <Grid container justify='center'>
                                 {selectedTx.awaiting === 'btc-init' || selectedTx.error || !selectedTx.awaiting ? <div className={classes.cancelLink}>
-                                    {selectedTx.txHash ? <a className={classes.viewLink} target='_blank' href={'https://kovan.etherscan.io/tx/'+selectedTx.txHash}>View transaction</a> : null}
+                                    {selectedTx.txHash ? <a className={classes.viewLink} target='_blank' href={'https://'+ (network === 'testnet' ? 'kovan.' : '') +'etherscan.io/tx/'+selectedTx.txHash}>View transaction</a> : null}
                                 </div> : null}
                                 {/*<span  onClick={() => store.set('activeStreamView', 'start')}>Cancel</span>*/}
                             </Grid>

@@ -314,9 +314,9 @@ class DepositContainer extends React.Component {
                                     <Grid className={classes.depositStatus} item xs={9}>
                                         <SwapTransactionStatus tx={tx} />
                                         <div>
-                                            {tx.awaiting === 'btc-settle' ? <a className={classes.viewLink} target='_blank' href={`https://live.blockcypher.com/btc-testnet/tx/${tx.btcTxHash}`}>View transaction</a> : null}
+                                            {tx.awaiting === 'btc-settle' ? <a className={classes.viewLink} target='_blank' href={`https://live.blockcypher.com/${tx.network === 'testnet' ? 'btc-testnet' : 'btc'}/tx/${tx.btcTxHash}`}>View transaction</a> : null}
                                             {tx.awaiting === 'btc-init' || tx.error || !tx.awaiting ? <div>
-                                                {tx.txHash ? <a className={classes.viewLink} target='_blank' href={'https://kovan.etherscan.io/tx/'+tx.txHash}>View transaction</a> : null}
+                                                {tx.txHash ? <a className={classes.viewLink} target='_blank' href={'https://' + (tx.network === 'testnet' ? 'kovan.' : '') + 'etherscan.io/tx/'+tx.txHash}>View transaction</a> : null}
                                                 <a href='javascript:;' onClick={() => {
                                                     removeTx(store, tx)
                                                 }}>{!tx.awaiting ? 'Clear' : 'Cancel'}</a></div> : null}
@@ -342,7 +342,7 @@ class DepositContainer extends React.Component {
                     </ul>
                 </p>
                 <p>
-                    Swaps are submitted to the following adapter address: <a target='_blank' href={'https://kovan.etherscan.io/address/'+adapterAddress}>{adapterAddress}</a>
+                    Swaps are submitted to the following adapter address: <a target='_blank' href={'https://' + (network === 'testnet' ? 'kovan.' : '') + 'etherscan.io/address/'+adapterAddress}>{adapterAddress}</a>
                 </p>
                 <p>
                     To learn more about building interoperable applications like this with RenVM, check out our <a target='_blank' href='https://renproject.io/developers'>developer center</a> or the following links:

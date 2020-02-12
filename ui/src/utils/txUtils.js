@@ -5,11 +5,11 @@ import BigNumber from 'bignumber.js'
 
 // export const API_URL = 'http://localhost:3000'
 export const API_URL = ''
-export const MIN_CLAIM_AMOUNT = 0.00011
+export const MIN_CLAIM_AMOUNT = 0.00010001
 export const SWAP_ADAPTER_TEST = '0xade8792c3ee90320cabde200ccab34b27cc88651'
-export const SWAP_ADAPTER_MAIN = ''
-export const STREAM_ADAPTER_TEST = '0x5dA168831EB6b4B6b0964cdac5A62a942E31B574'
-export const STREAM_ADAPTER_MAIN = '0x9A72f205D2f0d4F789B2D0810b72E6f8E888d031'
+export const SWAP_ADAPTER_MAIN = '0x35Db75fc0D5457eAb9C21AFb5857716427F8129D'
+export const STREAM_ADAPTER_TEST = '0x89E02f9A8E84f32Aa3694b43Ba86Af5448129CD0'
+export const STREAM_ADAPTER_MAIN = '0x5216dD52888cE0B484A4DeaA0Fb88Aac44231Fe5'
 let swapMonitor = null
 
 export const addTx = (store, tx) => {
@@ -50,14 +50,7 @@ export const removeTx = (store, tx) => {
 }
 
 export const streamExists = function(streams, beneficiary, startTime) {
-    return streams.filter(stream => {
-        console.log(stream, beneficiary, startTime)
-        if (stream.destAddress === beneficiary && stream.startTime === startTime)  {
-            return false
-        } else {
-            return true
-        }
-    }).length > 0
+    return streams.filter(stream => (stream.destAddress === beneficiary && stream.startTime === startTime)).length > 0
 }
 
 export const getStreams = async function() {
@@ -81,12 +74,12 @@ export const recoverStreams = async function(destAddress) {
     const schedules = await getStreams.bind(this)()
     const beneficiary = web3.utils.fromAscii(destAddress)
     const network = store.get('selectedNetwork')
-    // const transactions = store.get('stream.transactions')
-    // const alreadyExists = !streamExists(transactions, web3.utils.toAscii(s.beneficiary), Number(s.startTime))
+    const transactions = store.get('stream.transactions').filter(t => t.network === network)
 
     schedules.map(s => {
+        const alreadyExists = streamExists(transactions, web3.utils.toAscii(s.beneficiary), s.startTime)
         // console.log(s.beneficiary)
-        if (s.beneficiary === beneficiary) {
+        if (s.beneficiary === beneficiary && !alreadyExists) {
             const amount = new BigNumber(s.amount)
             const tx = {
                 id: 'tx-' + Math.random().toFixed(6),
@@ -219,6 +212,8 @@ export const claim = async function(tx) {
     const adapterContract = new web3.eth.Contract(streamAdapterABI, adapterAddress)
     const gasPrice = await web3Context.lib.eth.getGasPrice()
 
+    console.log('gasPrice', gasPrice)
+
     // console.log('claiming tx', tx, schedule, schedule.id)
 
     return new Promise(async (resolve, reject) => {
@@ -234,7 +229,8 @@ export const claim = async function(tx) {
                     claimTransactions: tx.claimTransactions.concat([{
                         timestamp: Date.now(),
                         amount: claimAmount,
-                        txHash: hash
+                        txHash: hash,
+                        network: tx.network
                     }])
                 }))
             }).on('confirmation', (confirmationNumber, receipt) => {
@@ -247,7 +243,7 @@ export const claim = async function(tx) {
             })
             // console.log('result', result)
         } catch(e) {
-            console.log(e)
+            console.log('error completing', e)
             store.set('stream.claimRequesting', false)
             reject()
         }
@@ -272,6 +268,8 @@ export const completeDeposit = async function(tx) {
 
     const gasPrice = await web3Context.lib.eth.getGasPrice()
 
+    console.log('gasPrice', gasPrice)
+
     updateTx(store, Object.assign(tx, { awaiting: 'eth-settle' }))
 
     console.log('completeDeposit', tx)
@@ -281,7 +279,7 @@ export const completeDeposit = async function(tx) {
         if (type === 'swap') {
             result = await adapterContract.methods.shiftInWithSwap(
                 params.contractCalls[0].contractParams[0].value,
-                params.sendAmount,
+                Number(params.sendAmount),
                 renResponse.autogen.nhash,
                 renSignature
             ).send({
@@ -294,7 +292,7 @@ export const completeDeposit = async function(tx) {
                 params.contractCalls[0].contractParams[0].value,
                 params.contractCalls[0].contractParams[1].value,
                 Number(params.contractCalls[0].contractParams[2].value),
-                params.sendAmount,
+                Number(params.sendAmount),
                 renResponse.autogen.nhash,
                 renSignature
             ).send({

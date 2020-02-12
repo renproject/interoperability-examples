@@ -207,4 +207,8 @@ router.get('/', function(req, res, next) {
     res.render('../ui/build/index')
 });
 
+router.get('/stream', function(req, res, next) {
+    res.render('../ui/build/index')
+});
+
 module.exports = router;
