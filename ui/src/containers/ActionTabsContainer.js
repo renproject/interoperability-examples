@@ -28,6 +28,9 @@ const styles = () => ({
         paddingRight: theme.spacing(4),
         '& .MuiTabs-flexContainer': {
             alignItems: 'flex-end',
+            [theme.breakpoints.down('xs')]: {
+                alignItems: 'flex-start',
+            }
         },
         '& .MuiTab-wrapper': {
             alignItems: 'flex-end',
@@ -53,7 +56,10 @@ const styles = () => ({
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'flex-end',
-        paddingTop: theme.spacing(4)
+        paddingTop: theme.spacing(4),
+        [theme.breakpoints.down('xs')]: {
+            alignItems: 'flex-start',
+        }
     },
     networkChooser: {
         marginRight: theme.spacing(5.5),
@@ -93,22 +99,6 @@ class ActionTabsContainer extends React.Component {
 
         return <div className={classes.container}>
             <img className={classes.logo} src={RenVMLogo} />
-            <FormControl variant="outlined" className={classes.networkChooser}>
-                <Select
-                    native
-                    value={store.get('selectedNetwork')}
-                    onChange={(event)=>{
-                        console.log(event.target.value)
-                        store.set('selectedNetwork', event.target.value)
-                    }}
-                    inputProps={{
-                        name: '',
-                        id: 'age-native-simple',
-                    }}>
-                    <option value="chaosnet">Chaosnet</option>
-                    <option value="testnet">Testnet</option>
-                </Select>
-            </FormControl>
             <Tabs
                 orientation="vertical"
                 value={store.get('selectedActionTab')}

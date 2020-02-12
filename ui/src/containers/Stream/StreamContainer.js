@@ -35,8 +35,14 @@ import {
     recoverStreams
 } from '../../utils/txUtils'
 
+import {
+    switchNetwork
+} from '../../utils/networkingUtils'
+
 import ViewStream from './ViewStreamContainer'
 import StreamTransaction from '../../components/StreamTransaction'
+import NetworkChooser from '../../components/NetworkChooser'
+import Disclosure from '../../components/Disclosure'
 
 const REACT_APP_TX_FEE = 100;
 const signKey = ephemeral();
@@ -124,7 +130,7 @@ const styles = () => ({
       marginBottom: theme.spacing(4),
       fontSize: 14,
       display: 'flex',
-      alignItems: 'flex-end',
+      alignItems: 'center',
       justifyContent: 'space-between'
   },
   btcLink: {
@@ -226,9 +232,11 @@ class StreamContainer extends React.Component {
         const address = store.get('stream.address')
         const startTime = Math.round(Date.now() / 1000)
         const duration = store.get('stream.duration')
+        const network = store.get('selectedNetwork')
 
         const tx = {
             id: 'tx-' + Math.random().toFixed(6),
+            network,
             type: 'stream',
             instant: false,
             awaiting: 'btc-init',
@@ -263,11 +271,11 @@ class StreamContainer extends React.Component {
         } = this.props
 
         // console.log(store.getState())
-
+        const network = store.get('selectedNetwork')
         const amount = store.get('stream.amount')
         const address = store.get('stream.address')
         const duration = store.get('stream.duration')
-        const transactions = store.get('stream.transactions')
+        const transactions = store.get('stream.transactions').filter(t => t.network === network)
         const activeView = store.get('stream.activeView')
         const selectedTx = store.get('stream.selectedTx')
         const searchAddress = store.get('stream.searchAddress')
@@ -282,6 +290,11 @@ class StreamContainer extends React.Component {
                     {activeView === 'start' && <React.Fragment>
                         <Grid className={classes.desc} item xs={12}>
                             <span >Stream BTC</span>
+                            <NetworkChooser
+                                currentNetwork={network}
+                                onChange={(e) => {
+                                    switchNetwork.bind(this)(e.target.value)
+                                }} />
                         </Grid>
                         <Grid item xs={12}>
                             <Grid container>
@@ -339,16 +352,16 @@ class StreamContainer extends React.Component {
 
                         <Grid item xs={12} className={classes.unfinished}>
                             {transactions && transactions.length ? transactions.map((tx, index) => {
-                                return <StreamTransaction
-                                    tx={tx}
-                                    index={index}
-                                    onView={t => {
-                                        this.viewTx.bind(this)(t)
-                                    }}
-                                    onCancel={t => {
-                                        removeTx(store, t)
-                                    }}/>
-                            }) : null}
+                                    return <StreamTransaction
+                                        tx={tx}
+                                        index={index}
+                                        onView={t => {
+                                            this.viewTx.bind(this)(t)
+                                        }}
+                                        onCancel={t => {
+                                            removeTx(store, t)
+                                        }}/>
+                                }) : null}
                         </Grid>
                     </React.Fragment>}
                     {activeView === 'view-stream' && <Grid container direction='row'>

@@ -23,6 +23,11 @@ import {
     ephemeral
 } from "@openzeppelin/network/lib";
 
+import {
+    switchNetwork
+} from '../utils/networkingUtils'
+
+import NetworkChooser from '../components/NetworkChooser'
 import SwapTransactionStatus from '../components/SwapTransactionStatus'
 
 import {
@@ -120,7 +125,7 @@ const styles = () => ({
       marginBottom: theme.spacing(4),
       fontSize: 14,
       display: 'flex',
-      alignItems: 'flex-end',
+      alignItems: 'center',
       justifyContent: 'space-between'
   },
   btcLink: {
@@ -197,9 +202,11 @@ class DepositContainer extends React.Component {
         const amount = store.get('swap.amount')
         const address = store.get('swap.address')
         const transactions = store.get('swap.transactions')
+        const network = store.get('selectedNetwork')
 
         const tx = {
             id: 'tx-' + Math.floor(Math.random() * (10 ** 16)),
+            network,
             type: 'swap',
             instant: false,
             awaiting: 'btc-init',
@@ -217,9 +224,11 @@ class DepositContainer extends React.Component {
         const amount = store.get('swap.amount')
         const address = store.get('swap.address')
         const transactions = store.get('swap.transactions')
+        const network = store.get('selectedNetwork')
 
         const tx = {
             id: 'tx-' + Math.floor(Math.random() * (10 ** 16)),
+            network,
             type: 'swap',
             instant: true,
             awaiting: 'btc-init',
@@ -238,11 +247,13 @@ class DepositContainer extends React.Component {
             store
         } = this.props
 
+        const network = store.get('selectedNetwork')
         const adapterAddress = store.get('swap.adapterAddress')
         const instantSwapSelected = store.get('swap.instantSwapSelected')
-        const transactions = store.get('swap.transactions')
+        const transactions = store.get('swap.transactions').filter(t => t.network === network)
         const amount = store.get('swap.amount')
         const address = store.get('swap.address')
+        const showInstant = network === 'testnet'
 
         console.log(store.getState())
 
@@ -255,6 +266,11 @@ class DepositContainer extends React.Component {
                 <Grid container direction='row'>
                     <Grid className={classes.desc} item xs={12}>
                         <span >Swap BTC for ETH</span>
+                        <NetworkChooser
+                            currentNetwork={network}
+                            onChange={(e) => {
+                                switchNetwork.bind(this)(e.target.value)
+                            }} />
                         {/*<span className={classes.btcLink}>Send testnet BTC from <a target='_blank' href={'https://tbtc.bitaps.com/'}>here</a></span>*/}
                     </Grid>
                     <Grid item xs={12}>
@@ -280,10 +296,10 @@ class DepositContainer extends React.Component {
 
                     </Grid>
                     <Grid item xs={12} className={classes.switchContainer}>
-                        <FormControlLabel control={<Switch checked={instantSwapSelected}
+                        {showInstant && <FormControlLabel control={<Switch checked={instantSwapSelected}
                             color='primary'
                             onChange={() => store.set('swap.instantSwapSelected', !instantSwapSelected)}
-                            value={"instant"} />} label="Faster swap (0 confirmations, 0.0005 BTC max)" />
+                            value={"instant"} />} label="Faster swap (0 confirmations, 0.0005 BTC max)" />}
                     </Grid>
                     <Grid item xs={12} className={classes.swapButtonContainer}>
                         <Button disabled={disabled} className={classes.swapButton} variant='outlined' color='primary' onClick={instantSwapSelected ? this.startInstant.bind(this) : this.start.bind(this)}>Start Swap</Button>
@@ -291,23 +307,23 @@ class DepositContainer extends React.Component {
                     {transactions && transactions.length ? <Grid item xs={12}><Divider className={classes.divider} /></Grid> : null}
                     <Grid item xs={12} className={classes.unfinished}>
                         {transactions && transactions.length ? transactions.map((tx, index) => {
-                            return <Grid key={index} container direction='row' className={classes.depositItem}>
-                                <Grid item xs={3}>
-                                    {tx.amount} BTC
+                                return <Grid key={index} container direction='row' className={classes.depositItem}>
+                                    <Grid item xs={3}>
+                                        {tx.amount} BTC
+                                    </Grid>
+                                    <Grid className={classes.depositStatus} item xs={9}>
+                                        <SwapTransactionStatus tx={tx} />
+                                        <div>
+                                            {tx.awaiting === 'btc-settle' ? <a className={classes.viewLink} target='_blank' href={`https://live.blockcypher.com/btc-testnet/tx/${tx.btcTxHash}`}>View transaction</a> : null}
+                                            {tx.awaiting === 'btc-init' || tx.error || !tx.awaiting ? <div>
+                                                {tx.txHash ? <a className={classes.viewLink} target='_blank' href={'https://kovan.etherscan.io/tx/'+tx.txHash}>View transaction</a> : null}
+                                                <a href='javascript:;' onClick={() => {
+                                                    removeTx(store, tx)
+                                                }}>{!tx.awaiting ? 'Clear' : 'Cancel'}</a></div> : null}
+                                        </div>
+                                    </Grid>
                                 </Grid>
-                                <Grid className={classes.depositStatus} item xs={9}>
-                                    <SwapTransactionStatus tx={tx} />
-                                    <div>
-                                        {tx.awaiting === 'btc-settle' ? <a className={classes.viewLink} target='_blank' href={`https://live.blockcypher.com/btc-testnet/tx/${tx.btcTxHash}`}>View transaction</a> : null}
-                                        {tx.awaiting === 'btc-init' || tx.error || !tx.awaiting ? <div>
-                                            {tx.txHash ? <a className={classes.viewLink} target='_blank' href={'https://kovan.etherscan.io/tx/'+tx.txHash}>View transaction</a> : null}
-                                            <a href='javascript:;' onClick={() => {
-                                                removeTx(store, tx)
-                                            }}>{!tx.awaiting ? 'Clear' : 'Cancel'}</a></div> : null}
-                                    </div>
-                                </Grid>
-                            </Grid>
-                        }) : null}
+                            }) : null}
                     </Grid>
                 </Grid>
             </Grid>

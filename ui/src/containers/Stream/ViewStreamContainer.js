@@ -120,7 +120,7 @@ const styles = () => ({
     },
     backLink: {
         fontSize: 12,
-        marginBottom: theme.spacing(3)
+        marginBottom: theme.spacing(4)
     },
     loadingContianer: {
         // paddingTop: theme.spacing(3)
@@ -365,7 +365,7 @@ class ViewStreamContainer extends React.Component {
                         onClick={() => {
                             this.claim.bind(this)()
                         }}>
-                        Claim {claimableAmount.toFixed(6)} BTC
+                        {claimRequesting ? `Submitting transaction...` : `Claim ${claimableAmount.toFixed(6)} BTC`}
                     </Button> : <span>{totalClaimablePercentrage < 100 ? `Minimum claim amount is ${MIN_CLAIM_AMOUNT} BTC` : 'All available funds claimed'}</span>}
                 </Grid>
                 {claimTransactions.length ? <Grid item xs={12}>

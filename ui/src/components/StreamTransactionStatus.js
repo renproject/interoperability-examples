@@ -27,10 +27,10 @@ const StreamTransactionStatus = function(props) {
                 {`BTC transaction confirming (${tx.btcConfirmations}/${'2'} complete)`}
             </span> : null}
             {tx.awaiting === 'ren-settle' ? <span>
-                {`Submitting to RenVM`}
+                {tx.error ? `Error submitting to RenVM` : `Submitting to RenVM`}
             </span> : null}
             {tx.awaiting === 'eth-settle' ? <span>
-                {`Submitting to Ethereum`}
+                {tx.error ? `Error submitting to Ethereum` : `Submitting to Ethereum`}
             </span> : null}
             {!tx.awaiting ? <span>{complete ? `Stream complete` : `Streaming in progress`}</span> : null}
     </React.Fragment>

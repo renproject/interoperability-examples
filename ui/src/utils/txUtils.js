@@ -3,11 +3,14 @@ import adapterABI from './exchangeAdapterSimpleABI.json'
 import streamAdapterABI from './streamAdapterSimpleABI.json'
 import BigNumber from 'bignumber.js'
 
-export const API_URL = ''
 // export const API_URL = 'http://localhost:3000'
+export const API_URL = ''
 export const MIN_CLAIM_AMOUNT = 0.00011
+export const SWAP_ADAPTER_TEST = '0xade8792c3ee90320cabde200ccab34b27cc88651'
+export const SWAP_ADAPTER_MAIN = ''
+export const STREAM_ADAPTER_TEST = '0x5dA168831EB6b4B6b0964cdac5A62a942E31B574'
+export const STREAM_ADAPTER_MAIN = '0x9A72f205D2f0d4F789B2D0810b72E6f8E888d031'
 let swapMonitor = null
-
 
 export const addTx = (store, tx) => {
     const storeString = tx.type === 'swap' ? 'swap.transactions' : 'stream.transactions'
@@ -157,7 +160,6 @@ export const calculateStreamProgress = function(tx) {
 
 }
 
-// make this better
 export const updateStreamInfo = async function(tx) {
     const { store } =  this.props
     const web3 = store.get('web3')
@@ -170,6 +172,9 @@ export const updateStreamInfo = async function(tx) {
         Number(s.startTime) === Number(startTime) &&
         s.beneficiary === beneficiary
     ))[0]
+
+    console.log('schedule', schedule, schedules)
+
     if (schedule && schedule.beneficiary) {
         // console.log('updateStreamInfo', schedules, schedule)
         const sched = {
@@ -251,9 +256,10 @@ export const completeDeposit = async function(tx) {
     const { store }  = this.props
     const web3 = store.get('web3')
     const web3Context = store.get('web3Context')
+    const pendingShiftIns = store.get('pendingShiftIns')
 
     // const adapterAddress = store.get('adapterAddress')
-    const { type, params, awaiting, renResponse, renSignature } = tx
+    const { id, type, params, awaiting, renResponse, renSignature } = tx
 
     let adapterContract
     if (type === 'swap') {
@@ -266,7 +272,7 @@ export const completeDeposit = async function(tx) {
 
     updateTx(store, Object.assign(tx, { awaiting: 'eth-settle' }))
 
-    // console.log('completeDeposit', tx)
+    console.log('completeDeposit', tx)
 
     try {
         let result
@@ -296,9 +302,10 @@ export const completeDeposit = async function(tx) {
             })
             await updateStreamInfo.bind(this)(tx)
         }
-        updateTx(store, Object.assign(tx, { awaiting: '', txHash: result.transactionHash }))
+        store.set('pendingShiftIns', pendingShiftIns.filter(p => p !== id))
+        updateTx(store, Object.assign(tx, { awaiting: '', txHash: result.transactionHash, error: false }))
     } catch(e) {
-        // console.log(e)
+        console.log(e)
         updateTx(store, Object.assign(tx, { error: true }))
     }
 }
@@ -376,6 +383,7 @@ export const initShiftIn = function(tx) {
 export const initDeposit = async function(tx) {
     const { store }  = this.props
     const {
+        id,
         params,
         awaiting,
         renResponse,
@@ -383,6 +391,11 @@ export const initDeposit = async function(tx) {
         error,
         btcConfirmations
     } = tx
+
+    const pendingShiftIns = store.get('pendingShiftIns')
+    if (pendingShiftIns.indexOf(id) < 0) {
+        store.set('pendingShiftIns', pendingShiftIns.concat([id]))
+    }
 
     // console.log('initDeposit', tx)
 
@@ -397,7 +410,7 @@ export const initDeposit = async function(tx) {
     }
 
     // ren already exposed a signature
-    if (renResponse && renSignature) {
+    if (renResponse && renSignature && !error) {
         completeDeposit.bind(this)(tx)
     } else {
         // create or re-create shift in
@@ -475,9 +488,11 @@ export const initInstantSwap = async function(tx) {
 }
 
 export const initInstantMonitoring = function() {
-    console.log('initInstantMonitoring before', this.props.store.get('transactions'))
+    const store = this.props.store
+    const network = store.get('selectedNetwork')
+
     swapMonitor = setInterval(async () => {
-        const transactions = this.props.store.get('swap.transactions')
+        const transactions = store.get('swap.transactions').filter(t => t.network === network)
         transactions.filter((t) => (t.instant && t.awaiting === 'btc-init')).map(async tx => {
             const req = await fetch(`${API_URL}/swap-gateway/status?gateway=${tx.renBtcAddress}`, {
                 method: 'GET',
@@ -499,12 +514,15 @@ export const initInstantMonitoring = function() {
 
 export const initMonitoring = function() {
     const store = this.props.store
+    const network = store.get('selectedNetwork')
+    const pendingShiftIns = store.get('pendingShiftIns')
+    const txs = store.get('swap.transactions').concat(store.get('stream.transactions')).filter(t => t.network === network)
 
-    const txs = store.get('swap.transactions').concat(store.get('stream.transactions'))
-    // console.log('initMonitoring', txs)
     txs.map(tx => {
-        if (tx.awaiting && !tx.instant && !tx.error) {
-            initDeposit.bind(this)(tx)
+        if (tx.awaiting && !tx.instant) {
+            if (pendingShiftIns.indexOf(tx.id) < 0) {
+                initDeposit.bind(this)(tx)
+            }
         } else if (tx.type === 'stream') {
             updateStreamInfo.bind(this)(tx)
         }
