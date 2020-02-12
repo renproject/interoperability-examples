@@ -80,7 +80,8 @@ export const recoverStreams = async function(destAddress) {
     const web3 = store.get('web3')
     const schedules = await getStreams.bind(this)()
     const beneficiary = web3.utils.fromAscii(destAddress)
-    const transactions = store.get('stream.transactions')
+    const network = store.get('selectedNetwork')
+    // const transactions = store.get('stream.transactions')
     // const alreadyExists = !streamExists(transactions, web3.utils.toAscii(s.beneficiary), Number(s.startTime))
 
     schedules.map(s => {
@@ -89,6 +90,7 @@ export const recoverStreams = async function(destAddress) {
             const amount = new BigNumber(s.amount)
             const tx = {
                 id: 'tx-' + Math.random().toFixed(6),
+                network,
                 type: 'stream',
                 instant: false,
                 awaiting: '',
