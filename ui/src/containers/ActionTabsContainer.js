@@ -100,10 +100,10 @@ class ActionTabsContainer extends React.Component {
     }
 
     componentWillMount() {
-        const { location, store } = this.props
-        if (location.pathname && location.pathname.match(/stream/)) {
-            store.set('selectedActionTab', 'stream')
-        }
+        // const { location, store } = this.props
+        // if (location.pathname && location.pathname.match(/stream/)) {
+        //     store.set('selectedActionTab', 'stream')
+        // }
     }
 
     changeTabs(value) {
@@ -153,4 +153,4 @@ class ActionTabsContainer extends React.Component {
     }
 }
 
-export default withRouter(withStyles(styles)(withStore(ActionTabsContainer)))
+export default withStyles(styles)(withStore(ActionTabsContainer))

@@ -102,29 +102,27 @@ class AppWrapper extends React.Component {
         } = store.getState()
 
         return <Container maxWidth="lg">
-            <Router>
-                <Grid container>
-                    {/*<Grid item xs={12}>
-                        <NavContainer />
-                    </Grid>*/}
-                    <Grid item xs={12} sm={3} md={3}>
-                        <ActionTabsContainer />
-                    </Grid>
-                    <Grid className={classes.content} item xs={12} sm={9} md={6}>
-                        <div className={classes.warning}><Disclosure /></div>
-                        {selectedActionTab === 'exchange' && <DepositContainer />}
-                        {selectedActionTab === 'stream' && <StreamContainer />}
-                        {/*<Switch>
-                            <Route exact path="/" component={<DepositContainer />}>
-                                {selectedActionTab === 'exchange' && <DepositContainer />}
-                            </Route>
-                            <Route path="/stream">
-                                {selectedActionTab === 'swap' && <StreamContainer />}
-                            </Route>
-                        </Switch>*/}
-                    </Grid>
+            <Grid container>
+                {/*<Grid item xs={12}>
+                    <NavContainer />
+                </Grid>*/}
+                <Grid item xs={12} sm={3} md={3}>
+                    <ActionTabsContainer />
                 </Grid>
-            </Router>
+                <Grid className={classes.content} item xs={12} sm={9} md={6}>
+                    <div className={classes.warning}><Disclosure /></div>
+                    {selectedActionTab === 'exchange' && <DepositContainer />}
+                    {selectedActionTab === 'stream' && <StreamContainer />}
+                    {/*<Switch>
+                        <Route exact path="/" component={<DepositContainer />}>
+                            {selectedActionTab === 'exchange' && <DepositContainer />}
+                        </Route>
+                        <Route path="/stream">
+                            {selectedActionTab === 'swap' && <StreamContainer />}
+                        </Route>
+                    </Switch>*/}
+                </Grid>
+            </Grid>
         </Container>
     }
 }
