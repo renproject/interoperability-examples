@@ -128,7 +128,7 @@ class ActionTabsContainer extends React.Component {
                     value={store.get('selectedActionTab')}
                     onChange={(e, value) => {
                         this.changeTabs.bind(this)(value)
-                        history.push(value === 'exchange' ? '/' : '/stream')
+                        // history.push(value === 'exchange' ? '/' : '/stream')
                     }}
                     className={classes.tabs}
                   >
@@ -141,7 +141,7 @@ class ActionTabsContainer extends React.Component {
                     value={store.get('selectedActionTab')}
                     onChange={(e, value) => {
                         this.changeTabs.bind(this)(value)
-                        history.push(value === 'exchange' ? '/' : '/stream')
+                        // history.push(value === 'exchange' ? '/' : '/stream')
                     }}
                     className={classes.tabsMobile}
                   >
