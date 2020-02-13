@@ -10,6 +10,7 @@
     "@renproject/ren": "^0.6.0",
     "@spyna/react-store": "^1.4.0",
     "bignumber.js": "^9.0.0",
+    "bitcoin-address-validation": "^1.0.1",
     "classnames": "^2.2.6",
     "ln": "^0.4.3",
     "material-ui": "^0.20.2",

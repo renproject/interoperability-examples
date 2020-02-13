@@ -1,5 +1,6 @@
 import React from 'react';
 import { withStore } from '@spyna/react-store'
+import validate from 'bitcoin-address-validation';
 import { withStyles } from '@material-ui/styles';
 import theme from '../../theme/theme'
 import classNames from 'classnames'
@@ -281,7 +282,9 @@ class StreamContainer extends React.Component {
         const searchAddress = store.get('stream.searchAddress')
         const adapterAddress = store.get('stream.adapterAddress')
 
-        const disabled = amount < 0.00011 || !address || !duration
+        const validation = validate(address)
+        const validAddress = validation && !validation.bech32
+        const disabled = amount < 0.00011 || !address || !duration || !validAddress
         // const disabled = false
 
         return <Grid container>
