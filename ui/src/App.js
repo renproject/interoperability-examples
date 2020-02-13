@@ -112,14 +112,16 @@ class AppWrapper extends React.Component {
                     </Grid>
                     <Grid className={classes.content} item xs={12} sm={9} md={6}>
                         <div className={classes.warning}><Disclosure /></div>
-                        <Switch>
+                        {selectedActionTab === 'exchange' && <DepositContainer />}
+                        {selectedActionTab === 'swap' && <StreamContainer />}
+                        {/*<Switch>
                             <Route exact path="/" component={<DepositContainer />}>
-                                {<DepositContainer />}
+                                {selectedActionTab === 'exchange' && <DepositContainer />}
                             </Route>
                             <Route path="/stream">
-                                {<StreamContainer />}
+                                {selectedActionTab === 'swap' && <StreamContainer />}
                             </Route>
-                        </Switch>
+                        </Switch>*/}
                     </Grid>
                 </Grid>
             </Router>
