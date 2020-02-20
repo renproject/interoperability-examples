@@ -23,26 +23,52 @@ import Hidden from '@material-ui/core/Hidden';
 import { withRouter } from "react-router";
 
 import RenVMLogo from '../assets/renvm-logo.svg'
+import { ReactComponent as ExchangeIcon } from '../assets/exchange.svg'
+import { ReactComponent as StreamIcon } from '../assets/stream.svg'
+import { ReactComponent as TwitterIcon } from '../assets/twitter.svg'
+import { ReactComponent as GithubIcon } from '../assets/github.svg'
+import { ReactComponent as TelegramIcon } from '../assets/telegram.svg'
+import { ReactComponent as RedditIcon } from '../assets/reddit.svg'
 
 const styles = () => ({
     tabs: {
-        paddingTop: theme.spacing(2),
-        paddingRight: theme.spacing(4),
+        // paddingTop: theme.spacing(2),
+        // paddingRight: theme.spacing(4),
         '& .MuiTabs-flexContainer': {
             alignItems: 'flex-end',
+            width: '100%'
         },
         '& .MuiTab-wrapper': {
-            alignItems: 'flex-end',
+            // alignItems: 'flex-start',
+            flexDirection: 'row',
+            justifyContent: 'flex-start',
+            alignItems: 'center',
+            '& svg': {
+                marginRight: theme.spacing(2),
+                marginBottom: '0px !important'
+            },
             // paddingRight: theme.spacing(1)
         },
         '& span.MuiTabs-indicator': {
-            backgroundColor: 'transparent'
+            backgroundColor: '#006BEC',
+            width: 11,
+            right: 'calc(100% - 11px)',
         },
         '& button.MuiTab-textColorInherit': {
-            color: '#7f7f7f',
+            color: '#fff',
+            textTransform: 'capitalize',
+            maxWidth: 350,
+            width: '100%',
+            fontSize: 18,
+            borderTop: '1px solid #142F4D',
+            minHeight: 90,
+            paddingLeft: theme.spacing(4),
         },
         '& button.MuiTab-textColorInherit.Mui-selected': {
-            color: '#333',
+            color: '#006BEC',
+            '& path': {
+                fill: '#006BEC'
+            }
         },
         width: '100%'
     },
@@ -67,16 +93,28 @@ const styles = () => ({
         },
         // width: '100%'
     },
+    logoContainer: {
+        maxWidth: 350,
+        width: '100%',
+        paddingTop: theme.spacing(4),
+        paddingBottom: theme.spacing(4),
+        // borderBottom: '1px solid #142F4D'
+    },
     logo: {
-        width: 120,
+        width: 184,
+        maxWidth: '100%',
         height: 'auto',
-        marginRight: theme.spacing(5.5)
+        marginLeft: theme.spacing(4)
     },
     container: {
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'flex-end',
-        paddingTop: theme.spacing(4),
+        justifyContent: 'space-between',
+        // paddingTop: theme.spacing(4),
+        background: '#001B3A',
+        color: '#fff',
+        minHeight: '100%',
         [theme.breakpoints.down('xs')]: {
             alignItems: 'center',
             justifyContent: 'space-between',
@@ -87,6 +125,35 @@ const styles = () => ({
     networkChooser: {
         marginRight: theme.spacing(5.5),
         marginTop: theme.spacing(1)
+    },
+    top: {
+        maxWidth: 350,
+        width: '100%',
+    },
+    bottom: {
+        boxSizing: 'border-box',
+        maxWidth: 350,
+        width: '100%',
+        borderTop: '1px solid #142F4D',
+        padding: theme.spacing(4),
+        fontSize: 14,
+        fontWeight: 'normal',
+        color: '#CCD1D8',
+        '& span': {
+            color: '#fff',
+            fontSize: 16,
+            lineHeight: 2
+        }
+    },
+    footer: {
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'flex-start',
+        paddingTop: theme.spacing(6),
+        paddingBottom: theme.spacing(3),
+        '& a': {
+            marginRight: theme.spacing(3)
+        }
     }
 })
 
@@ -121,33 +188,65 @@ class ActionTabsContainer extends React.Component {
         // console.log(this.props, this.state)
 
         return <div className={classes.container}>
-            <img className={classes.logo} src={RenVMLogo} />
+            <div className={classes.top}>
+                <div className={classes.logoContainer}>
+                    <img className={classes.logo} src={RenVMLogo} />
+                </div>
+                <Hidden xsDown>
+                    <Tabs
+                        orientation="vertical"
+                        value={store.get('selectedActionTab')}
+                        onChange={(e, value) => {
+                            this.changeTabs.bind(this)(value)
+                            // history.push(value === 'exchange' ? '/' : '/stream')
+                        }}
+                        className={classes.tabs}
+                      >
+                        <Tab icon={<ExchangeIcon />} value={'exchange'} label={<span>Exchange</span>} />
+                        <Tab icon={<StreamIcon />} value={'stream'} label={<span>Stream</span>} />
+                    </Tabs>
+                </Hidden>
+                <Hidden smUp>
+                    <Tabs
+                        value={store.get('selectedActionTab')}
+                        onChange={(e, value) => {
+                            this.changeTabs.bind(this)(value)
+                            // history.push(value === 'exchange' ? '/' : '/stream')
+                        }}
+                        className={classes.tabsMobile}
+                      >
+                        <Tab value={'exchange'} label="Exchange" />
+                        <Tab value={'stream'} label="Stream" />
+                    </Tabs>
+                </Hidden>
+            </div>
             <Hidden xsDown>
-                <Tabs
-                    orientation="vertical"
-                    value={store.get('selectedActionTab')}
-                    onChange={(e, value) => {
-                        this.changeTabs.bind(this)(value)
-                        // history.push(value === 'exchange' ? '/' : '/stream')
-                    }}
-                    className={classes.tabs}
-                  >
-                    <Tab value={'exchange'} label="Exchange" />
-                    <Tab value={'stream'} label="Stream" />
-                </Tabs>
-            </Hidden>
-            <Hidden smUp>
-                <Tabs
-                    value={store.get('selectedActionTab')}
-                    onChange={(e, value) => {
-                        this.changeTabs.bind(this)(value)
-                        // history.push(value === 'exchange' ? '/' : '/stream')
-                    }}
-                    className={classes.tabsMobile}
-                  >
-                    <Tab value={'exchange'} label="Exchange" />
-                    <Tab value={'stream'} label="Stream" />
-                </Tabs>
+                <div className={classes.bottom}>
+                    <Typography variant='subtitle2'>
+                        <span className={classes.subtitle}>About</span>
+                        <br />
+                    </Typography>
+                    <Typography variant='body2'>
+                        An experimental laboratory where we’ll be demonstrating the capabilities of&nbsp;RenVM.
+                    </Typography>
+                    <Typography variant='subtitle2'>
+                        <br />
+                        <span className={classes.subtitle}>RenVM</span>
+                        <br />
+                    </Typography>
+                    <Typography variant='body2'>
+                        RenVM facilitates the trustless swap of digital assets between blockchains. Assets are custodied in a decentralized network and minted on to new blockchains. <br/><a href='https://renproject.io' target='_blank'>Find out&nbsp;more</a>
+                    </Typography>
+                    <div className={classes.footer}>
+                        <a href='https://renproject.io' target='_blank'><TwitterIcon/></a>
+                        <a href='https://renproject.io' target='_blank'><GithubIcon/></a>
+                        <a href='https://renproject.io' target='_blank'><TelegramIcon/></a>
+                        <a href='https://renproject.io' target='_blank'><RedditIcon/></a>
+                    </div>
+                    <div className={classes.contact}>
+                        <a href='https://renproject.io' target='_blank'>Contact</a>
+                    </div>
+                </div>
             </Hidden>
         </div>
     }

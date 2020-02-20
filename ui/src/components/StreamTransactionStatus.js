@@ -3,6 +3,7 @@ import theme from '../theme/theme'
 // import classNames from 'classnames'
 import { withStyles } from '@material-ui/styles';
 import { calculateStreamProgress } from '../utils/txUtils'
+import Typography from '@material-ui/core/Typography';
 
 const styles = () => ({
 })
@@ -20,6 +21,7 @@ const StreamTransactionStatus = function(props) {
     const complete = totalClaimablePercentrage === 100
 
     return <React.Fragment>
+        <Typography variant='caption'>
             {tx.awaiting === 'btc-init' ? <span>
                 {`Waiting for BTC transaction to be initiated`}
             </span> : null}
@@ -33,6 +35,7 @@ const StreamTransactionStatus = function(props) {
                 {tx.error ? `Error submitting to Ethereum` : `Submitting to Ethereum`}
             </span> : null}
             {!tx.awaiting ? <span>{complete ? `Stream complete` : `Streaming in progress`}</span> : null}
+        </Typography>
     </React.Fragment>
 }
 

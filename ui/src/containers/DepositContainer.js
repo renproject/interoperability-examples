@@ -64,11 +64,21 @@ const styles = () => ({
     paddingBottom: theme.spacing(3),
     minHeight: 52
   },
+  wrapper: {
+      // minWidth: '100%',
+      // width: 572,
+      // marginLeft: 'auto',
+      // marginRight: 'auto',
+  },
   contentContainer: {
       // boxShadow: '0px 0px 30px 0px rgba(0, 0, 0, 0.05)',
-      borderRadius: theme.shape.borderRadius,
-      border: '1px solid #7f7f7f',
-      padding: theme.spacing(3),
+      borderRadius: theme.shape.borderRadius * 2,
+      border: '1px solid #DCE0E3',
+      // padding: theme.spacing(3),
+      background: '#fff',
+      boxShadow: '0px 0px 4px rgba(0, 27, 58, 0.1)',
+      width: 572,
+      boxSizing: 'border-box',
 
       // marginTop: theme.spacing(4),
       marginBottom: theme.spacing(3),
@@ -76,22 +86,19 @@ const styles = () => ({
       }
   },
   input: {
-      marginBottom: theme.spacing(2),
+      // marginBottom: theme.spacing(2),
       width: '100%',
-      '& input': {
-          fontSize: 12
-      },
-      '& p': {
-          fontSize: 12
-      },
-      '& .MuiOutlinedInput-notchedOutline': {
-          borderColor: 'rgba(0, 0, 0, 0.5) !important'
-      }
+  },
+  inputContainer: {
+      padding: theme.spacing(3)
   },
   amountContainer: {
-    paddingRight: theme.spacing(1)
+    paddingRight: theme.spacing(2)
   },
   amount: {
+  },
+  switch: {
+    float: 'right'
   },
   title: {
       fontSize: 16,
@@ -100,6 +107,7 @@ const styles = () => ({
   },
   unfinished: {
       // marginTop: theme.spacing(3)
+      padding: theme.spacing(3)
   },
   depositItem: {
       fontSize: 12,
@@ -141,12 +149,14 @@ const styles = () => ({
   },
   swapButtonContainer: {
       textAlign: 'center',
-      paddingTop: theme.spacing(1),
-      paddingBottom: theme.spacing(1)
+      padding: theme.spacing(3),
+      // paddingTop: theme.spacing(1),
+      // paddingBottom: theme.spacing(1)
   },
   switchContainer: {
-      textAlign: 'center',
-      paddingBottom: theme.spacing(1),
+      // textAlign: 'center',
+      padding: theme.spacing(3),
+      // paddingBottom: theme.spacing(1),
       '& .MuiFormControlLabel-label': {
           fontSize: 12
       }
@@ -259,57 +269,87 @@ class DepositContainer extends React.Component {
 
         const disabled = amount <= 0.0001 || (amount > 0.0005 && instantSwapSelected) || !address
 
-        return <Grid container>
+        return <div><Grid container justify='center' className={classes.wrapper} >
             {/*<Typography variant={'h1'} className={classes.title}>Kovan ETH – Testnet BTC Exchange</Typography>*/}
 
-            <Grid item xs={12} className={classes.contentContainer}>
+            <Grid className={classes.contentContainer}>
                 <Grid container direction='row'>
-                    <Grid className={classes.desc} item xs={12}>
+                    {/*<Grid className={classes.desc} item xs={12}>
                         <span >Swap BTC for ETH</span>
                         <NetworkChooser
                             currentNetwork={network}
                             onChange={(e) => {
                                 switchNetwork.bind(this)(e.target.value)
                             }} />
-                        {/*<span className={classes.btcLink}>Send testnet BTC from <a target='_blank' href={'https://tbtc.bitaps.com/'}>here</a></span>*/}
-                    </Grid>
+                    </Grid>*/}
                     <Grid item xs={12}>
-                        <Grid container>
+                        <Grid container className={classes.inputContainer}>
                             <Grid item xs={4} className={classes.amountContainer}>
                                 <TextField className={classNames(classes.input, classes.amount)}
-                                    variant='outlined'
-                                    size='small'
-                                    placeholder='0.000000'
+                                    label='Input'
+                                    variant='filled'
+                                    placeholder=''
                                     onChange={e => {
                                         store.set('swap.amount', e.target.value)
+                                    }}
+                                    InputLabelProps={{
+                                        shrink: true,
                                     }}
                                     InputProps={{
                                         endAdornment: <InputAdornment className={classes.endAdornment} position="end">BTC</InputAdornment>
                                     }}/>
                             </Grid>
                             <Grid item xs={8}>
-                                <TextField className={classNames(classes.input, classes.address)} variant='outlined' size='small' placeholder='Send to ETH Address' onChange={e => {
-                                    store.set('swap.address', e.target.value)
-                                }}/>
+                                <TextField className={classNames(classes.input, classes.address)}
+                                    label='Send ETH to Ethereum Address'
+                                    variant='filled'
+                                    helperText=''
+                                    placeholder=''
+                                    InputLabelProps={{
+                                        shrink: true,
+                                    }}
+                                    onChange={e => {
+                                        store.set('swap.address', e.target.value)
+                                    }}/>
                             </Grid>
                         </Grid>
 
                     </Grid>
+                    <Grid item xs={12}>
+                        <Divider />
+                    </Grid>
                     <Grid item xs={12} className={classes.switchContainer}>
-                        {showInstant && <FormControlLabel control={<Switch checked={instantSwapSelected}
-                            color='primary'
-                            onChange={() => store.set('swap.instantSwapSelected', !instantSwapSelected)}
-                            value={"instant"} />} label="Faster swap (0 confirmations, 0.0005 BTC max)" />}
+                        <Grid container>
+                            <Grid item xs={9}>
+                                <Typography variant='subtitle1'>Faster Transaction</Typography>
+                                <Typography variant='caption'>
+                                    Pay a 0.1% fee to enable an swap after 0 BTC confirmations. Faster swaps have a maximum of 0.0005&nbsp;BTC.
+                                </Typography>
+                            </Grid>
+                            <Grid item xs={3}>
+                                {showInstant && <Switch className={classes.switch} checked={instantSwapSelected}
+                                    color='primary'
+                                    onChange={() => store.set('swap.instantSwapSelected', !instantSwapSelected)}
+                                    value={"instant"} />}
+                                {/*showInstant && <FormControlLabel control={<Switch checked={instantSwapSelected}
+                                    color='primary'
+                                    onChange={() => store.set('swap.instantSwapSelected', !instantSwapSelected)}
+                                    value={"instant"} />} label="Faster swap (0 confirmations, 0.0005 BTC max)" />*/}
+                            </Grid>
+                        </Grid>
+                    </Grid>
+                    <Grid item xs={12}>
+                        <Divider />
                     </Grid>
                     <Grid item xs={12} className={classes.swapButtonContainer}>
-                        <Button disabled={disabled} className={classes.swapButton} variant='outlined' color='primary' onClick={instantSwapSelected ? this.startInstant.bind(this) : this.start.bind(this)}>Start Swap</Button>
+                        <Button disabled={disabled} className={classes.swapButton} variant='contained' color='primary' size='large' onClick={instantSwapSelected ? this.startInstant.bind(this) : this.start.bind(this)}>Reveal BTC Deposit Address</Button>
                     </Grid>
-                    {transactions && transactions.length ? <Grid item xs={12}><Divider className={classes.divider} /></Grid> : null}
+                    {transactions && transactions.length ? <Grid item xs={12}><Divider/></Grid> : null}
                     <Grid item xs={12} className={classes.unfinished}>
                         {transactions && transactions.length ? transactions.map((tx, index) => {
                                 return <Grid key={index} container direction='row' className={classes.depositItem}>
                                     <Grid item xs={3}>
-                                        {tx.amount} BTC
+                                        <Typography variant='caption'>{tx.amount} BTC</Typography>
                                     </Grid>
                                     <Grid className={classes.depositStatus} item xs={9}>
                                         <SwapTransactionStatus tx={tx} />
@@ -327,37 +367,7 @@ class DepositContainer extends React.Component {
                     </Grid>
                 </Grid>
             </Grid>
-
-            {<Grid item xs={12} className={classes.info}>
-                <p>
-                    <b className={classes.caption}>How it Works</b>
-                    <br/>
-                    <br/>
-                    This exchange uses <a target='_blank' href='https://renproject.io/'>RenVM</a>, <a target='_blank' href='https://uniswap.io/'>Uniswap</a>, and Open Zeppelin's <a target='_blank' href='https://gsn.openzeppelin.com/'>GSN</a> to facilitate trustless interoperabilty between Bitcoin and Ethereum. All swaps abstract ETH away from the user with the <b>GaaS pattern</b>, and faster swaps are faciliated using the <b>CaaS pattern</b>. To learn more, check out our interoperability tutorials below:
-                </p>
-                <p>
-                    <ul>
-                        <li><a target='_blank' href={'https://docs.renproject.io/developers/tutorials'}>GaaS Tutorial</a> | Gas-less transactions</li>
-                        <li><a target='_blank' href={'https://docs.renproject.io/developers/tutorials'}>CaaS tutorial</a> | Faster swaps via expedited confirmations</li>
-                    </ul>
-                </p>
-                <p>
-                    Swaps are submitted to the following adapter address: <a target='_blank' href={'https://' + (network === 'testnet' ? 'kovan.' : '') + 'etherscan.io/address/'+adapterAddress}>{adapterAddress}</a>
-                </p>
-                <p>
-                    To learn more about building interoperable applications like this with RenVM, check out our <a target='_blank' href='https://renproject.io/developers'>developer center</a> or the following links:
-                    <ul>
-                        <li><a target='_blank' href={'https://docs.renproject.io/developers/ren-sdk'}>Getting started with RenJS</a></li>
-                        <li><a target='_blank' href={'https://docs.renproject.io/developers/gateway-js'}>Getting started with GatewayJS</a></li>
-                        <li><a target='_blank' href={'https://github.com/renproject/ren/wiki'}>Github Spec</a></li>
-                    </ul>
-                </p>
-                <p>
-
-                </p>
-            </Grid>}
-
-        </Grid>
+        </Grid></div>
     }
 }
 

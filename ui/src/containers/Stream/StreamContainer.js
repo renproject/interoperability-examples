@@ -72,8 +72,12 @@ const styles = () => ({
   },
   contentContainer: {
       // boxShadow: '0px 0px 30px 0px rgba(0, 0, 0, 0.05)',
-      borderRadius: theme.shape.borderRadius,
-      border: '1px solid #7f7f7f',
+      borderRadius: theme.shape.borderRadius * 2,
+      border: '1px solid #DCE0E3',
+      boxShadow: '0px 0px 4px rgba(0, 27, 58, 0.1)',
+      background: '#fff',
+      width: 572,
+      boxSizing: 'border-box',
       padding: theme.spacing(3),
 
       // marginTop: theme.spacing(4),
@@ -287,8 +291,8 @@ class StreamContainer extends React.Component {
         const disabled = amount < 0.00011 || !address || !duration || !validAddress
         // const disabled = false
 
-        return <Grid container>
-            <Grid item xs={12} className={classes.contentContainer}>
+        return <div><Grid container justify='center' className={classes.wrapper} >
+            <Grid className={classes.contentContainer}>
                 <Grid container direction='row'>
                     {activeView === 'start' && <React.Fragment>
                         <Grid className={classes.desc} item xs={12}>
@@ -376,27 +380,10 @@ class StreamContainer extends React.Component {
             </Grid>
 
             {<Grid item xs={12} className={classes.info}>
-                <p>
-                    <b className={classes.caption}>How it Works</b>
-                    <br/>
-                    <br/>
-                    Streams use <a target='_blank' href='https://renproject.io/'>RenVM</a> and Open Zeppelin's <a target='_blank' href='https://gsn.openzeppelin.com/'>GSN</a> to facilitate trustless interoperabilty between Bitcoin and Ethereum. Active streams are held in a smart contract that allows anyone to shift out a valid amount of earned BTC to the recipient BTC address at any time.
-                </p>
-                <p>
-                    Streams are facilitated through the following adapter address: <a target='_blank' href={'https://'+ (network === 'testnet' ? 'kovan.' : '') +'etherscan.io/address/'+adapterAddress}>{adapterAddress}</a>
-                </p>
-                <p>
-                    To learn more about building interoperable applications like this with RenVM, check out our <a target='_blank' href='https://renproject.io/developers'>developer center</a> or the following links:
-                </p>
-                <ul>
-                    <li><a target='_blank' href={'https://docs.renproject.io/developers/tutorials'}>Bitcoin Payments Tutorial</a> | Scheduled Bitcoin Payments</li>
-                    <li><a target='_blank' href={'https://docs.renproject.io/developers/ren-sdk'}>Getting started with RenJS</a></li>
-                    <li><a target='_blank' href={'https://docs.renproject.io/developers/gateway-js'}>Getting started with GatewayJS</a></li>
-                    <li><a target='_blank' href={'https://github.com/renproject/ren/wiki'}>Github Spec</a></li>
-                </ul>
+
             </Grid>}
 
-        </Grid>
+        </Grid></div>
     }
 }
 
