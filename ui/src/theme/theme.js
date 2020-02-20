@@ -76,16 +76,11 @@ export default createMuiTheme({
         MuiOutlinedInput: {
             root:{
                 '& input': {
-                    // minHeight: 32
                 },
-            //     '&:hover': {
-            //         // notchedOutline: {
-            //             borderColor: '#EBEBEB'
-            //         // }
-            //     }
             },
             notchedOutline: {
-                borderColor: '#eee !important',
+                borderRadius: 16,
+                borderColor: '#DCE0E3 !important',
                 borderWidth: '1px !important'
             }
         },
@@ -108,7 +103,6 @@ export default createMuiTheme({
             }
           }
         },
-        // .MuiToggleButtonGroup-grouped:not(:first-child)
         MuiToggleButton: {
             root: {
                 border: '1px solid #EBEBEB',

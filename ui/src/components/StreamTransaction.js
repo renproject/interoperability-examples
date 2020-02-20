@@ -8,14 +8,20 @@ import Input from '@material-ui/core/Input';
 import TextField from '@material-ui/core/TextField';
 import Grid from '@material-ui/core/Grid';
 import CircularProgress from '@material-ui/core/CircularProgress';
+import Typography from '@material-ui/core/Typography';
 
 import StreamTransactionStatus from './StreamTransactionStatus'
 import { calculateStreamProgress } from '../utils/txUtils'
 
 const styles = () => ({
     depositItem: {
-        fontSize: 12,
-        marginBottom: theme.spacing(1)
+        marginBottom: theme.spacing(3),
+        padding: theme.spacing(3),
+        borderRadius: 12,
+        border: '1px solid #DCE0E3',
+        background: '#fff',
+        boxShadow: '0px 0px 4px rgba(0, 27, 58, 0.1)',
+        boxSizing: 'border-box',
     },
     depositStatus: {
         display: 'flex',
@@ -37,13 +43,13 @@ const styles = () => ({
         color: '#eee',
     },
     progressMiddle: {
-        color: '#63ccff78',
+        color: theme.palette.primary.light,
         animationDuration: '550ms',
         position: 'absolute',
         left: 0,
     },
     progressBottom: {
-        color: '#039BE5',
+        color: theme.palette.primary.main,
         animationDuration: '550ms',
         position: 'absolute',
         left: 0,
@@ -105,18 +111,20 @@ const StreamTransaction = function(props) {
                             thickness={4}
                           />
                     </div>
-                    <span>{tx.amount} BTC</span>
+                    <Typography variant='caption'>{tx.amount} BTC</Typography>
                 </Grid>
             </Grid>
             <Grid className={classes.depositStatus} item xs={8}>
                 <StreamTransactionStatus tx={tx} />
                 <div className={classes.links}>
-                    <a href='javascript:;' className={classes.viewLink} onClick={() => (onView(tx))}>
-                        View
-                    </a>
-                    {completed && <a href='javascript:;' className={classes.viewLink} onClick={() => (onCancel(tx))}>
-                        Clear
-                    </a>}
+                    <Typography variant='caption'>
+                        <a href='javascript:;' className={classes.viewLink} onClick={() => (onView(tx))}>
+                            View
+                        </a>
+                        {completed && <a href='javascript:;' className={classes.viewLink} onClick={() => (onCancel(tx))}>
+                            Clear
+                        </a>}
+                    </Typography>
 
                     {/*tx.txHash ? <a className={classes.viewLink} target='_blank' href={'https://kovan.etherscan.io/tx/'+tx.txHash}>View transaction</a> : null*/}
 

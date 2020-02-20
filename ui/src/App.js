@@ -135,58 +135,14 @@ class AppWrapper extends React.Component {
             {/*<Grid item xs={12}>
                 <NavContainer />
             </Grid>*/}
-            <Grid item xs={12} sm={4} md={3}>
+            <Grid item xs={12} sm={12} md={3} lg={3}>
                 <ActionTabsContainer />
             </Grid>
-            <Grid className={classes.content} item xs={12} sm={8} md={9}>
+            <Grid className={classes.content} item xs={12} sm={12} md={9} lg={6}>
                 <Grid container className={classes.actions}>
-                    <Grid item xs={12} sm={7} sm={6}>
-                        {/*<div className={classes.warning}><Disclosure /></div>*/}
+                    <Grid item xs={12} sm={12} sm={12}>
                         {selectedActionTab === 'exchange' && <DepositContainer />}
                         {selectedActionTab === 'stream' && <StreamContainer />}
-                        {/*<Grid className={classes.info}>
-                            {selectedActionTab === 'exchange' && <div><p>
-                                <b className={classes.caption}>How it Works</b>
-                                <br/>
-                                <br/>
-                                This exchange uses <a target='_blank' href='https://renproject.io/'>RenVM</a>, <a target='_blank' href='https://uniswap.io/'>Uniswap</a>, and Open Zeppelin's <a target='_blank' href='https://gsn.openzeppelin.com/'>GSN</a> to facilitate trustless interoperabilty between Bitcoin and Ethereum. All swaps abstract ETH away from the user with the <b>GaaS pattern</b>, and faster swaps are faciliated using the <b>CaaS pattern</b>. To learn more, check out our interoperability tutorials below:
-                            </p>
-                            <p>
-                                <ul>
-                                    <li><a target='_blank' href={'https://docs.renproject.io/developers/tutorials'}>GaaS Tutorial</a> | Gas-less transactions</li>
-                                    <li><a target='_blank' href={'https://docs.renproject.io/developers/tutorials'}>CaaS tutorial</a> | Faster swaps via expedited confirmations</li>
-                                </ul>
-                            </p>
-                            <p>
-                                Swaps are submitted to the following adapter address: <a target='_blank' href={'https://' + (network === 'testnet' ? 'kovan.' : '') + 'etherscan.io/address/'+adapterAddress}>{adapterAddress}</a>
-                            </p>
-                            <p>
-                                To learn more about building interoperable applications like this with RenVM, check out our <a target='_blank' href='https://renproject.io/developers'>developer center</a> or the following links:
-                                <ul>
-                                    <li><a target='_blank' href={'https://docs.renproject.io/developers/ren-sdk'}>Getting started with RenJS</a></li>
-                                    <li><a target='_blank' href={'https://docs.renproject.io/developers/gateway-js'}>Getting started with GatewayJS</a></li>
-                                    <li><a target='_blank' href={'https://github.com/renproject/ren/wiki'}>Github Spec</a></li>
-                                </ul>
-                            </p></div>}
-                            {selectedActionTab === 'stream' && <div><p>
-                                <b className={classes.caption}>How it Works</b>
-                                <br/>
-                                <br/>
-                                Streams use <a target='_blank' href='https://renproject.io/'>RenVM</a> and Open Zeppelin's <a target='_blank' href='https://gsn.openzeppelin.com/'>GSN</a> to facilitate trustless interoperabilty between Bitcoin and Ethereum. Active streams are held in a smart contract that allows anyone to shift out a valid amount of earned BTC to the recipient BTC address at any time.
-                            </p>
-                            <p>
-                                Streams are facilitated through the following adapter address: <a target='_blank' href={'https://'+ (network === 'testnet' ? 'kovan.' : '') +'etherscan.io/address/'+adapterAddress}>{adapterAddress}</a>
-                            </p>
-                            <p>
-                                To learn more about building interoperable applications like this with RenVM, check out our <a target='_blank' href='https://renproject.io/developers'>developer center</a> or the following links:
-                            </p>
-                            <ul>
-                                <li><a target='_blank' href={'https://docs.renproject.io/developers/tutorials'}>Bitcoin Payments Tutorial</a> | Scheduled Bitcoin Payments</li>
-                                <li><a target='_blank' href={'https://docs.renproject.io/developers/ren-sdk'}>Getting started with RenJS</a></li>
-                                <li><a target='_blank' href={'https://docs.renproject.io/developers/gateway-js'}>Getting started with GatewayJS</a></li>
-                                <li><a target='_blank' href={'https://github.com/renproject/ren/wiki'}>Github Spec</a></li>
-                            </ul></div>}
-                        </Grid>*/}
                     </Grid>
 
                 </Grid>

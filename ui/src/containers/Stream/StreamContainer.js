@@ -70,33 +70,34 @@ const styles = () => ({
     paddingBottom: theme.spacing(3),
     minHeight: 52
   },
+  wrapper: {
+      marginLeft: 'auto',
+      marginRight: 'auto',
+      width: 572,
+      maxWidth: '100%',
+      boxSizing: 'border-box',
+  },
   contentContainer: {
-      // boxShadow: '0px 0px 30px 0px rgba(0, 0, 0, 0.05)',
-      borderRadius: theme.shape.borderRadius * 2,
+      borderRadius: 12,
       border: '1px solid #DCE0E3',
       boxShadow: '0px 0px 4px rgba(0, 27, 58, 0.1)',
       background: '#fff',
-      width: 572,
       boxSizing: 'border-box',
-      padding: theme.spacing(3),
-
-      // marginTop: theme.spacing(4),
       marginBottom: theme.spacing(3),
+      width: '100%',
       '& input': {
       }
   },
   input: {
       marginBottom: theme.spacing(2),
       width: '100%',
-      '& input': {
-          fontSize: 12
-      },
-      '& p': {
-          fontSize: 12
-      },
-      '& .MuiOutlinedInput-notchedOutline': {
-          borderColor: 'rgba(0, 0, 0, 0.5) !important'
-      }
+  },
+  inputContainer: {
+      padding: theme.spacing(3),
+      paddingBottom: theme.spacing(1)
+  },
+  viewStreamContainer: {
+      padding: theme.spacing(3),
   },
   amountContainer: {
     // paddingRight: theme.spacing(1)
@@ -109,6 +110,8 @@ const styles = () => ({
       marginTop: theme.spacing(4)
   },
   unfinished: {
+      // padding: theme.spacing(3),
+      // paddingTop: theme.spacing(0)
       // marginTop: theme.spacing(3)
   },
   depositItem: {
@@ -132,8 +135,7 @@ const styles = () => ({
       backgroundColor: '#999999'
   },
   desc: {
-      marginBottom: theme.spacing(4),
-      fontSize: 14,
+      padding: theme.spacing(3),
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'space-between'
@@ -150,9 +152,10 @@ const styles = () => ({
       marginBottom: theme.spacing(2)
   },
   swapButtonContainer: {
-      textAlign: 'center',
-      paddingTop: theme.spacing(1),
-      paddingBottom: theme.spacing(1)
+      padding: theme.spacing(3),
+  },
+  searchContainer: {
+      padding: theme.spacing(3),
   },
   switchContainer: {
       textAlign: 'center',
@@ -173,37 +176,12 @@ const styles = () => ({
   searchLink: {
       fontSize: 12,
       minWidth: 80
+  },
+  streamItem: {},
+  searchAddress: {
+      marginBottom: theme.spacing(0)
   }
 })
-
-class Ellipsis extends React.Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            string: ''
-        }
-        this.interval = null
-    }
-
-    componentDidMount() {
-        this.interval = setInterval(() => {
-            const string = this.state.string
-            if (string.length < 3) {
-                this.setState({ string: (string + '.') })
-            } else {
-                this.setState({ string: '' })
-            }
-        }, 500);
-    }
-
-    componentWillUnmount() {
-        clearInterval(this.interval)
-    }
-
-    render() {
-        return <span>{this.state.string}</span>
-    }
-}
 
 class StreamContainer extends React.Component {
 
@@ -296,7 +274,7 @@ class StreamContainer extends React.Component {
                 <Grid container direction='row'>
                     {activeView === 'start' && <React.Fragment>
                         <Grid className={classes.desc} item xs={12}>
-                            <span >Stream BTC</span>
+                            <Typography variant='subtitle1'>Stream BTC</Typography>
                             <NetworkChooser
                                 currentNetwork={network}
                                 onChange={(e) => {
@@ -304,47 +282,75 @@ class StreamContainer extends React.Component {
                                 }} />
                         </Grid>
                         <Grid item xs={12}>
+                            <Divider />
+                        </Grid>
+                        <Grid item xs={12} className={classes.inputContainer}>
                             <Grid container>
                                 <Grid item xs={12} className={classes.amountContainer}>
                                     <TextField className={classNames(classes.input, classes.amount)}
-                                        variant='outlined'
-                                        size='small'
-                                        placeholder='0.000000'
+                                        variant='filled'
+                                        placeholder=''
+                                        label='How much BTC would you like to stream?'
                                         onChange={e => {
                                             store.set('stream.amount', e.target.value)
+                                        }}
+                                        InputLabelProps={{
+                                            shrink: true,
                                         }}
                                         InputProps={{
                                             endAdornment: <InputAdornment className={classes.endAdornment} position="end">BTC</InputAdornment>
                                         }}/>
                                 </Grid>
                                 <Grid item xs={12}>
-                                    <TextField className={classNames(classes.input, classes.address)} variant='outlined' size='small' placeholder='Stream to BTC Address' onChange={e => {
-                                        store.set('stream.address', e.target.value)
-                                    }}/>
+                                    <TextField className={classNames(classes.input, classes.address)}
+                                        variant='filled'
+                                        placeholder=''
+                                        label="What's the recipient's Bitcoin address?"
+                                        InputLabelProps={{
+                                            shrink: true,
+                                        }}
+                                        onChange={e => {
+                                            store.set('stream.address', e.target.value)
+                                        }}/>
                                 </Grid>
                                 <Grid item xs={12}>
-                                    <TextField className={classNames(classes.input, classes.address)} variant='outlined' size='small' placeholder='Duration in Minutes' onChange={e => {
-                                        store.set('stream.duration', e.target.value)
-                                    }}/>
+                                    <TextField className={classNames(classes.input, classes.address)}
+                                        variant='filled'
+                                        placeholder=''
+                                        label="How long would you like to stream for?"
+                                        InputLabelProps={{
+                                            shrink: true,
+                                        }}
+                                        onChange={e => {
+                                            store.set('stream.duration', e.target.value)
+                                        }}
+                                        InputProps={{
+                                            endAdornment: <InputAdornment className={classes.endAdornment} position="end">Minutes</InputAdornment>
+                                        }}/>
                                 </Grid>
                             </Grid>
 
                         </Grid>
+                        <Grid item xs={12}>
+                            <Divider />
+                        </Grid>
                         <Grid item xs={12} className={classes.swapButtonContainer}>
-                            <Button disabled={disabled} className={classes.swapButton} variant='outlined' color='primary' onClick={this.start.bind(this)}>Start Stream</Button>
+                            <Button disabled={disabled} className={classes.swapButton} variant='contained' size='large' color='primary' onClick={this.start.bind(this)}>Start Stream</Button>
                         </Grid>
 
                         <Grid item xs={12}>
-                            <Divider className={classes.divider} />
+                            <Divider />
                         </Grid>
-                        <Grid item xs={12} className={classes.swapButtonContainer}>
+                        <Grid item xs={12} className={classes.searchContainer}>
                             <TextField
-                                className={classNames(classes.input, classes.address)}
-                                variant='outlined'
-                                size='small'
-                                placeholder='Search by Destination Address'
+                                className={classNames(classes.input, classes.searchAddress)}
+                                variant='filled'
+                                label='Search by Destination Address'
                                 onChange={e => {
                                     store.set('stream.searchAddress', e.target.value)
+                                }}
+                                InputLabelProps={{
+                                    shrink: true,
                                 }}
                                 InputProps={{
                                     endAdornment: <InputAdornment
@@ -357,21 +363,8 @@ class StreamContainer extends React.Component {
                                 }}/>
                         </Grid>
 
-                        <Grid item xs={12} className={classes.unfinished}>
-                            {transactions && transactions.length ? transactions.map((tx, index) => {
-                                    return <StreamTransaction
-                                        tx={tx}
-                                        index={index}
-                                        onView={t => {
-                                            this.viewTx.bind(this)(t)
-                                        }}
-                                        onCancel={t => {
-                                            removeTx(store, t)
-                                        }}/>
-                                }) : null}
-                        </Grid>
                     </React.Fragment>}
-                    {activeView === 'view-stream' && <Grid container direction='row'>
+                    {activeView === 'view-stream' && <Grid className={classes.viewStreamContainer} container direction='row'>
                         <Grid item xs={12}>
                             <ViewStream selectedTx={selectedTx} />
                         </Grid>
@@ -379,8 +372,40 @@ class StreamContainer extends React.Component {
                 </Grid>
             </Grid>
 
-            {<Grid item xs={12} className={classes.info}>
+            {activeView === 'start' && transactions && transactions.length ? <React.Fragment>
+                <Grid item xs={12} className={classes.unfinished}>
+                    {transactions.map((tx, index) => {
+                            return <StreamTransaction
+                                tx={tx}
+                                index={index}
+                                onView={t => {
+                                    this.viewTx.bind(this)(t)
+                                }}
+                                onCancel={t => {
+                                    removeTx(store, t)
+                                }}/>
+                        })}
+                </Grid></React.Fragment> : null}
 
+            {<Grid item xs={12} className={classes.info}>
+                <p>
+                    <b className={classes.caption}>How it Works</b>
+                    <br/>
+                    <br/>
+                    Streams use <a target='_blank' href='https://renproject.io/'>RenVM</a> and Open Zeppelin's <a target='_blank' href='https://gsn.openzeppelin.com/'>GSN</a> to facilitate trustless interoperabilty between Bitcoin and Ethereum. Active streams are held in a smart contract that allows anyone to shift out a valid amount of earned BTC to the recipient BTC address at any time.
+                </p>
+                <p>
+                    Streams are facilitated through the following adapter address: <a target='_blank' href={'https://'+ (network === 'testnet' ? 'kovan.' : '') +'etherscan.io/address/'+adapterAddress}>{adapterAddress}</a>
+                </p>
+                <p>
+                    To learn more about building interoperable applications like this with RenVM, check out our <a target='_blank' href='https://renproject.io/developers'>developer center</a> or the following links:
+                </p>
+                <ul>
+                    <li><a target='_blank' href={'https://docs.renproject.io/developers/tutorials'}>Bitcoin Payments Tutorial</a> | Scheduled Bitcoin Payments</li>
+                    <li><a target='_blank' href={'https://docs.renproject.io/developers/ren-sdk'}>Getting started with RenJS</a></li>
+                    <li><a target='_blank' href={'https://docs.renproject.io/developers/gateway-js'}>Getting started with GatewayJS</a></li>
+                    <li><a target='_blank' href={'https://github.com/renproject/ren/wiki'}>Github Spec</a></li>
+                </ul>
             </Grid>}
 
         </Grid></div>

@@ -33,13 +33,13 @@ const styles = () => ({
         color: '#eee',
     },
     progressMiddle: {
-        color: '#63ccff78',
+        color: theme.palette.primary.light,
         animationDuration: '550ms',
         position: 'absolute',
         left: 0,
     },
     progressBottom: {
-        color: '#039BE5',
+        color: theme.palette.primary.main,
         animationDuration: '550ms',
         position: 'absolute',
         left: 0,
@@ -90,6 +90,11 @@ const styles = () => ({
     },
     claimButton: {
         // margin: '0px auto'
+        '& button': {
+            width: '100%',
+            maxWidth: 200,
+            margin: '0px auto'
+        },
         textAlign: 'center',
         paddingBottom: theme.spacing(3),
         '& span': {
@@ -133,7 +138,7 @@ const styles = () => ({
         }
     },
     address: {
-        minWidth: 300,
+        minWidth: 285,
         width: 'auto'
     },
     divider: {
@@ -142,6 +147,9 @@ const styles = () => ({
         backgroundColor: '#999999'
     },
     claims: {
+    },
+    claimTransactions: {
+        paddingTop: theme.spacing(3)
     }
 })
 
@@ -366,11 +374,11 @@ class ViewStreamContainer extends React.Component {
                         onClick={() => {
                             this.claim.bind(this)()
                         }}>
-                        {claimRequesting ? `Submitting transaction...` : `Claim ${claimableAmount.toFixed(6)} BTC`}
+                        {claimRequesting ? `Submitting...` : `Claim ${claimableAmount.toFixed(6)} BTC`}
                     </Button> : <span>{totalClaimablePercentrage < 100 ? `Minimum claim amount is ${MIN_CLAIM_AMOUNT} BTC` : 'All available funds claimed'}</span>}
                 </Grid>
                 {claimTransactions.length ? <Grid item xs={12}>
-                    <Divider className={classes.divider} />
+                    <Divider />
                 </Grid> : null}
                 <div className={selectedTx.schedule && loaded ? classes.claimTransactions : classes.hidden}>
                     {claimTransactions && claimTransactions.length ? claimTransactions.map((tx, index) => {

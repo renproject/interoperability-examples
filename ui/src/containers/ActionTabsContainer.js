@@ -32,14 +32,11 @@ import { ReactComponent as RedditIcon } from '../assets/reddit.svg'
 
 const styles = () => ({
     tabs: {
-        // paddingTop: theme.spacing(2),
-        // paddingRight: theme.spacing(4),
         '& .MuiTabs-flexContainer': {
             alignItems: 'flex-end',
             width: '100%'
         },
         '& .MuiTab-wrapper': {
-            // alignItems: 'flex-start',
             flexDirection: 'row',
             justifyContent: 'flex-start',
             alignItems: 'center',
@@ -47,7 +44,6 @@ const styles = () => ({
                 marginRight: theme.spacing(2),
                 marginBottom: '0px !important'
             },
-            // paddingRight: theme.spacing(1)
         },
         '& span.MuiTabs-indicator': {
             backgroundColor: '#006BEC',
@@ -74,37 +70,59 @@ const styles = () => ({
     },
     tabsMobile: {
         // paddingTop: theme.spacing(2),
-        // paddingRight: theme.spacing(4),
+        paddingRight: theme.spacing(2),
         '& .MuiTabs-flexContainer': {
-            alignItems: 'flex-end',
+            alignItems: 'flex-start',
         },
         '& .MuiTab-wrapper': {
-            alignItems: 'flex-end',
-            // paddingRight: theme.spacing(1)
+            flexDirection: 'row',
+            justifyContent: 'flex-start',
+            alignItems: 'center',
+            '& svg': {
+                marginRight: theme.spacing(2),
+                marginBottom: '0px !important'
+            },
+            [theme.breakpoints.down('xs')]: {
+                '& span': {
+                    display: 'none'
+                },
+            }
         },
         '& span.MuiTabs-indicator': {
             backgroundColor: 'transparent'
         },
         '& button.MuiTab-textColorInherit': {
-            color: '#7f7f7f',
+            color: '#fff',
+            textTransform: 'capitalize',
+            fontSize: 18,
         },
         '& button.MuiTab-textColorInherit.Mui-selected': {
-            color: '#333',
+            color: '#006BEC',
+            '& path': {
+                fill: '#006BEC'
+            }
         },
-        // width: '100%'
     },
     logoContainer: {
         maxWidth: 350,
         width: '100%',
-        paddingTop: theme.spacing(4),
-        paddingBottom: theme.spacing(4),
-        // borderBottom: '1px solid #142F4D'
+        paddingTop: theme.spacing(5),
+        paddingBottom: theme.spacing(5),
+        [theme.breakpoints.down('sm')]: {
+            // paddingTop: theme.spacing(0),
+            maxWidth: 'auto',
+            width: 'auto'
+        },
+        [theme.breakpoints.down('xs')]: {
+            maxWidth: '50%',
+            width: 140
+        }
     },
     logo: {
         width: 184,
         maxWidth: '100%',
         height: 'auto',
-        marginLeft: theme.spacing(4)
+        marginLeft: theme.spacing(4),
     },
     container: {
         display: 'flex',
@@ -115,11 +133,11 @@ const styles = () => ({
         background: '#001B3A',
         color: '#fff',
         minHeight: '100%',
-        [theme.breakpoints.down('xs')]: {
+        [theme.breakpoints.down('sm')]: {
             alignItems: 'center',
             justifyContent: 'space-between',
             flexDirection: 'row',
-            paddingTop: theme.spacing(2),
+            paddingTop: theme.spacing(0),
         }
     },
     networkChooser: {
@@ -129,6 +147,14 @@ const styles = () => ({
     top: {
         maxWidth: 350,
         width: '100%',
+        [theme.breakpoints.down('sm')]: {
+            maxWidth: '100%',
+            display:'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            flexDirection: 'row',
+            paddingTop: theme.spacing(0),
+        }
     },
     bottom: {
         boxSizing: 'border-box',
@@ -192,7 +218,7 @@ class ActionTabsContainer extends React.Component {
                 <div className={classes.logoContainer}>
                     <img className={classes.logo} src={RenVMLogo} />
                 </div>
-                <Hidden xsDown>
+                <Hidden smDown>
                     <Tabs
                         orientation="vertical"
                         value={store.get('selectedActionTab')}
@@ -203,10 +229,10 @@ class ActionTabsContainer extends React.Component {
                         className={classes.tabs}
                       >
                         <Tab icon={<ExchangeIcon />} value={'exchange'} label={<span>Exchange</span>} />
-                        <Tab icon={<StreamIcon />} value={'stream'} label={<span>Stream</span>} />
+                        <Tab icon={<StreamIcon />} value={'stream'} label={<span>Streaming</span>} />
                     </Tabs>
                 </Hidden>
-                <Hidden smUp>
+                <Hidden mdUp>
                     <Tabs
                         value={store.get('selectedActionTab')}
                         onChange={(e, value) => {
@@ -215,12 +241,12 @@ class ActionTabsContainer extends React.Component {
                         }}
                         className={classes.tabsMobile}
                       >
-                        <Tab value={'exchange'} label="Exchange" />
-                        <Tab value={'stream'} label="Stream" />
+                          <Tab icon={<ExchangeIcon />} value={'exchange'} label={<span>Exchange</span>} />
+                          <Tab icon={<StreamIcon />} value={'stream'} label={<span>Streaming</span>} />
                     </Tabs>
                 </Hidden>
             </div>
-            <Hidden xsDown>
+            <Hidden smDown>
                 <div className={classes.bottom}>
                     <Typography variant='subtitle2'>
                         <span className={classes.subtitle}>About</span>
@@ -235,16 +261,16 @@ class ActionTabsContainer extends React.Component {
                         <br />
                     </Typography>
                     <Typography variant='body2'>
-                        RenVM facilitates the trustless swap of digital assets between blockchains. Assets are custodied in a decentralized network and minted on to new blockchains. <br/><a href='https://renproject.io' target='_blank'>Find out&nbsp;more</a>
+                        RenVM facilitates the trustless swap of digital assets between blockchains. Assets are custodied in a decentralized network and minted on to new blockchains. <br/><a href='https://renproject.io/developers'>Find out&nbsp;more</a>
                     </Typography>
                     <div className={classes.footer}>
-                        <a href='https://renproject.io' target='_blank'><TwitterIcon/></a>
-                        <a href='https://renproject.io' target='_blank'><GithubIcon/></a>
-                        <a href='https://renproject.io' target='_blank'><TelegramIcon/></a>
-                        <a href='https://renproject.io' target='_blank'><RedditIcon/></a>
+                        <a href='https://twitter.com/renprotocol' target='_blank'><TwitterIcon/></a>
+                        <a href='https://github.com/renproject' target='_blank'><GithubIcon/></a>
+                        <a href='https://t.me/renproject' target='_blank'><TelegramIcon/></a>
+                        <a href='https://www.reddit.com/r/RenProject/' target='_blank'><RedditIcon/></a>
                     </div>
                     <div className={classes.contact}>
-                        <a href='https://renproject.io' target='_blank'>Contact</a>
+                        <a href='mailto:support@renproject.io' target='_blank'>Contact</a>
                     </div>
                 </div>
             </Hidden>
