@@ -12,7 +12,8 @@ import {
     initInstantMonitoring,
     updateTx,
     SWAP_ADAPTER_TEST,
-    STREAM_ADAPTER_TEST
+    STREAM_ADAPTER_TEST,
+    TRANSFER_ADAPTER_TEST
 } from './utils/txUtils'
 
 import {
@@ -24,6 +25,7 @@ import {
 import NavContainer from './containers/NavContainer'
 import ActionTabsContainer from './containers/ActionTabsContainer'
 import DepositContainer from './containers/DepositContainer'
+import TransferContainer from './containers/TransferContainer'
 import StreamContainer from './containers/Stream/StreamContainer'
 import Disclosure from './components/Disclosure'
 
@@ -79,9 +81,15 @@ const styles = () => ({
 })
 
 const initialState = {
-    'selectedActionTab': 'exchange',
+    'selectedActionTab': 'transfer',
     'selectedNetwork': 'testnet',
     'pendingShiftIns': [],
+    // transfer
+    'transfer.amount': '',
+    'transfer.address': '',
+    'transfer.instantSwapSelected': false,
+    'transfer.transactions': [],
+    'transfer.adapterAddress': TRANSFER_ADAPTER_TEST,
     // exchange
     'swap.transactions': [],
     'swap.adapterAddress': SWAP_ADAPTER_TEST,
@@ -141,6 +149,7 @@ class AppWrapper extends React.Component {
             <Grid className={classes.content} item xs={12} sm={12} md={9} lg={6}>
                 <Grid container className={classes.actions}>
                     <Grid item xs={12} sm={12} sm={12}>
+                        {selectedActionTab === 'transfer' && <TransferContainer />}
                         {selectedActionTab === 'exchange' && <DepositContainer />}
                         {selectedActionTab === 'stream' && <StreamContainer />}
                     </Grid>

@@ -29,6 +29,7 @@ import { ReactComponent as TwitterIcon } from '../assets/twitter.svg'
 import { ReactComponent as GithubIcon } from '../assets/github.svg'
 import { ReactComponent as TelegramIcon } from '../assets/telegram.svg'
 import { ReactComponent as RedditIcon } from '../assets/reddit.svg'
+import { ReactComponent as TransferIcon } from '../assets/transfer.svg'
 
 const styles = () => ({
     tabs: {
@@ -42,7 +43,9 @@ const styles = () => ({
             alignItems: 'center',
             '& svg': {
                 marginRight: theme.spacing(2),
-                marginBottom: '0px !important'
+                marginBottom: '0px !important',
+                width: 30,
+                height: 'auto'
             },
         },
         '& span.MuiTabs-indicator': {
@@ -80,7 +83,9 @@ const styles = () => ({
             alignItems: 'center',
             '& svg': {
                 marginRight: theme.spacing(2),
-                marginBottom: '0px !important'
+                marginBottom: '0px !important',
+                width: 30,
+                height: 'auto'
             },
             [theme.breakpoints.down('xs')]: {
                 '& span': {
@@ -228,6 +233,7 @@ class ActionTabsContainer extends React.Component {
                         }}
                         className={classes.tabs}
                       >
+                        <Tab icon={<TransferIcon />} value={'transfer'} label={<span>Transfer</span>} />
                         <Tab icon={<ExchangeIcon />} value={'exchange'} label={<span>Exchange</span>} />
                         <Tab icon={<StreamIcon />} value={'stream'} label={<span>Streaming</span>} />
                     </Tabs>
@@ -241,6 +247,7 @@ class ActionTabsContainer extends React.Component {
                         }}
                         className={classes.tabsMobile}
                       >
+                          <Tab icon={<TransferIcon />} value={'transfer'} label={<span>Transfer</span>} />
                           <Tab icon={<ExchangeIcon />} value={'exchange'} label={<span>Exchange</span>} />
                           <Tab icon={<StreamIcon />} value={'stream'} label={<span>Streaming</span>} />
                     </Tabs>

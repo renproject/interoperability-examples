@@ -7,6 +7,8 @@ import {
 import {
     initMonitoring,
     initInstantMonitoring,
+    TRANSFER_ADAPTER_TEST,
+    TRANSFER_ADAPTER_MAIN,
     SWAP_ADAPTER_TEST,
     SWAP_ADAPTER_MAIN,
     STREAM_ADAPTER_TEST,
@@ -39,6 +41,7 @@ export const initNetworking = async function(network) {
 
     store.set('swap.adapterAddress', network === 'testnet' ? SWAP_ADAPTER_TEST : SWAP_ADAPTER_MAIN)
     store.set('stream.adapterAddress', network === 'testnet' ? STREAM_ADAPTER_TEST : STREAM_ADAPTER_MAIN)
+    store.set('transfer.adapterAddress', network === 'testnet' ? TRANSFER_ADAPTER_TEST : TRANSFER_ADAPTER_MAIN)
 
     // turn instant off
     store.set('swap.instantSwapSelected', false)
@@ -48,6 +51,7 @@ export const initLocalTransactions = async function() {
     const { store } = this.props
     const swaps = localStorage.getItem('swap.transactions')
     const streams = localStorage.getItem('stream.transactions')
+    const transfers = localStorage.getItem('transfer.transactions')
 
     if (swaps) {
         store.set('swap.transactions', JSON.parse(swaps))
@@ -55,6 +59,10 @@ export const initLocalTransactions = async function() {
 
     if (streams) {
         store.set('stream.transactions', JSON.parse(streams))
+    }
+
+    if (transfers) {
+        store.set('transfer.transactions', JSON.parse(transfers))
     }
 }
 

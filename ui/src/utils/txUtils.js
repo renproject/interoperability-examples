@@ -1,19 +1,31 @@
 import RenJS from "@renproject/ren";
 import adapterABI from './exchangeAdapterSimpleABI.json'
 import streamAdapterABI from './streamAdapterSimpleABI.json'
+import transferAdapterABI from './simpleTransferAdapterABI.json'
 import BigNumber from 'bignumber.js'
 
 // export const API_URL = 'http://localhost:3000'
 export const API_URL = ''
 export const MIN_CLAIM_AMOUNT = 0.00010001
+export const TRANSFER_ADAPTER_TEST = '0x083A7E086C27024d54556f876F09E2a0d7dD5E86'
+export const TRANSFER_ADAPTER_MAIN = '0x9F60E2e51a79609821DA32880Fc2b92e34F5Cf2e'
 export const SWAP_ADAPTER_TEST = '0xade8792c3ee90320cabde200ccab34b27cc88651'
 export const SWAP_ADAPTER_MAIN = '0x35Db75fc0D5457eAb9C21AFb5857716427F8129D'
 export const STREAM_ADAPTER_TEST = '0x1B1994b62Ca8d6f8A79CEc0505de2DF728FCcbb7'
 export const STREAM_ADAPTER_MAIN = '0x57bE80A340C310Bf4211C8bFED8c846bD92c5c55'
 let swapMonitor = null
 
+// transaction state
 export const addTx = (store, tx) => {
-    const storeString = tx.type === 'swap' ? 'swap.transactions' : 'stream.transactions'
+    let storeString = ''
+    if (tx.type === 'swap') {
+        storeString = 'swap.transactions'
+    } else if (tx.type === 'stream') {
+        storeString = 'stream.transactions'
+    } else if (tx.type === 'transfer') {
+        storeString = 'transfer.transactions'
+    }
+
     let txs = store.get(storeString)
     txs.push(tx)
     store.set(storeString, txs)
@@ -23,7 +35,15 @@ export const addTx = (store, tx) => {
 }
 
 export const updateTx = (store, newTx) => {
-    const storeString = newTx.type === 'swap' ? 'swap.transactions' : 'stream.transactions'
+    let storeString = ''
+    if (newTx.type === 'swap') {
+        storeString = 'swap.transactions'
+    } else if (newTx.type === 'stream') {
+        storeString = 'stream.transactions'
+    } else if (newTx.type === 'transfer') {
+        storeString = 'transfer.transactions'
+    }
+
     const txs = store.get(storeString).map(t => {
         if (t.id === newTx.id) {
             // const newTx = Object.assign(t, props)
@@ -39,7 +59,15 @@ export const updateTx = (store, newTx) => {
 }
 
 export const removeTx = (store, tx) => {
-    const storeString = tx.type === 'swap' ? 'swap.transactions' : 'stream.transactions'
+    let storeString = ''
+    if (tx.type === 'swap') {
+        storeString = 'swap.transactions'
+    } else if (tx.type === 'stream') {
+        storeString = 'stream.transactions'
+    } else if (tx.type === 'transfer') {
+        storeString = 'transfer.transactions'
+    }
+
     let txs = store.get(storeString).filter(t => (t.id !== tx.id))
     // console.log(txs)
     store.set(storeString, txs)
@@ -49,6 +77,7 @@ export const removeTx = (store, tx) => {
     window[storeString] = txs
 }
 
+// stream
 export const streamExists = function(streams, beneficiary, startTime) {
     return streams.filter(stream => (stream.destAddress === beneficiary && stream.startTime === startTime)).length > 0
 }
@@ -250,6 +279,7 @@ export const claim = async function(tx) {
     })
 }
 
+// exchange and transfer
 export const completeDeposit = async function(tx) {
     const { store }  = this.props
     const web3 = store.get('web3')
@@ -257,13 +287,15 @@ export const completeDeposit = async function(tx) {
     const pendingShiftIns = store.get('pendingShiftIns')
 
     // const adapterAddress = store.get('adapterAddress')
-    const { id, type, params, awaiting, renResponse, renSignature } = tx
+    const { id, type, params, renResponse, renSignature } = tx
 
     let adapterContract
     if (type === 'swap') {
         adapterContract = new web3.eth.Contract(adapterABI, store.get('swap.adapterAddress'))
     } else if (type === 'stream') {
         adapterContract = new web3.eth.Contract(streamAdapterABI, store.get('stream.adapterAddress'))
+    } else if (type === 'transfer') {
+        adapterContract = new web3.eth.Contract(transferAdapterABI, store.get('transfer.adapterAddress'))
     }
 
     const gasPrice = await web3Context.lib.eth.getGasPrice()
@@ -272,7 +304,7 @@ export const completeDeposit = async function(tx) {
 
     updateTx(store, Object.assign(tx, { awaiting: 'eth-settle' }))
 
-    console.log('completeDeposit', tx)
+    console.log('completeDeposit', tx, adapterContract)
 
     try {
         let result
@@ -301,6 +333,17 @@ export const completeDeposit = async function(tx) {
                 gasLimit: 350000
             })
             await updateStreamInfo.bind(this)(tx)
+        } else if (type === 'transfer') {
+            result = await adapterContract.methods.deposit(
+                params.contractCalls[0].contractParams[0].value,
+                Number(params.sendAmount),
+                renResponse.autogen.nhash,
+                renSignature
+            ).send({
+                from: web3Context.accounts[0],
+                gasPrice: Math.round(gasPrice * 1.5),
+                gasLimit: 200000
+            })
         }
         store.set('pendingShiftIns', pendingShiftIns.filter(p => p !== id))
         updateTx(store, Object.assign(tx, { awaiting: '', txHash: result.transactionHash, error: false }))
@@ -314,9 +357,7 @@ export const initShiftIn = function(tx) {
     const {
       type,
       amount,
-      renBtcAddress,
       params,
-      ethSig,
       destAddress,
       // stream
       startTime,
@@ -361,6 +402,16 @@ export const initShiftIn = function(tx) {
                 value: duration,
             }
         ]
+    } else if (type === 'transfer') {
+        adapterAddress = this.props.store.get('transfer.adapterAddress')
+        contractFn = 'deposit'
+        contractParams = [
+            {
+                name: "_recipient",
+                type: "address",
+                value: destAddress,
+            }
+        ]
     }
 
     // // store data or update params with nonce
@@ -389,7 +440,6 @@ export const initDeposit = async function(tx) {
         renResponse,
         renSignature,
         error,
-        btcConfirmations
     } = tx
 
     const pendingShiftIns = store.get('pendingShiftIns')
@@ -487,6 +537,7 @@ export const initInstantSwap = async function(tx) {
     }))
 }
 
+// monitoring
 export const initInstantMonitoring = function() {
     const store = this.props.store
     const network = store.get('selectedNetwork')
@@ -516,7 +567,10 @@ export const initMonitoring = function() {
     const store = this.props.store
     const network = store.get('selectedNetwork')
     const pendingShiftIns = store.get('pendingShiftIns')
-    const txs = store.get('swap.transactions').concat(store.get('stream.transactions')).filter(t => t.network === network)
+    const txs = store.get('swap.transactions')
+        .concat(store.get('stream.transactions'))
+        .concat(store.get('transfer.transactions'))
+        .filter(t => t.network === network)
 
     txs.map(tx => {
         if (tx.awaiting && !tx.instant) {
