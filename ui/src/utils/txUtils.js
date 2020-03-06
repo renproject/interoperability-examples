@@ -306,12 +306,14 @@ export const completeDeposit = async function(tx) {
 
     console.log('completeDeposit', tx, adapterContract)
 
+    const utxoAmount = Number(renResponse.in.utxo.amount)
+
     try {
         let result
         if (type === 'swap') {
             result = await adapterContract.methods.shiftInWithSwap(
                 params.contractCalls[0].contractParams[0].value,
-                Number(params.sendAmount),
+                utxoAmount,
                 renResponse.autogen.nhash,
                 renSignature
             ).send({
@@ -324,7 +326,7 @@ export const completeDeposit = async function(tx) {
                 params.contractCalls[0].contractParams[0].value,
                 params.contractCalls[0].contractParams[1].value,
                 Number(params.contractCalls[0].contractParams[2].value),
-                Number(params.sendAmount),
+                utxoAmount,
                 renResponse.autogen.nhash,
                 renSignature
             ).send({
@@ -336,7 +338,7 @@ export const completeDeposit = async function(tx) {
         } else if (type === 'transfer') {
             result = await adapterContract.methods.deposit(
                 params.contractCalls[0].contractParams[0].value,
-                Number(params.sendAmount),
+                utxoAmount,
                 renResponse.autogen.nhash,
                 renSignature
             ).send({
