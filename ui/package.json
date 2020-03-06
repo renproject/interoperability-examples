@@ -7,7 +7,7 @@
     "@material-ui/icons": "^4.2.1",
     "@material-ui/lab": "^4.0.0-alpha.25",
     "@openzeppelin/network": "^0.2.10",
-    "@renproject/ren": "^0.6.0",
+    "@renproject/ren": "^0.8.0",
     "@spyna/react-store": "^1.4.0",
     "bignumber.js": "^9.0.0",
     "bitcoin-address-validation": "^1.0.1",
