@@ -30,6 +30,7 @@ import { ReactComponent as GithubIcon } from '../assets/github.svg'
 import { ReactComponent as TelegramIcon } from '../assets/telegram.svg'
 import { ReactComponent as RedditIcon } from '../assets/reddit.svg'
 import { ReactComponent as TransferIcon } from '../assets/transfer.svg'
+import { ReactComponent as DaiIcon } from '../assets/dai-logo.svg'
 
 const styles = () => ({
     tabs: {
@@ -235,7 +236,8 @@ class ActionTabsContainer extends React.Component {
                       >
                         <Tab icon={<TransferIcon />} value={'transfer'} label={<span>Transfer</span>} />
                         <Tab icon={<ExchangeIcon />} value={'exchange'} label={<span>Exchange</span>} />
-                        <Tab icon={<StreamIcon />} value={'stream'} label={<span>Streaming</span>} />
+                        <Tab icon={<StreamIcon />} value={'stream'} label={<span>Stream</span>} />
+                        <Tab icon={<DaiIcon />} value={'collateralize'} label={<span>Collateralize DAI</span>} />
                     </Tabs>
                 </Hidden>
                 <Hidden mdUp>
@@ -249,7 +251,8 @@ class ActionTabsContainer extends React.Component {
                       >
                           <Tab icon={<TransferIcon />} value={'transfer'} label={<span>Transfer</span>} />
                           <Tab icon={<ExchangeIcon />} value={'exchange'} label={<span>Exchange</span>} />
-                          <Tab icon={<StreamIcon />} value={'stream'} label={<span>Streaming</span>} />
+                          <Tab icon={<StreamIcon />} value={'stream'} label={<span>Stream</span>} />
+                          <Tab icon={<DaiIcon />} value={'collateralize'} label={<span>Collateralize DAI</span>} />
                     </Tabs>
                 </Hidden>
             </div>
