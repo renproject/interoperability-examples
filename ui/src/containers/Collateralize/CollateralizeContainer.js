@@ -452,15 +452,16 @@ class Container extends React.Component {
                     <span className={classes.caption}>How it works:</span>
                     <br/>
                     <br/>
-                    Transfers use <a target='_blank' href='https://renproject.io/'>RenVM</a> and Open Zeppelin's <a target='_blank' href='https://gsn.openzeppelin.com/'>GSN</a> to facilitate trustless interoperabilty between Bitcoin and Ethereum. Once Bitcoin is deposited into RenVM, the corresponding amount of zBTC is minted and transferred to the destination address on Ethereum.
+                    The MakerDAO BTC Vault was created as part of the ETHDenver 2020 hacakathon. Once Bitcoin is deposited into RenVM, the corresponding amount of zBTC is minted and transferred to a MakerDAO CDP that mints new DAI.
                 </p>
                 <p>
-                    Transfers are facilitated through the following adapter address: <a target='_blank' href={'https://'+ (network === 'testnet' ? 'kovan.' : '') +'etherscan.io/address/'+adapterAddress}>{adapterAddress}</a>
+                    Transactions are facilitated through the following adapter address: <a target='_blank' href={'https://'+ (network === 'testnet' ? 'kovan.' : '') +'etherscan.io/address/'+adapterAddress}>{adapterAddress}</a>
                 </p>
                 <p>
                     To learn more about building interoperable applications like this with RenVM, check out our <a target='_blank' href='https://renproject.io/developers'>developer center</a> or the following links:
                 </p>
                 <ul>
+                    <li><a target='_blank' href={'https://github.com/renproject/makerdao-btc-vault'}>MakerDAO BTC Vault standalone source</a></li>
                     <li><a target='_blank' href={'https://docs.renproject.io/developers/ren-sdk'}>Getting started with RenJS</a></li>
                     <li><a target='_blank' href={'https://docs.renproject.io/developers/gateway-js'}>Getting started with GatewayJS</a></li>
                     <li><a target='_blank' href={'https://github.com/renproject/ren/wiki'}>Github Spec</a></li>
