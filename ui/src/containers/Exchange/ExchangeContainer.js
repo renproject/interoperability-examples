@@ -1,7 +1,7 @@
 import React from 'react';
 import { withStore } from '@spyna/react-store'
 import { withStyles } from '@material-ui/styles';
-import theme from '../theme/theme'
+import theme from '../../theme/theme'
 import classNames from 'classnames'
 import Grid from '@material-ui/core/Grid';
 import Divider from '@material-ui/core/Divider';
@@ -13,16 +13,16 @@ import Switch from '@material-ui/core/Switch';
 
 import {
     switchNetwork
-} from '../utils/networkingUtils'
+} from '../../utils/networkingUtils'
 
-import NetworkChooser from '../components/NetworkChooser'
-import SwapTransactionStatus from '../components/SwapTransactionStatus'
+import NetworkChooser from '../../components/NetworkChooser'
+import SwapTransactionStatus from '../../components/SwapTransactionStatus'
 
 import {
     initDeposit,
     removeTx,
     initInstantSwap
-} from '../utils/txUtils'
+} from '../../utils/txUtils'
 
 
 const styles = () => ({
@@ -145,7 +145,7 @@ const styles = () => ({
   }
 })
 
-class DepositContainer extends React.Component {
+class ExchangeContainer extends React.Component {
 
     constructor(props) {
         super(props);
@@ -353,4 +353,4 @@ class DepositContainer extends React.Component {
     }
 }
 
-export default withStyles(styles)(withStore(DepositContainer))
+export default withStyles(styles)(withStore(ExchangeContainer))
