@@ -351,7 +351,7 @@ class Container extends React.Component {
                                     placeholder=''
                                     onChange={e => {
                                         const amt = e.target.value
-                                        const btcAmt = Number((amt / 10000) * 0.66).toFixed(6)
+                                        const btcAmt = Number((amt / 10000)).toFixed(6)
                                         store.set('collateralize.repayAmount', amt)
                                         store.set('collateralize.repayBtcAmount', btcAmt)
                                         this.repayDaiRef.current.value = btcAmt
