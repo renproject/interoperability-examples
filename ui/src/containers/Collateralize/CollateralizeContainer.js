@@ -1,7 +1,7 @@
 import React from 'react';
 import { withStore } from '@spyna/react-store'
 import { withStyles } from '@material-ui/styles';
-import theme from '../theme/theme'
+import theme from '../../theme/theme'
 import classNames from 'classnames'
 import Grid from '@material-ui/core/Grid';
 import Divider from '@material-ui/core/Divider';
@@ -13,26 +13,26 @@ import Radio from '@material-ui/core/Radio';
 import RadioGroup from '@material-ui/core/RadioGroup';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 
-import DaiLogo from '../assets/dai-logo.png'
+import DaiLogo from '../../assets/dai-logo.png'
 
 
 import {
     switchNetwork
-} from '../utils/networkingUtils'
+} from '../../utils/networkingUtils'
 
-import NetworkChooser from '../components/NetworkChooser'
-import TransferTransactionStatus from '../components/TransferTransactionStatus'
+import NetworkChooser from '../../components/NetworkChooser'
+import TransferTransactionStatus from '../../components/TransferTransactionStatus'
 
 import {
     initDeposit,
     removeTx,
-} from '../utils/txUtils'
+} from '../../utils/txUtils'
 
 import {
     initLocalWeb3,
     setDAIAllowance,
     burnDai
-} from '../utils/walletUtils'
+} from '../../utils/walletUtils'
 
 const styles = () => ({
   root: {

@@ -1,7 +1,7 @@
 import React from 'react';
 import { withStore } from '@spyna/react-store'
 import { withStyles } from '@material-ui/styles';
-import theme from '../theme/theme'
+import theme from '../../theme/theme'
 import classNames from 'classnames'
 import Grid from '@material-ui/core/Grid';
 import Divider from '@material-ui/core/Divider';
@@ -9,23 +9,23 @@ import Typography from '@material-ui/core/Typography';
 import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
 import InputAdornment from '@material-ui/core/InputAdornment';
-import BtcLogo from '../assets/btc-logo.svg'
+import BtcLogo from '../../assets/btc-logo.svg'
 
 import {
     switchNetwork
-} from '../utils/networkingUtils'
+} from '../../utils/networkingUtils'
 
-import NetworkChooser from '../components/NetworkChooser'
-import TransferTransactionStatus from '../components/TransferTransactionStatus'
+import NetworkChooser from '../../components/NetworkChooser'
+import TransferTransactionStatus from '../../components/TransferTransactionStatus'
 
 import {
     initDeposit,
     removeTx,
-} from '../utils/txUtils'
+} from '../../utils/txUtils'
 
 import {
     initLocalWeb3,
-} from '../utils/walletUtils'
+} from '../../utils/walletUtils'
 
 
 const styles = () => ({
@@ -250,6 +250,7 @@ class TransferContainer extends React.Component {
                             <Grid container className={classes.inputContainer}>
                                 <Grid item xs={12} className={classes.amountContainer}>
                                     <TextField className={classNames(classes.input, classes.amount)}
+                                        disabled={!localWeb3Connected}
                                         label='Mint Amount'
                                         variant='filled'
                                         placeholder=''

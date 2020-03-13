@@ -28,10 +28,10 @@ import {
 
 
 import ActionTabsContainer from './containers/ActionTabsContainer'
-import DepositContainer from './containers/DepositContainer'
-import TransferContainer from './containers/TransferContainer'
+import ExchangeContainer from './containers/Exchange/ExchangeContainer'
+import TransferContainer from './containers/Transfer/TransferContainer'
 import StreamContainer from './containers/Stream/StreamContainer'
-import CollateralizeContainer from './containers/CollateralizeContainer'
+import CollateralizeContainer from './containers/Collateralize/CollateralizeContainer'
 
 
 import theme from './theme/theme'
@@ -189,7 +189,7 @@ class AppWrapper extends React.Component {
                 <Grid container className={classes.actions}>
                     <Grid item xs={12} sm={12} sm={12}>
                         {selectedActionTab === 'transfer' && <TransferContainer />}
-                        {selectedActionTab === 'exchange' && <DepositContainer />}
+                        {selectedActionTab === 'exchange' && <ExchangeContainer />}
                         {selectedActionTab === 'stream' && <StreamContainer />}
                         {selectedActionTab === 'collateralize' && <CollateralizeContainer />}
                     </Grid>

@@ -89,6 +89,13 @@ export const initLocalWeb3 = async function() {
         updateWalletData.bind(this)()
         initMonitoring.bind(this)()
     }
+
+    if (window.ethereum) {
+        window.ethereum.on('accountsChanged', function (accounts) {
+            store.set('localWeb3Address', accounts[0])
+        })
+    }
+
     return
 }
 
