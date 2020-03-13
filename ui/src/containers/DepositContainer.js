@@ -5,23 +5,11 @@ import theme from '../theme/theme'
 import classNames from 'classnames'
 import Grid from '@material-ui/core/Grid';
 import Divider from '@material-ui/core/Divider';
-// import Tabs from '@material-ui/core/Tabs';
-// import Tab from '@material-ui/core/Tab';
 import Typography from '@material-ui/core/Typography';
 import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
 import InputAdornment from '@material-ui/core/InputAdornment';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
-import Checkbox from '@material-ui/core/Checkbox';
 import Switch from '@material-ui/core/Switch';
-
-import BigNumber from "bignumber.js";
-import RenJS from "@renproject/ren";
-
-import {
-    fromConnection,
-    ephemeral
-} from "@openzeppelin/network/lib";
 
 import {
     switchNetwork
@@ -32,25 +20,9 @@ import SwapTransactionStatus from '../components/SwapTransactionStatus'
 
 import {
     initDeposit,
-    initMonitoring,
-    initInstantMonitoring,
     removeTx,
-    updateTx,
     initInstantSwap
 } from '../utils/txUtils'
-
-const REACT_APP_TX_FEE = 100;
-const signKey = ephemeral();
-// const gasPrice = 10000000000;
-const relay_client_config = {
-  txfee: REACT_APP_TX_FEE,
-  // force_gasPrice: gasPrice, //override requested gas price
-  // gasPrice: gasPrice, //override requested gas price
-  // force_gasLimit: 200000, //override requested gas limit.
-  // gasLimit: 200000, //override requested gas limit.
-  verbose: true
-};
-
 
 
 const styles = () => ({
@@ -103,9 +75,7 @@ const styles = () => ({
     float: 'right'
   },
   title: {
-      fontSize: 16,
-      fontWeight: 500,
-      marginTop: theme.spacing(4)
+      marginBottom: theme.spacing(3)
   },
   unfinished: {
       // marginTop: theme.spacing(3)
@@ -126,7 +96,7 @@ const styles = () => ({
       justifyContent: 'space-between'
   },
   info: {
-      fontSize: 12,
+      fontSize: 14,
       marginBottom: theme.spacing(1),
       '& p': {
           marginBottom: 0
@@ -136,6 +106,9 @@ const styles = () => ({
       marginTop: theme.spacing(3),
       marginBottom: theme.spacing(3),
       backgroundColor: '#999999'
+  },
+  caption: {
+      fontSize: 16
   },
   desc: {
       padding: theme.spacing(3),
@@ -247,13 +220,15 @@ class DepositContainer extends React.Component {
 
         const disabled = amount <= 0.0001 || (amount > 0.0005 && instantSwapSelected) || !address
 
-        return <div className={classes.wrapper}><Grid container justify='center'>
+        return <div className={classes.wrapper}>
+            <Typography variant='subtitle1' className={classes.title}>Fast and gas-less swaps between Bitcoin and&nbsp;Ethereum</Typography>
+            <Grid container justify='center'>
             {/*<Typography variant={'h1'} className={classes.title}>Kovan ETH – Testnet BTC Exchange</Typography>*/}
 
             <Grid className={classes.contentContainer}>
                 <Grid container direction='row'>
                     {<Grid className={classes.desc} item xs={12}>
-                        <Typography variant='subtitle1'>Swap BTC for ETH</Typography>
+                        <Typography variant='subtitle1'>Create swap</Typography>
                         <NetworkChooser
                             currentNetwork={network}
                             onChange={(e) => {
@@ -349,7 +324,7 @@ class DepositContainer extends React.Component {
 
             {<Grid item xs={12} className={classes.info}>
                 <p>
-                    <b className={classes.caption}>How it Works</b>
+                    <span className={classes.caption}>How it works:</span>
                     <br/>
                     <br/>
                     This exchange uses <a target='_blank' href='https://renproject.io/'>RenVM</a>, <a target='_blank' href='https://uniswap.io/'>Uniswap</a>, and Open Zeppelin's <a target='_blank' href='https://gsn.openzeppelin.com/'>GSN</a> to facilitate trustless interoperabilty between Bitcoin and Ethereum. All swaps abstract ETH away from the user with the <b>GaaS pattern</b>, and faster swaps are faciliated using the <b>CaaS pattern</b>. To learn more, check out our interoperability tutorials below:
@@ -373,7 +348,8 @@ class DepositContainer extends React.Component {
                 </p>
             </Grid>}
 
-        </Grid></div>
+            </Grid>
+        </div>
     }
 }
 

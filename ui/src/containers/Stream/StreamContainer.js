@@ -6,33 +6,14 @@ import theme from '../../theme/theme'
 import classNames from 'classnames'
 import Grid from '@material-ui/core/Grid';
 import Divider from '@material-ui/core/Divider';
-// import Tabs from '@material-ui/core/Tabs';
-// import Tab from '@material-ui/core/Tab';
 import Typography from '@material-ui/core/Typography';
 import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
 import InputAdornment from '@material-ui/core/InputAdornment';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
-import Checkbox from '@material-ui/core/Checkbox';
-import Switch from '@material-ui/core/Switch';
-import Select from '@material-ui/core/Select';
-import FormControl from '@material-ui/core/FormControl';
-import RadioGroup from '@material-ui/core/RadioGroup';
-
-import BigNumber from "bignumber.js";
-import RenJS from "@renproject/ren";
-
-import {
-    fromConnection,
-    ephemeral
-} from "@openzeppelin/network/lib";
 
 import {
     initDeposit,
-    initMonitoring,
-    initInstantMonitoring,
     removeTx,
-    initInstantSwap,
     recoverStreams
 } from '../../utils/txUtils'
 
@@ -43,19 +24,6 @@ import {
 import ViewStream from './ViewStreamContainer'
 import StreamTransaction from '../../components/StreamTransaction'
 import NetworkChooser from '../../components/NetworkChooser'
-import Disclosure from '../../components/Disclosure'
-
-const REACT_APP_TX_FEE = 100;
-const signKey = ephemeral();
-// const gasPrice = 10000000000;
-const relay_client_config = {
-  txfee: REACT_APP_TX_FEE,
-  // force_gasPrice: gasPrice, //override requested gas price
-  // gasPrice: gasPrice, //override requested gas price
-  force_gasLimit: 200000, //override requested gas limit.
-  gasLimit: 200000, //override requested gas limit.
-  verbose: true
-};
 
 
 
@@ -71,6 +39,8 @@ const styles = () => ({
     minHeight: 52
   },
   wrapper: {
+      // minWidth: '100%',
+      // width: 572,
       marginLeft: 'auto',
       marginRight: 'auto',
       width: 572,
@@ -105,9 +75,7 @@ const styles = () => ({
   amount: {
   },
   title: {
-      fontSize: 16,
-      fontWeight: 500,
-      marginTop: theme.spacing(4)
+      marginBottom: theme.spacing(3)
   },
   unfinished: {
       // padding: theme.spacing(3),
@@ -123,7 +91,7 @@ const styles = () => ({
       justifyContent: 'space-between'
   },
   info: {
-      fontSize: 12,
+      fontSize: 14,
       marginBottom: theme.spacing(1),
       '& p': {
           marginBottom: 0
@@ -142,6 +110,9 @@ const styles = () => ({
   },
   btcLink: {
       fontSize: 12
+  },
+  caption: {
+      fontSize: 16
   },
   viewLink: {
       fontSize: 12,
@@ -197,12 +168,6 @@ class StreamContainer extends React.Component {
         if (txs) {
             store.set('stream.transactions', JSON.parse(txs))
         }
-
-        // // monitor normal swaps
-        // initMonitoring.bind(this)()
-        //
-        // // monitor instant swaps
-        // initInstantMonitoring.bind(this)()
     }
 
     componentWillUnmount() {
@@ -253,7 +218,6 @@ class StreamContainer extends React.Component {
             store
         } = this.props
 
-        // console.log(store.getState())
         const network = store.get('selectedNetwork')
         const amount = store.get('stream.amount')
         const address = store.get('stream.address')
@@ -267,14 +231,15 @@ class StreamContainer extends React.Component {
         const validation = validate(address)
         const validAddress = validation && !validation.bech32
         const disabled = amount < 0.00011 || !address || !duration || !validAddress
-        // const disabled = false
 
-        return <div><Grid container justify='center' className={classes.wrapper} >
+        return <div className={classes.wrapper}>
+            <Typography variant='subtitle1' className={classes.title}>Stream Bitcoin to another Bitcoin&nbsp;address</Typography>
+            <Grid container justify='center' className={classes.wrapper} >
             <Grid className={classes.contentContainer}>
                 <Grid container direction='row'>
                     {activeView === 'start' && <React.Fragment>
                         <Grid className={classes.desc} item xs={12}>
-                            <Typography variant='subtitle1'>Stream BTC</Typography>
+                            <Typography variant='subtitle1'>Create stream</Typography>
                             <NetworkChooser
                                 currentNetwork={network}
                                 onChange={(e) => {
@@ -389,7 +354,7 @@ class StreamContainer extends React.Component {
 
             {<Grid item xs={12} className={classes.info}>
                 <p>
-                    <b className={classes.caption}>How it Works</b>
+                    <span className={classes.caption}>How it works:</span>
                     <br/>
                     <br/>
                     Streams use <a target='_blank' href='https://renproject.io/'>RenVM</a> and Open Zeppelin's <a target='_blank' href='https://gsn.openzeppelin.com/'>GSN</a> to facilitate trustless interoperabilty between Bitcoin and Ethereum. Active streams are held in a smart contract that allows anyone to shift out a valid amount of earned BTC to the recipient BTC address at any time.
@@ -408,7 +373,8 @@ class StreamContainer extends React.Component {
                 </ul>
             </Grid>}
 
-        </Grid></div>
+            </Grid>
+        </div>
     }
 }
 

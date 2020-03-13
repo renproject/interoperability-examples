@@ -2,6 +2,8 @@ import RenJS from "@renproject/ren";
 import adapterABI from './exchangeAdapterSimpleABI.json'
 import streamAdapterABI from './streamAdapterSimpleABI.json'
 import transferAdapterABI from './simpleTransferAdapterABI.json'
+import proxyABI from './btcVaultProxyABI.json'
+import erc20Abi from './erc20ABI.json'
 import BigNumber from 'bignumber.js'
 
 // export const API_URL = 'http://localhost:3000'
@@ -13,6 +15,15 @@ export const SWAP_ADAPTER_TEST = '0xade8792c3ee90320cabde200ccab34b27cc88651'
 export const SWAP_ADAPTER_MAIN = '0x35Db75fc0D5457eAb9C21AFb5857716427F8129D'
 export const STREAM_ADAPTER_TEST = '0x1B1994b62Ca8d6f8A79CEc0505de2DF728FCcbb7'
 export const STREAM_ADAPTER_MAIN = '0x57bE80A340C310Bf4211C8bFED8c846bD92c5c55'
+
+
+
+export const COLLATERALIZE_PROXY_ADDRESS_TEST = '0xf026B91Eb32fE6e2F3FcFb3081715723E1983e48'
+export const COLLATERALIZE_DIRECT_PROXY_ADDRESS_TEST = '0xCb56D0859fD0aE5D9e7F13636b4Bb78936ddA2f8'
+export const ZBTC_ADDRESS_TEST = '0xc6069E8DeA210C937A846db2CEbC0f58ca111f26'
+export const DAI_ADDRESS_TEST = '0x4F96Fe3b7A6Cf9725f59d353F723c1bDb64CA6Aa'
+
+
 let swapMonitor = null
 
 // transaction state
@@ -24,6 +35,8 @@ export const addTx = (store, tx) => {
         storeString = 'stream.transactions'
     } else if (tx.type === 'transfer') {
         storeString = 'transfer.transactions'
+    } else if (tx.type === 'collateralize') {
+        storeString = 'collateralize.transactions'
     }
 
     let txs = store.get(storeString)
@@ -42,6 +55,8 @@ export const updateTx = (store, newTx) => {
         storeString = 'stream.transactions'
     } else if (newTx.type === 'transfer') {
         storeString = 'transfer.transactions'
+    } else if (newTx.type === 'collateralize') {
+        storeString = 'collateralize.transactions'
     }
 
     const txs = store.get(storeString).map(t => {
@@ -66,6 +81,8 @@ export const removeTx = (store, tx) => {
         storeString = 'stream.transactions'
     } else if (tx.type === 'transfer') {
         storeString = 'transfer.transactions'
+    } else if (tx.type === 'collateralize') {
+        storeString = 'collateralize.transactions'
     }
 
     let txs = store.get(storeString).filter(t => (t.id !== tx.id))
@@ -283,6 +300,8 @@ export const claim = async function(tx) {
 export const completeDeposit = async function(tx) {
     const { store }  = this.props
     const web3 = store.get('web3')
+    const localWeb3 = store.get('localWeb3')
+    const localWeb3Address = store.get('localWeb3Address')
     const web3Context = store.get('web3Context')
     const pendingShiftIns = store.get('pendingShiftIns')
 
@@ -295,7 +314,9 @@ export const completeDeposit = async function(tx) {
     } else if (type === 'stream') {
         adapterContract = new web3.eth.Contract(streamAdapterABI, store.get('stream.adapterAddress'))
     } else if (type === 'transfer') {
-        adapterContract = new web3.eth.Contract(transferAdapterABI, store.get('transfer.adapterAddress'))
+        adapterContract = new localWeb3.eth.Contract(transferAdapterABI, store.get('transfer.adapterAddress'))
+    } else if (type === 'collateralize') {
+        adapterContract = new localWeb3.eth.Contract(proxyABI, store.get('collateralize.adapterAddress'))
     }
 
     const gasPrice = await web3Context.lib.eth.getGasPrice()
@@ -342,9 +363,17 @@ export const completeDeposit = async function(tx) {
                 renResponse.autogen.nhash,
                 renSignature
             ).send({
-                from: web3Context.accounts[0],
-                gasPrice: Math.round(gasPrice * 1.5),
-                gasLimit: 200000
+                from: localWeb3Address
+            })
+        } else if (type === 'collateralize') {
+            result = await adapterContract.methods.mintDai(
+                params.contractCalls[0].contractParams[1].value,
+                params.contractCalls[0].contractParams[2].value,
+                utxoAmount,
+                renResponse.autogen.nhash,
+                renSignature
+            ).send({
+                from: localWeb3Address,
             })
         }
         store.set('pendingShiftIns', pendingShiftIns.filter(p => p !== id))
@@ -363,12 +392,17 @@ export const initShiftIn = function(tx) {
       destAddress,
       // stream
       startTime,
-      duration
+      duration,
+      // collateralize borrow
+      daiAmount,
+      btcAddress,
+      ethAddress
     } = tx
+    const { store } = this.props
     const {
         sdk,
-        web3
-    } = this.props.store.getState()
+        web3,
+    } = store.getState()
 
     let adapterAddress = ''
     let contractFn = ''
@@ -412,6 +446,26 @@ export const initShiftIn = function(tx) {
                 name: "_recipient",
                 type: "address",
                 value: destAddress,
+            }
+        ]
+    } else if (type === 'collateralize') {
+        adapterAddress = this.props.store.get('collateralize.adapterAddress')
+        contractFn = 'mintDai'
+        contractParams = [
+            {
+                name: "_sender",
+                type: "address",
+                value: ethAddress,
+            },
+            {
+                name: "_dart",
+                type: "int256",
+                value: web3.utils.toWei(daiAmount),
+            },
+            {
+                name: "_btcAddr",
+                type: "bytes",
+                value: web3.utils.fromAscii(btcAddress),
             }
         ]
     }
@@ -569,10 +623,18 @@ export const initMonitoring = function() {
     const store = this.props.store
     const network = store.get('selectedNetwork')
     const pendingShiftIns = store.get('pendingShiftIns')
-    const txs = store.get('swap.transactions')
+    let txs = store.get('swap.transactions')
         .concat(store.get('stream.transactions'))
-        .concat(store.get('transfer.transactions'))
+        // .concat(store.get('transfer.transactions'))
         .filter(t => t.network === network)
+
+    console.log('initMonitoring', store.getState())
+
+    if (store.get('localWeb3Address')) {
+        txs = txs.concat(store.get('transfer.transactions'))
+            .concat(store.get('collateralize.transactions'))
+            .filter(t => t.network === network)
+    }
 
     txs.map(tx => {
         if (tx.awaiting && !tx.instant) {
@@ -584,6 +646,7 @@ export const initMonitoring = function() {
         }
     })
 }
+
 
 window.shiftIns = []
 

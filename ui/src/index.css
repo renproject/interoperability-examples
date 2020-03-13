@@ -19,6 +19,14 @@ body {
     /* background: '#FCFEFF', */
 }
 
+/* #WEB3_CONNECT_MODAL_ID {
+    z-index: 1000000000;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+} */
+
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
     monospace;

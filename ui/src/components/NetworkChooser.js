@@ -13,9 +13,10 @@ const styles = () => ({
 })
 
 function NetworkChooser(props){
-    const { currentNetwork, onChange, classes } = props
+    const { currentNetwork, onChange, classes, disabled } = props
     return <Select
         native
+        disabled={Boolean(disabled)}
         value={currentNetwork}
         className={classes.container}
         onChange={onChange}
