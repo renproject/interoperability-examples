@@ -314,9 +314,9 @@ export const completeDeposit = async function(tx) {
     } else if (type === 'stream') {
         adapterContract = new web3.eth.Contract(streamAdapterABI, store.get('stream.adapterAddress'))
     } else if (type === 'transfer') {
-        adapterContract = new web3.eth.Contract(transferAdapterABI, store.get('transfer.adapterAddress'))
+        adapterContract = new localWeb3.eth.Contract(transferAdapterABI, store.get('transfer.adapterAddress'))
     } else if (type === 'collateralize') {
-        adapterContract = new web3.eth.Contract(proxyABI, store.get('collateralize.adapterAddress'))
+        adapterContract = new localWeb3.eth.Contract(proxyABI, store.get('collateralize.adapterAddress'))
     }
 
     const gasPrice = await web3Context.lib.eth.getGasPrice()
@@ -363,13 +363,10 @@ export const completeDeposit = async function(tx) {
                 renResponse.autogen.nhash,
                 renSignature
             ).send({
-                from: web3Context.accounts[0],
-                gasPrice: Math.round(gasPrice * 1.5),
-                gasLimit: 200000
+                from: localWeb3Address
             })
         } else if (type === 'collateralize') {
             result = await adapterContract.methods.mintDai(
-                params.contractCalls[0].contractParams[0].value,
                 params.contractCalls[0].contractParams[1].value,
                 params.contractCalls[0].contractParams[2].value,
                 utxoAmount,
@@ -398,13 +395,13 @@ export const initShiftIn = function(tx) {
       duration,
       // collateralize borrow
       daiAmount,
-      btcAddress
+      btcAddress,
+      ethAddress
     } = tx
     const { store } = this.props
     const {
         sdk,
         web3,
-        localWeb3Address,
     } = store.getState()
 
     let adapterAddress = ''
@@ -458,11 +455,11 @@ export const initShiftIn = function(tx) {
             {
                 name: "_sender",
                 type: "address",
-                value: localWeb3Address,
+                value: ethAddress,
             },
             {
                 name: "_dart",
-                type: "int",
+                type: "int256",
                 value: web3.utils.toWei(daiAmount),
             },
             {
@@ -626,13 +623,17 @@ export const initMonitoring = function() {
     const store = this.props.store
     const network = store.get('selectedNetwork')
     const pendingShiftIns = store.get('pendingShiftIns')
-    const txs = store.get('swap.transactions')
+    let txs = store.get('swap.transactions')
         .concat(store.get('stream.transactions'))
-        .concat(store.get('transfer.transactions'))
+        // .concat(store.get('transfer.transactions'))
         .filter(t => t.network === network)
 
+    console.log('initMonitoring', store.getState())
+
     if (store.get('localWeb3Address')) {
-        txs.concat(store.get('collateralize.transactions')).filter(t => t.network === network)
+        txs = txs.concat(store.get('transfer.transactions'))
+            .concat(store.get('collateralize.transactions'))
+            .filter(t => t.network === network)
     }
 
     txs.map(tx => {

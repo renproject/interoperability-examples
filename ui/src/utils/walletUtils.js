@@ -2,13 +2,13 @@ import Web3 from 'web3'
 import Web3Modal from 'web3modal'
 import Authereum from "authereum"
 import Torus from "@toruslabs/torus-embed"
+import Fortmatic from "fortmatic";
 
 import proxyABI from './btcVaultProxyABI.json'
 import erc20Abi from './erc20ABI.json'
 
 import {
     COLLATERALIZE_PROXY_ADDRESS_TEST,
-    COLLATERALIZE_DIRECT_PROXY_ADDRESS_TEST,
     ZBTC_ADDRESS_TEST,
     DAI_ADDRESS_TEST,
     initMonitoring
@@ -25,12 +25,16 @@ export const updateWalletData = async function() {
     }
 
     const contract = new web3.eth.Contract(erc20Abi, DAI_ADDRESS_TEST);
+    const zbtcContract = new web3.eth.Contract(erc20Abi, ZBTC_ADDRESS_TEST);
 
     const balance = await contract.methods.balanceOf(walletAddress).call();
     store.set('collateralize.balance', Number(web3.utils.fromWei(balance)).toFixed(6))
 
     const daiAllowance = await getDAIAllowance.bind(this)()
     store.set('collateralize.daiAllowance', daiAllowance)
+
+    const transferBalance = await zbtcContract.methods.balanceOf(walletAddress).call();
+    store.set('transfer.balance', Number(web3.utils.fromWei(transferBalance)).toFixed(6))
 }
 
 export const initLocalWeb3 = async function() {
@@ -39,19 +43,22 @@ export const initLocalWeb3 = async function() {
     const providerOptions = {
         authereum: {
             package: Authereum, // required
-            options: {}
+            options: {
+                networkName: 'kovan'
+            }
         },
         torus: {
             package: Torus, // required
             options: {
-                // enableLogging: false, // optional
-                // buttonPosition: "bottom-left", // optional
-                // buildEnv: "production", // optional
-                // showTorusButton: true, // optional
-                // enabledVerifiers: {
-                //     // optional
-                //     google: false // optional
-                // }
+                network: {
+                    host: 'kovan'
+                }
+            }
+        },
+        fortmatic: {
+            package: Fortmatic, // required
+            options: {
+                key: "pk_test_D12A04424946656D" // required
             }
         }
     }
@@ -78,8 +85,11 @@ export const initLocalWeb3 = async function() {
     store.set('localWeb3Address', accounts[0])
     store.set('localWeb3Network', network)
 
-    updateWalletData.bind(this)()
-    initMonitoring.bind(this)()
+    if (network === 'testnet') {
+        updateWalletData.bind(this)()
+        initMonitoring.bind(this)()
+    }
+    return
 }
 
 export const getDAIAllowance = async function() {
@@ -104,7 +114,7 @@ export const setDAIAllowance = async function() {
     const contract = new web3.eth.Contract(erc20Abi, DAI_ADDRESS_TEST)
     store.set('collateralize.daiAllowanceRequesting', true)
     try {
-        return await contract.methods.approve(COLLATERALIZE_PROXY_ADDRESS_TEST, web3.utils.toWei('1000000')).send({
+        await contract.methods.approve(COLLATERALIZE_PROXY_ADDRESS_TEST, web3.utils.toWei('1000000')).send({
             from: walletAddress
         })
         await updateWalletData.bind(this)();
@@ -128,8 +138,6 @@ export const burnDai = async function() {
     const result = await contract.methods.burnDai(
         String(Math.round(Number(repayBtcAmount) * (10 ** 8))),
         web3.utils.toWei(repayAmount),
-        // '14000',
-        // '1000000000000000000'
     ).send({
         from: walletAddress
     })

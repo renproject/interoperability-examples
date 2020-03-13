@@ -23,30 +23,21 @@ import {
 } from './utils/networkingUtils'
 
 import {
-    initLocalWeb3,
     updateWalletData
 } from './utils/walletUtils'
 
 
-import NavContainer from './containers/NavContainer'
 import ActionTabsContainer from './containers/ActionTabsContainer'
 import DepositContainer from './containers/DepositContainer'
 import TransferContainer from './containers/TransferContainer'
 import StreamContainer from './containers/Stream/StreamContainer'
 import CollateralizeContainer from './containers/CollateralizeContainer'
 
-import Disclosure from './components/Disclosure'
-import WalletButton from './components/WalletButton'
 
 import theme from './theme/theme'
-import classNames from 'classnames'
 
 import { withStyles, ThemeProvider } from '@material-ui/styles';
-import Container from '@material-ui/core/Container'
 import Grid from '@material-ui/core/Grid'
-
-// import TabPanel from '@material-ui/core/TabPanel'
-
 
 
 const styles = () => ({
@@ -75,7 +66,8 @@ const styles = () => ({
         paddingRight: theme.spacing(4)
     },
     actions: {
-        minHeight: '100%'
+        minHeight: '100%',
+        paddingBottom: theme.spacing(5)
     },
     info: {
         fontSize: 12,
@@ -99,7 +91,7 @@ const styles = () => ({
 })
 
 const initialState = {
-    'selectedActionTab': 'collateralize',
+    'selectedActionTab': 'transfer',
     'selectedNetwork': 'testnet',
     'pendingShiftIns': [],
     'web3': null,
@@ -125,7 +117,7 @@ const initialState = {
     'collateralize.adapterAddress': COLLATERALIZE_PROXY_ADDRESS_TEST,
     // transfer
     'transfer.amount': '',
-    'transfer.address': '',
+    'transfer.balance': '0.000000',
     'transfer.instantSwapSelected': false,
     'transfer.transactions': [],
     'transfer.adapterAddress': TRANSFER_ADAPTER_TEST,
@@ -184,9 +176,6 @@ class AppWrapper extends React.Component {
         const {
             selectedActionTab
         } = store.getState()
-
-        const network = store.get('selectedNetwork')
-        const adapterAddress = store.get('swap.adapterAddress')
 
         return <Grid container>
             {/*<Grid item xs={12}>

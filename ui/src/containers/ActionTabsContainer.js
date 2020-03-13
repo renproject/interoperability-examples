@@ -2,25 +2,14 @@ import React from 'react';
 import { withStore } from '@spyna/react-store'
 import { withStyles } from '@material-ui/styles';
 import theme from '../theme/theme'
-import classNames from 'classnames'
 
 
 import Grid from '@material-ui/core/Grid';
-import Button from '@material-ui/core/Button';
-import Input from '@material-ui/core/Input';
-import TextField from '@material-ui/core/TextField';
 import Typography from '@material-ui/core/Typography';
-import Modal from '@material-ui/core/Modal';
-import Backdrop from '@material-ui/core/Backdrop';
-import Fade from '@material-ui/core/Fade';
 import Tabs from '@material-ui/core/Tabs'
 import Tab from '@material-ui/core/Tab'
-import Select from '@material-ui/core/Select';
-import FormControl from '@material-ui/core/FormControl';
 import Hidden from '@material-ui/core/Hidden';
 
-
-import { withRouter } from "react-router";
 
 import RenVMLogo from '../assets/renvm-logo.svg'
 import { ReactComponent as ExchangeIcon } from '../assets/exchange.svg'
@@ -74,7 +63,16 @@ const styles = () => ({
     },
     tabsMobile: {
         // paddingTop: theme.spacing(2),
-        paddingRight: theme.spacing(2),
+        paddingRight: theme.spacing(1),
+        paddingLeft: theme.spacing(1),
+        // '& .MuiTab-root': {
+        //     minWidth: 140
+        // },
+        '& .MuiTab-root': {
+            [theme.breakpoints.down('sm')]: {
+                minWidth: 'auto'
+            }
+        },
         '& .MuiTabs-flexContainer': {
             alignItems: 'flex-start',
         },
@@ -83,16 +81,22 @@ const styles = () => ({
             justifyContent: 'flex-start',
             alignItems: 'center',
             '& svg': {
-                marginRight: theme.spacing(2),
+                marginRight: theme.spacing(1),
+                marginLeft: theme.spacing(1),
                 marginBottom: '0px !important',
                 width: 30,
                 height: 'auto'
             },
-            [theme.breakpoints.down('xs')]: {
+            [theme.breakpoints.down('sm')]: {
                 '& span': {
                     display: 'none'
                 },
-            }
+            },
+            // [theme.breakpoints.down('xs')]: {
+            //     '& span': {
+            //         display: 'block'
+            //     },
+            // }
         },
         '& span.MuiTabs-indicator': {
             backgroundColor: 'transparent'
@@ -100,7 +104,7 @@ const styles = () => ({
         '& button.MuiTab-textColorInherit': {
             color: '#fff',
             textTransform: 'capitalize',
-            fontSize: 18,
+            fontSize: 16,
         },
         '& button.MuiTab-textColorInherit.Mui-selected': {
             color: '#006BEC',
@@ -120,8 +124,7 @@ const styles = () => ({
             width: 'auto'
         },
         [theme.breakpoints.down('xs')]: {
-            maxWidth: '50%',
-            width: 140
+            display: 'none'
         }
     },
     logo: {
@@ -237,7 +240,7 @@ class ActionTabsContainer extends React.Component {
                         <Tab icon={<TransferIcon />} value={'transfer'} label={<span>Transfer</span>} />
                         <Tab icon={<ExchangeIcon />} value={'exchange'} label={<span>Exchange</span>} />
                         <Tab icon={<StreamIcon />} value={'stream'} label={<span>Stream</span>} />
-                        <Tab icon={<DaiIcon />} value={'collateralize'} label={<span>Collateralize DAI</span>} />
+                        <Tab icon={<DaiIcon />} value={'collateralize'} label={<span>DAI BTC Vault</span>} />
                     </Tabs>
                 </Hidden>
                 <Hidden mdUp>
@@ -252,7 +255,7 @@ class ActionTabsContainer extends React.Component {
                           <Tab icon={<TransferIcon />} value={'transfer'} label={<span>Transfer</span>} />
                           <Tab icon={<ExchangeIcon />} value={'exchange'} label={<span>Exchange</span>} />
                           <Tab icon={<StreamIcon />} value={'stream'} label={<span>Stream</span>} />
-                          <Tab icon={<DaiIcon />} value={'collateralize'} label={<span>Collateralize DAI</span>} />
+                          <Tab icon={<DaiIcon />} value={'collateralize'} label={<span>DAI BTC Vault</span>} />
                     </Tabs>
                 </Hidden>
             </div>

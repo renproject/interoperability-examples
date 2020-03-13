@@ -5,8 +5,6 @@ import theme from '../theme/theme'
 import classNames from 'classnames'
 import Grid from '@material-ui/core/Grid';
 import Divider from '@material-ui/core/Divider';
-// import Tabs from '@material-ui/core/Tabs';
-// import Tab from '@material-ui/core/Tab';
 import Typography from '@material-ui/core/Typography';
 import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
@@ -15,31 +13,19 @@ import Radio from '@material-ui/core/Radio';
 import RadioGroup from '@material-ui/core/RadioGroup';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 
-import BigNumber from "bignumber.js";
-import RenJS from "@renproject/ren";
-
 import DaiLogo from '../assets/dai-logo.png'
 
-import {
-    fromConnection,
-    ephemeral
-} from "@openzeppelin/network/lib";
 
 import {
     switchNetwork
 } from '../utils/networkingUtils'
 
 import NetworkChooser from '../components/NetworkChooser'
-import WalletButton from '../components/WalletButton'
 import TransferTransactionStatus from '../components/TransferTransactionStatus'
 
 import {
     initDeposit,
-    initMonitoring,
-    initInstantMonitoring,
     removeTx,
-    updateTx,
-    initInstantSwap,
 } from '../utils/txUtils'
 
 import {
@@ -98,9 +84,7 @@ const styles = () => ({
     float: 'right'
   },
   title: {
-      fontSize: 16,
-      fontWeight: 500,
-      marginTop: theme.spacing(4)
+      marginBottom: theme.spacing(3)
   },
   unfinished: {
       // marginTop: theme.spacing(3)
@@ -121,7 +105,7 @@ const styles = () => ({
       justifyContent: 'space-between'
   },
   info: {
-      fontSize: 12,
+      fontSize: 14,
       marginBottom: theme.spacing(1),
       '& p': {
           marginBottom: 0
@@ -140,6 +124,9 @@ const styles = () => ({
   },
   btcLink: {
       fontSize: 12
+  },
+  caption: {
+      fontSize: 16
   },
   viewLink: {
       fontSize: 12,
@@ -178,6 +165,12 @@ const styles = () => ({
           margin: '0px auto'
       }
   },
+  walletError: {
+      padding: theme.spacing(3),
+      paddingTop: theme.spacing(0),
+      textAlign: 'center',
+      width: '100%'
+  }
 })
 
 class Container extends React.Component {
@@ -205,6 +198,7 @@ class Container extends React.Component {
         const borrowAmount = store.get('collateralize.borrowAmount')
         const borrowDaiAmount = store.get('collateralize.borrowDaiAmount')
         const borrowBtcAddress = store.get('collateralize.borrowBtcAddress')
+        const ethAddress = store.get('localWeb3Address')
 
         const tx = {
             id: String(Math.round(Math.random() * (10 ** 8))),
@@ -215,6 +209,7 @@ class Container extends React.Component {
             amount: borrowAmount,
             daiAmount: borrowDaiAmount,
             btcAddress: borrowBtcAddress,
+            ethAddress: ethAddress,
             network: 'testnet',
             error: false
         }
@@ -243,12 +238,11 @@ class Container extends React.Component {
         const localWeb3 = store.get('localWeb3')
         const localWeb3Address = store.get('localWeb3Address')
         const localWeb3Network = store.get('localWeb3Network')
-
         const selectedTab = store.get('collateralize.selectedTab')
+        const rightNetwork = localWeb3Network === 'testnet'
+        const localWeb3Connected = localWeb3 && localWeb3Address && rightNetwork
 
-        const localWeb3Connected = localWeb3 && localWeb3Address
-
-        console.log(store.getState())
+        // console.log(store.getState())
 
         const balance = store.get('collateralize.balance')
         const borrowAmount = store.get('collateralize.borrowAmount')
@@ -263,11 +257,12 @@ class Container extends React.Component {
         const canBorrow = localWeb3Connected && Number(borrowAmount) > 0.00010001
         const canRepay = localWeb3Connected && Number(repayBtcAmount) > 0.00010001
 
-        return <div className={classes.wrapper}><Grid container justify='center'>
+        return <div className={classes.wrapper}>
+        <Typography variant='subtitle1' className={classes.title}>Deposit Bitcoin into MakerDAO and receive&nbsp;DAI</Typography>
+        <Grid container justify='center'>
             <Grid className={classes.contentContainer}>
                 <Grid container direction='row'>
                     {<Grid className={classes.desc} item xs={12}>
-                        {/*<Typography variant='subtitle1'>Collateralize DAI</Typography>*/}
                         <RadioGroup aria-label="position"
                             name="position"
                             value={selectedTab}
@@ -281,13 +276,13 @@ class Container extends React.Component {
                             <FormControlLabel
                               value="borrow"
                               control={<Radio color="primary" />}
-                              label="Borrow"
+                              label="Borrow DAI"
                               labelPlacement="end"
                             />
                             <FormControlLabel
                               value="repay"
                               control={<Radio color="primary" />}
-                              label="Repay"
+                              label="Repay DAI"
                               labelPlacement="end"
                             />
                         </RadioGroup>
@@ -391,14 +386,6 @@ class Container extends React.Component {
                         <Divider />
                     </Grid>
                     <Grid item xs={12} className={classes.swapButtonContainer}>
-                        {/*localWeb3Connected && <Button disabled={selectedTab === 'borrow' ? !canBorrow : !canRepay}
-                            className={classes.swapButton}
-                            variant='contained'
-                            color='primary'
-                            size='large'
-                            onClick={selectedTab === 'borrow' ? this.borrow.bind(this) : this.repay.bind(this)}>
-                            {selectedTab === 'borrow' ? 'Borrow' : 'Repay'}
-                        </Button>*/}
                         {!localWeb3Connected ? <Button className={classes.swapButton}
                             variant='contained'
                             color='primary'
@@ -429,6 +416,11 @@ class Container extends React.Component {
                                 </React.Fragment>}
                             </React.Fragment>}
                     </Grid>
+                    {localWeb3Address && !rightNetwork && <Grid className={classes.walletError}>
+                        <Typography variant='subtitle1'>
+                            Please switch your wallet to the kovan network
+                        </Typography>
+                    </Grid>}
 
                 </Grid>
             </Grid>
@@ -457,7 +449,7 @@ class Container extends React.Component {
 
             {<Grid item xs={12} className={classes.info}>
                 <p>
-                    <b className={classes.caption}>How it Works</b>
+                    <span className={classes.caption}>How it works:</span>
                     <br/>
                     <br/>
                     Transfers use <a target='_blank' href='https://renproject.io/'>RenVM</a> and Open Zeppelin's <a target='_blank' href='https://gsn.openzeppelin.com/'>GSN</a> to facilitate trustless interoperabilty between Bitcoin and Ethereum. Once Bitcoin is deposited into RenVM, the corresponding amount of zBTC is minted and transferred to the destination address on Ethereum.
