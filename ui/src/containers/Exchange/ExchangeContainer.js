@@ -67,7 +67,11 @@ const styles = () => ({
       padding: theme.spacing(3)
   },
   amountContainer: {
-    paddingRight: theme.spacing(2)
+    paddingRight: theme.spacing(2),
+    [theme.breakpoints.down('xs')]: {
+        paddingBottom: theme.spacing(2),
+        paddingRight: theme.spacing(0),
+    },
   },
   amount: {
   },
@@ -240,7 +244,7 @@ class ExchangeContainer extends React.Component {
                     </Grid>
                     <Grid item xs={12}>
                         <Grid container className={classes.inputContainer}>
-                            <Grid item xs={4} className={classes.amountContainer}>
+                            <Grid item xs={12} sm={4} className={classes.amountContainer}>
                                 <TextField className={classNames(classes.input, classes.amount)}
                                     label='Input'
                                     variant='filled'
@@ -255,7 +259,7 @@ class ExchangeContainer extends React.Component {
                                         endAdornment: <InputAdornment className={classes.endAdornment} position="end">BTC</InputAdornment>
                                     }}/>
                             </Grid>
-                            <Grid item xs={8}>
+                            <Grid item xs={12} sm={8}>
                                 <TextField className={classNames(classes.input, classes.address)}
                                     label='Send ETH to Ethereum Address'
                                     variant='filled'

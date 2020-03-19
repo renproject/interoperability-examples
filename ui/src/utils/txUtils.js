@@ -1,4 +1,6 @@
 import RenJS from "@renproject/ren";
+import { ShiftInStatus, ShiftOutStatus } from "@renproject/gateway-js";
+
 import adapterABI from './exchangeAdapterSimpleABI.json'
 import streamAdapterABI from './streamAdapterSimpleABI.json'
 import transferAdapterABI from './simpleTransferAdapterABI.json'
@@ -15,9 +17,6 @@ export const SWAP_ADAPTER_TEST = '0xade8792c3ee90320cabde200ccab34b27cc88651'
 export const SWAP_ADAPTER_MAIN = '0x35Db75fc0D5457eAb9C21AFb5857716427F8129D'
 export const STREAM_ADAPTER_TEST = '0x1B1994b62Ca8d6f8A79CEc0505de2DF728FCcbb7'
 export const STREAM_ADAPTER_MAIN = '0x57bE80A340C310Bf4211C8bFED8c846bD92c5c55'
-
-
-
 export const COLLATERALIZE_PROXY_ADDRESS_TEST = '0xf026B91Eb32fE6e2F3FcFb3081715723E1983e48'
 export const COLLATERALIZE_DIRECT_PROXY_ADDRESS_TEST = '0xCb56D0859fD0aE5D9e7F13636b4Bb78936ddA2f8'
 export const ZBTC_ADDRESS_TEST = '0xc6069E8DeA210C937A846db2CEbC0f58ca111f26'
@@ -296,7 +295,7 @@ export const claim = async function(tx) {
     })
 }
 
-// exchange and transfer
+// exchange
 export const completeDeposit = async function(tx) {
     const { store }  = this.props
     const web3 = store.get('web3')
@@ -401,6 +400,7 @@ export const initShiftIn = function(tx) {
     const { store } = this.props
     const {
         sdk,
+        gjs,
         web3,
     } = store.getState()
 
@@ -436,16 +436,6 @@ export const initShiftIn = function(tx) {
                 name: "_duration",
                 type: "uint16",
                 value: duration,
-            }
-        ]
-    } else if (type === 'transfer') {
-        adapterAddress = this.props.store.get('transfer.adapterAddress')
-        contractFn = 'deposit'
-        contractParams = [
-            {
-                name: "_recipient",
-                type: "address",
-                value: destAddress,
             }
         ]
     } else if (type === 'collateralize') {
@@ -568,6 +558,61 @@ export const initDeposit = async function(tx) {
     }
 }
 
+// transfers
+export const initGJSDeposit = async function(tx) {
+    const {
+      amount,
+      params,
+      destAddress,
+    } = tx
+    const { store } = this.props
+    const {
+        sdk,
+        gjs,
+        web3,
+    } = store.getState()
+
+    const adapterAddress = this.props.store.get('transfer.adapterAddress')
+    const contractFn = 'deposit'
+    const contractParams = [
+        {
+            name: "_recipient",
+            type: "address",
+            value: destAddress,
+        }
+    ]
+
+    const data = {
+        sendToken: RenJS.Tokens.BTC.Btc2Eth,
+        sendAmount: RenJS.utils.value(amount, "btc").sats(), // Convert to Satoshis
+        sendTo: adapterAddress,
+        contractFn,
+        contractParams,
+        nonce: params && params.nonce ? params.nonce : RenJS.utils.randomNonce(),
+    }
+
+    gjs.open(data);
+}
+
+export const recoverTrades = async function() {
+    const { store } = this.props
+    const gjs = store.get('gjs')
+
+    // Re-open incomplete trades
+    const previousGateways = await gjs.getGateways();
+    for (const trade of Array.from(previousGateways.values())) {
+        if (trade.status === ShiftInStatus.ConfirmedOnEthereum || trade.status === ShiftOutStatus.ReturnedFromRenVM) { continue; }
+        const gateway = gjs.open(trade);
+        console.log(gateway)
+        gateway.pause();
+        // gateway.cancel();
+        gateway.result()
+            .on("status", (status) => console.log(`[GOT STATUS] ${status}`))
+            .then(console.log)
+            .catch(console.error);
+    }
+}
+
 export const initInstantSwap = async function(tx) {
     const { store }  = this.props
     const { params, awaiting, renResponse, renSignature, error } = tx
@@ -625,14 +670,12 @@ export const initMonitoring = function() {
     const pendingShiftIns = store.get('pendingShiftIns')
     let txs = store.get('swap.transactions')
         .concat(store.get('stream.transactions'))
-        // .concat(store.get('transfer.transactions'))
         .filter(t => t.network === network)
 
     console.log('initMonitoring', store.getState())
 
     if (store.get('localWeb3Address')) {
-        txs = txs.concat(store.get('transfer.transactions'))
-            .concat(store.get('collateralize.transactions'))
+        txs = txs.concat(store.get('collateralize.transactions'))
             .filter(t => t.network === network)
     }
 
@@ -645,6 +688,9 @@ export const initMonitoring = function() {
             updateStreamInfo.bind(this)(tx)
         }
     })
+
+    // transfers via gateway js
+    recoverTrades.bind(this)()
 }
 
 

@@ -19,7 +19,7 @@ import NetworkChooser from '../../components/NetworkChooser'
 import TransferTransactionStatus from '../../components/TransferTransactionStatus'
 
 import {
-    initDeposit,
+    initGJSDeposit,
     removeTx,
 } from '../../utils/txUtils'
 
@@ -73,7 +73,7 @@ const styles = () => ({
       padding: theme.spacing(3)
   },
   amountContainer: {
-    // paddingBottom: theme.spacing(2)
+    paddingBottom: theme.spacing(2)
   },
   amount: {
   },
@@ -181,7 +181,7 @@ class TransferContainer extends React.Component {
     async start() {
         const { store } = this.props
         const amount = store.get('transfer.amount')
-        const address = store.get('localWeb3Address')
+        const address = store.get('transfer.address')
         const network = store.get('selectedNetwork')
 
         const tx = {
@@ -196,7 +196,7 @@ class TransferContainer extends React.Component {
             txHash: ''
         }
 
-        initDeposit.bind(this)(tx)
+        initGJSDeposit.bind(this)(tx)
     }
 
     render() {
@@ -216,7 +216,7 @@ class TransferContainer extends React.Component {
         const localWeb3Network = store.get('localWeb3Network')
         const rightNetwork = localWeb3Network === 'testnet'
 
-        const address = store.get('localWeb3Address')
+        const address = store.get('transfer.address')
         const balance = store.get('transfer.balance')
         const localWeb3Connected = localWeb3 && localWeb3Address && rightNetwork
 
@@ -250,7 +250,6 @@ class TransferContainer extends React.Component {
                             <Grid container className={classes.inputContainer}>
                                 <Grid item xs={12} className={classes.amountContainer}>
                                     <TextField className={classNames(classes.input, classes.amount)}
-                                        disabled={!localWeb3Connected}
                                         label='Mint Amount'
                                         variant='filled'
                                         placeholder=''
@@ -264,35 +263,40 @@ class TransferContainer extends React.Component {
                                             endAdornment: <InputAdornment className={classes.endAdornment} position="end">BTC</InputAdornment>
                                         }}/>
                                 </Grid>
+                                <Grid item xs={12} className={classes.addressContainer}>
+                                    <TextField className={classNames(classes.input, classes.amount)}
+                                        label='Send to ETH address'
+                                        variant='filled'
+                                        placeholder=''
+                                        onChange={e => {
+                                            store.set('transfer.address', e.target.value)
+                                        }}
+                                        InputLabelProps={{
+                                            shrink: true,
+                                        }}/>
+                                </Grid>
                             </Grid>
-
                         </Grid>
                         <Grid item xs={12}>
                             <Divider />
                         </Grid>
 
                         <Grid item xs={12} className={classes.swapButtonContainer}>
-                            {!localWeb3Connected ? <Button className={classes.swapButton}
-                                variant='contained'
-                                color='primary'
-                                size='large'
-                                onClick={initLocalWeb3.bind(this)}>
-                                    Connect wallet
-                                </Button> : <Button disabled={disabled}
-                                    className={classes.swapButton}
-                                    variant='contained'
-                                    color='primary'
-                                    size='large'
-                                    onClick={instantSwapSelected ? this.startInstant.bind(this) : this.start.bind(this)}>
-                                        Reveal BTC Deposit Address
-                                </Button>}
+                            {<Button disabled={disabled}
+                                  className={classes.swapButton}
+                                  variant='contained'
+                                  color='primary'
+                                  size='large'
+                                  onClick={this.start.bind(this)}>
+                                      Reveal BTC Deposit Address
+                              </Button>}
                         </Grid>
 
-                        {localWeb3Address && !rightNetwork && <Grid className={classes.walletError}>
+                        {/*localWeb3Address && !rightNetwork && <Grid className={classes.walletError}>
                             <Typography variant='subtitle1'>
                                 Please switch your wallet to the kovan network
                             </Typography>
-                        </Grid>}
+                        </Grid>*/}
 
                     </Grid>
                 </Grid>

@@ -117,6 +117,7 @@ const initialState = {
     'collateralize.adapterAddress': COLLATERALIZE_PROXY_ADDRESS_TEST,
     // transfer
     'transfer.amount': '',
+    'transfer.address': '',
     'transfer.balance': '0.000000',
     'transfer.instantSwapSelected': false,
     'transfer.transactions': [],
