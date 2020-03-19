@@ -10,6 +10,7 @@ import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
 import InputAdornment from '@material-ui/core/InputAdornment';
 import Radio from '@material-ui/core/Radio';
+import Chip from '@material-ui/core/Chip';
 import RadioGroup from '@material-ui/core/RadioGroup';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 
@@ -84,7 +85,13 @@ const styles = () => ({
     float: 'right'
   },
   title: {
-      marginBottom: theme.spacing(3)
+      marginBottom: theme.spacing(1)
+  },
+  badges: {
+      marginBottom: theme.spacing(3),
+      '& .MuiChip-root': {
+          marginRight: theme.spacing(1)
+      }
   },
   unfinished: {
       // marginTop: theme.spacing(3)
@@ -259,6 +266,10 @@ class Container extends React.Component {
 
         return <div className={classes.wrapper}>
         <Typography variant='subtitle1' className={classes.title}>Deposit Bitcoin into MakerDAO and receive&nbsp;DAI</Typography>
+        <Grid className={classes.badges} container>
+            <Chip label="RenJS" variant="outlined" />
+            <Chip label="Local Web3" variant="outlined" />
+        </Grid>
         <Grid container justify='center'>
             <Grid className={classes.contentContainer}>
                 <Grid container direction='row'>

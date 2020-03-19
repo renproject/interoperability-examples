@@ -8,6 +8,7 @@ import Divider from '@material-ui/core/Divider';
 import Typography from '@material-ui/core/Typography';
 import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
+import Chip from '@material-ui/core/Chip';
 import InputAdornment from '@material-ui/core/InputAdornment';
 import BtcLogo from '../../assets/btc-logo.svg'
 
@@ -81,7 +82,13 @@ const styles = () => ({
     float: 'right'
   },
   title: {
-      marginBottom: theme.spacing(3)
+      marginBottom: theme.spacing(1)
+  },
+  badges: {
+      marginBottom: theme.spacing(3),
+      '& .MuiChip-root': {
+          marginRight: theme.spacing(1)
+      }
   },
   unfinished: {
       // marginTop: theme.spacing(3)
@@ -224,6 +231,10 @@ class TransferContainer extends React.Component {
 
         return <div className={classes.wrapper}>
             <Typography variant='subtitle1' className={classes.title}>Mint tokenized Bitcoin onto&nbsp;Ethereum</Typography>
+            <Grid className={classes.badges} container>
+                <Chip label="GatewayJS" variant="outlined" />
+                <Chip label="Local Web3" variant="outlined" />
+            </Grid>
             <Grid container justify='center'>
                 <Grid className={classes.contentContainer}>
                     <Grid container direction='row'>

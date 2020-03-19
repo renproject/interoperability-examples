@@ -10,6 +10,7 @@ import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
 import InputAdornment from '@material-ui/core/InputAdornment';
 import Switch from '@material-ui/core/Switch';
+import Chip from '@material-ui/core/Chip';
 
 import {
     switchNetwork
@@ -79,7 +80,13 @@ const styles = () => ({
     float: 'right'
   },
   title: {
-      marginBottom: theme.spacing(3)
+      marginBottom: theme.spacing(1)
+  },
+  badges: {
+      marginBottom: theme.spacing(3),
+      '& .MuiChip-root': {
+          marginRight: theme.spacing(1)
+      }
   },
   unfinished: {
       // marginTop: theme.spacing(3)
@@ -226,6 +233,11 @@ class ExchangeContainer extends React.Component {
 
         return <div className={classes.wrapper}>
             <Typography variant='subtitle1' className={classes.title}>Fast and gas-less swaps between Bitcoin and&nbsp;Ethereum</Typography>
+            <Grid className={classes.badges} container>
+                <Chip label="RenJS" variant="outlined" />
+                <Chip label="GaaS" variant="outlined" />
+                <Chip label="CaaS" variant="outlined" />
+            </Grid>
             <Grid container justify='center'>
             {/*<Typography variant={'h1'} className={classes.title}>Kovan ETH – Testnet BTC Exchange</Typography>*/}
 

@@ -10,6 +10,8 @@ import Typography from '@material-ui/core/Typography';
 import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
 import InputAdornment from '@material-ui/core/InputAdornment';
+import Chip from '@material-ui/core/Chip';
+
 
 import {
     initDeposit,
@@ -75,7 +77,13 @@ const styles = () => ({
   amount: {
   },
   title: {
-      marginBottom: theme.spacing(3)
+      marginBottom: theme.spacing(1)
+  },
+  badges: {
+      marginBottom: theme.spacing(3),
+      '& .MuiChip-root': {
+          marginRight: theme.spacing(1)
+      }
   },
   unfinished: {
       // padding: theme.spacing(3),
@@ -234,6 +242,10 @@ class StreamContainer extends React.Component {
 
         return <div className={classes.wrapper}>
             <Typography variant='subtitle1' className={classes.title}>Stream Bitcoin to another Bitcoin&nbsp;address</Typography>
+            <Grid className={classes.badges} container>
+                <Chip label="RenJS" variant="outlined" />
+                <Chip label="GaaS" variant="outlined" />
+            </Grid>
             <Grid container justify='center' className={classes.wrapper} >
             <Grid className={classes.contentContainer}>
                 <Grid container direction='row'>
