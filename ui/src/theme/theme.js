@@ -96,6 +96,11 @@ export default createMuiTheme({
                 }
             },
         },
+        MuiChip: {
+            outlined: {
+                backgroundColor: '#FAFCFE'
+            }
+        },
         MuiToggleButtonGroup: {
           grouped: {
             '&:not(:first-child)': {

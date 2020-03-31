@@ -1,5 +1,5 @@
 import RenJS from "@renproject/ren";
-import { ShiftInStatus, ShiftOutStatus } from "@renproject/gateway-js";
+import { ShiftInStatus, ShiftOutStatus } from "@renproject/gateway";
 
 import adapterABI from './exchangeAdapterSimpleABI.json'
 import streamAdapterABI from './streamAdapterSimpleABI.json'
@@ -584,12 +584,14 @@ export const initGJSDeposit = async function(tx) {
 
     const data = {
         sendToken: RenJS.Tokens.BTC.Btc2Eth,
-        sendAmount: RenJS.utils.value(amount, "btc").sats(), // Convert to Satoshis
+        suggestedAmount: RenJS.utils.value(amount, "btc").sats().toString(), // Convert to Satoshis
         sendTo: adapterAddress,
         contractFn,
         contractParams,
         nonce: params && params.nonce ? params.nonce : RenJS.utils.randomNonce(),
     }
+
+    console.log('initGJSDeposit', data)
 
     gjs.open(data);
 }
@@ -604,7 +606,7 @@ export const recoverTrades = async function() {
         if (trade.status === ShiftInStatus.ConfirmedOnEthereum || trade.status === ShiftOutStatus.ReturnedFromRenVM) { continue; }
         const gateway = gjs.open(trade);
         console.log(gateway)
-        gateway.pause();
+        // gateway.pause();
         // gateway.cancel();
         gateway.result()
             .on("status", (status) => console.log(`[GOT STATUS] ${status}`))

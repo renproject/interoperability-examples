@@ -1,5 +1,5 @@
 import RenJS from "@renproject/ren";
-import GatewayJS from "@renproject/gateway-js";
+import GatewayJS from "@renproject/gateway";
 import {
     fromConnection,
     ephemeral

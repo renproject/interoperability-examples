@@ -253,6 +253,7 @@ class StreamContainer extends React.Component {
                         <Grid className={classes.desc} item xs={12}>
                             <Typography variant='subtitle1'>Create stream</Typography>
                             <NetworkChooser
+                                disabled={true}
                                 currentNetwork={network}
                                 onChange={(e) => {
                                     switchNetwork.bind(this)(e.target.value)
