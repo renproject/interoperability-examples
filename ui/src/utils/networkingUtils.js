@@ -1,5 +1,5 @@
 import RenJS from "@renproject/ren";
-import GatewayJS from "@renproject/gateway";
+// import GatewayJS from "@renproject/gateway";
 import {
     fromConnection,
     ephemeral
@@ -40,8 +40,8 @@ export const initNetworking = async function(network) {
     const sdk = new RenJS(network)
     store.set('sdk', sdk)
 
-    const gjs = new GatewayJS('testnet')
-    store.set('gjs', gjs)
+    // const gjs = new GatewayJS('testnet')
+    // store.set('gjs', gjs)
 
     store.set('swap.adapterAddress', network === 'testnet' ? SWAP_ADAPTER_TEST : SWAP_ADAPTER_MAIN)
     store.set('stream.adapterAddress', network === 'testnet' ? STREAM_ADAPTER_TEST : STREAM_ADAPTER_MAIN)

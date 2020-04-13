@@ -1,5 +1,5 @@
 import RenJS from "@renproject/ren";
-import { ShiftInStatus, ShiftOutStatus } from "@renproject/gateway";
+// import { ShiftInStatus, ShiftOutStatus } from "@renproject/gateway";
 
 import adapterABI from './exchangeAdapterSimpleABI.json'
 import streamAdapterABI from './streamAdapterSimpleABI.json'
@@ -11,16 +11,17 @@ import BigNumber from 'bignumber.js'
 // export const API_URL = 'http://localhost:3000'
 export const API_URL = ''
 export const MIN_CLAIM_AMOUNT = 0.00010001
-export const TRANSFER_ADAPTER_TEST = '0x083A7E086C27024d54556f876F09E2a0d7dD5E86'
-export const TRANSFER_ADAPTER_MAIN = '0x9F60E2e51a79609821DA32880Fc2b92e34F5Cf2e'
-export const SWAP_ADAPTER_TEST = '0xade8792c3ee90320cabde200ccab34b27cc88651'
-export const SWAP_ADAPTER_MAIN = '0x35Db75fc0D5457eAb9C21AFb5857716427F8129D'
-export const STREAM_ADAPTER_TEST = '0x1B1994b62Ca8d6f8A79CEc0505de2DF728FCcbb7'
-export const STREAM_ADAPTER_MAIN = '0x57bE80A340C310Bf4211C8bFED8c846bD92c5c55'
+export const TRANSFER_ADAPTER_TEST = '0x795A46dAaB5389d01B45Ff6C68029C248b22999a'
+export const TRANSFER_ADAPTER_MAIN = '0x9F60E2e51a79609821DA32880Fc2b92e34F5Cf2e' // old
+export const SWAP_ADAPTER_TEST = '0xAd81Fdc92E2ECb43E6207647b17f6D5075E6a1fd'
+export const SWAP_ADAPTER_MAIN = '0x35Db75fc0D5457eAb9C21AFb5857716427F8129D' // old
+export const STREAM_ADAPTER_TEST = '0xc896813996330Ab852f2f27f27bF4523aBf80b27'
+export const STREAM_ADAPTER_MAIN = '0x57bE80A340C310Bf4211C8bFED8c846bD92c5c55' // old
 export const COLLATERALIZE_PROXY_ADDRESS_TEST = '0xf026B91Eb32fE6e2F3FcFb3081715723E1983e48'
 export const COLLATERALIZE_DIRECT_PROXY_ADDRESS_TEST = '0xCb56D0859fD0aE5D9e7F13636b4Bb78936ddA2f8'
-export const ZBTC_ADDRESS_TEST = '0xc6069E8DeA210C937A846db2CEbC0f58ca111f26'
+export const BTC_ADDRESS_TEST = '0x0A9ADD98C076448CBcFAcf5E457DA12ddbEF4A8f'
 export const DAI_ADDRESS_TEST = '0x4F96Fe3b7A6Cf9725f59d353F723c1bDb64CA6Aa'
+export const UNISWAP_BTC_TEST = '0xF15E0e337d7D34Ab14916f5FfC8348b1Af55CEcD'
 
 
 let swapMonitor = null
@@ -313,7 +314,7 @@ export const completeDeposit = async function(tx) {
     } else if (type === 'stream') {
         adapterContract = new web3.eth.Contract(streamAdapterABI, store.get('stream.adapterAddress'))
     } else if (type === 'transfer') {
-        adapterContract = new localWeb3.eth.Contract(transferAdapterABI, store.get('transfer.adapterAddress'))
+        adapterContract = new web3.eth.Contract(transferAdapterABI, store.get('transfer.adapterAddress'))
     } else if (type === 'collateralize') {
         adapterContract = new localWeb3.eth.Contract(proxyABI, store.get('collateralize.adapterAddress'))
     }
@@ -324,14 +325,14 @@ export const completeDeposit = async function(tx) {
 
     updateTx(store, Object.assign(tx, { awaiting: 'eth-settle' }))
 
-    console.log('completeDeposit', tx, adapterContract)
+    console.log('completeDeposit', renResponse, tx, adapterContract)
 
     const utxoAmount = Number(renResponse.in.utxo.amount)
 
     try {
         let result
         if (type === 'swap') {
-            result = await adapterContract.methods.shiftInWithSwap(
+            result = await adapterContract.methods.mintWithSwap(
                 params.contractCalls[0].contractParams[0].value,
                 utxoAmount,
                 renResponse.autogen.nhash,
@@ -362,7 +363,7 @@ export const completeDeposit = async function(tx) {
                 renResponse.autogen.nhash,
                 renSignature
             ).send({
-                from: localWeb3Address
+                from: web3Context.accounts[0]
             })
         } else if (type === 'collateralize') {
             result = await adapterContract.methods.mintDai(
@@ -383,7 +384,7 @@ export const completeDeposit = async function(tx) {
     }
 }
 
-export const initShiftIn = function(tx) {
+export const initMint = function(tx) {
     const {
       type,
       amount,
@@ -438,6 +439,16 @@ export const initShiftIn = function(tx) {
                 value: duration,
             }
         ]
+      } else if (type === 'transfer') {
+          adapterAddress = this.props.store.get('transfer.adapterAddress')
+          contractFn = 'deposit'
+          contractParams = [
+              {
+                  name: "_recipient",
+                  type: "address",
+                  value: destAddress,
+              }
+          ]
     } else if (type === 'collateralize') {
         adapterAddress = this.props.store.get('collateralize.adapterAddress')
         contractFn = 'mintDai'
@@ -470,11 +481,11 @@ export const initShiftIn = function(tx) {
         nonce: params && params.nonce ? params.nonce : RenJS.utils.randomNonce(),
     }
 
-    const shiftIn = sdk.shiftIn(data)
+    const mint = sdk.lockAndMint(data)
 
-    window.shiftIns.push(shiftIn)
+    window.shiftIns.push(mint)
 
-    return shiftIn
+    return mint
 }
 
 export const initDeposit = async function(tx) {
@@ -510,20 +521,20 @@ export const initDeposit = async function(tx) {
         completeDeposit.bind(this)(tx)
     } else {
         // create or re-create shift in
-        const shiftIn = await initShiftIn.bind(this)(tx)
+        const mint = await initMint.bind(this)(tx)
 
-        // console.log('initDeposit shiftin', shiftIn)
+        console.log('initDeposit shiftin', mint)
 
         if (!params) {
             addTx(store, Object.assign(tx, {
-                params: shiftIn.params,
-                renBtcAddress: shiftIn.addr()
+                params: mint.params,
+                renBtcAddress: mint.addr()
             }))
         }
 
         // wait for btc
-        const deposit = await shiftIn
-            .waitForDeposit(2)
+        const deposit = await mint
+            .wait(2)
             .on("deposit", dep => {
                 // console.log('on deposit', dep)
                 if (dep.utxo) {
@@ -545,9 +556,10 @@ export const initDeposit = async function(tx) {
         updateTx(store, Object.assign(tx, { awaiting: 'ren-settle' }))
 
         try {
-            const signature = await deposit.submitToRenVM();
+            const signature = await deposit.submit();
             updateTx(store, Object.assign(tx, {
-                renResponse: signature.response,
+                // renSubmitData: signature,
+                renResponse: signature.renVMResponse,
                 renSignature: signature.signature
             }))
 
@@ -597,22 +609,22 @@ export const initGJSDeposit = async function(tx) {
 }
 
 export const recoverTrades = async function() {
-    const { store } = this.props
-    const gjs = store.get('gjs')
-
-    // Re-open incomplete trades
-    const previousGateways = await gjs.getGateways();
-    for (const trade of Array.from(previousGateways.values())) {
-        if (trade.status === ShiftInStatus.ConfirmedOnEthereum || trade.status === ShiftOutStatus.ReturnedFromRenVM) { continue; }
-        const gateway = gjs.open(trade);
-        console.log(gateway)
-        // gateway.pause();
-        // gateway.cancel();
-        gateway.result()
-            .on("status", (status) => console.log(`[GOT STATUS] ${status}`))
-            .then(console.log)
-            .catch(console.error);
-    }
+    // const { store } = this.props
+    // const gjs = store.get('gjs')
+    //
+    // // Re-open incomplete trades
+    // const previousGateways = await gjs.getGateways();
+    // for (const trade of Array.from(previousGateways.values())) {
+    //     if (trade.status === ShiftInStatus.ConfirmedOnEthereum || trade.status === ShiftOutStatus.ReturnedFromRenVM) { continue; }
+    //     const gateway = gjs.open(trade);
+    //     console.log(gateway)
+    //     // gateway.pause();
+    //     // gateway.cancel();
+    //     gateway.result()
+    //         .on("status", (status) => console.log(`[GOT STATUS] ${status}`))
+    //         .then(console.log)
+    //         .catch(console.error);
+    // }
 }
 
 export const initInstantSwap = async function(tx) {
@@ -671,6 +683,7 @@ export const initMonitoring = function() {
     const network = store.get('selectedNetwork')
     const pendingShiftIns = store.get('pendingShiftIns')
     let txs = store.get('swap.transactions')
+        .concat(store.get('transfer.transactions'))
         .concat(store.get('stream.transactions'))
         .filter(t => t.network === network)
 
@@ -691,8 +704,8 @@ export const initMonitoring = function() {
         }
     })
 
-    // transfers via gateway js
-    recoverTrades.bind(this)()
+    // // transfers via gateway js
+    // recoverTrades.bind(this)()
 }
 
 
@@ -703,7 +716,7 @@ export default {
     updateTx,
     removeTx,
     completeDeposit,
-    initShiftIn,
+    initMint,
     initDeposit,
     initMonitoring
 }

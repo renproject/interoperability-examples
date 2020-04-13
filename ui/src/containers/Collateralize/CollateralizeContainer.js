@@ -463,7 +463,7 @@ class Container extends React.Component {
                     <span className={classes.caption}>How it works:</span>
                     <br/>
                     <br/>
-                    The MakerDAO BTC Vault was created as part of the ETHDenver 2020 hacakathon. Once Bitcoin is deposited into RenVM, the corresponding amount of zBTC is minted and transferred to a MakerDAO CDP that mints new DAI.
+                    The MakerDAO BTC Vault was created as part of the ETHDenver 2020 hacakathon. Once Bitcoin is deposited into RenVM, the corresponding amount of testBTC is minted and transferred to a MakerDAO CDP that mints new DAI.
                 </p>
                 <p>
                     Transactions are facilitated through the following adapter address: <a target='_blank' href={'https://'+ (network === 'testnet' ? 'kovan.' : '') +'etherscan.io/address/'+adapterAddress}>{adapterAddress}</a>

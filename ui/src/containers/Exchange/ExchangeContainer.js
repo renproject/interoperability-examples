@@ -235,8 +235,8 @@ class ExchangeContainer extends React.Component {
             <Typography variant='subtitle1' className={classes.title}>Fast and gas-less swaps between Bitcoin and&nbsp;Ethereum</Typography>
             <Grid className={classes.badges} container>
                 <Chip label="RenJS" variant="outlined" />
-                <Chip label="GaaS" variant="outlined" />
-                <Chip label="CaaS" variant="outlined" />
+                <Chip label="Gas-less" variant="outlined" />
+                <Chip label="Confirmation-less" variant="outlined" />
             </Grid>
             <Grid container justify='center'>
             {/*<Typography variant={'h1'} className={classes.title}>Kovan ETH – Testnet BTC Exchange</Typography>*/}
@@ -344,12 +344,12 @@ class ExchangeContainer extends React.Component {
                     <span className={classes.caption}>How it works:</span>
                     <br/>
                     <br/>
-                    This exchange uses <a target='_blank' href='https://renproject.io/'>RenVM</a>, <a target='_blank' href='https://uniswap.io/'>Uniswap</a>, and Open Zeppelin's <a target='_blank' href='https://gsn.openzeppelin.com/'>GSN</a> to facilitate trustless interoperabilty between Bitcoin and Ethereum. All swaps abstract ETH away from the user with the <b>GaaS pattern</b>, and faster swaps are faciliated using the <b>CaaS pattern</b>. To learn more, check out our interoperability tutorials below:
+                    This exchange uses <a target='_blank' href='https://renproject.io/'>RenVM</a>, <a target='_blank' href='https://uniswap.io/'>Uniswap</a>, and Open Zeppelin's <a target='_blank' href='https://gsn.openzeppelin.com/'>GSN</a> to facilitate trustless interoperabilty between Bitcoin and Ethereum. All swaps abstract ETH away from the user with the <b>Gas-less pattern</b>, and faster swaps are faciliated using the <b>Confirmation-less pattern</b>. To learn more, check out our interoperability tutorials below:
                 </p>
                 <p>
                     <ul>
-                        <li><a target='_blank' href={'https://docs.renproject.io/developers/tutorials'}>GaaS Tutorial</a> | Gas-less transactions</li>
-                        <li><a target='_blank' href={'https://docs.renproject.io/developers/tutorials'}>CaaS tutorial</a> | Faster swaps via expedited confirmations</li>
+                        <li><a target='_blank' href={'https://docs.renproject.io/developers/tutorials'}>Gas-less Tutorial</a> | Gas-less transactions</li>
+                        <li><a target='_blank' href={'https://docs.renproject.io/developers/tutorials'}>Confirmation-less tutorial</a> | Faster swaps via expedited confirmations</li>
                     </ul>
                 </p>
                 <p>

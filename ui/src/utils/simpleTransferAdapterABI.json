@@ -83,7 +83,7 @@
 	{
 		"inputs": [
 			{
-				"internalType": "contract IShifterRegistry",
+				"internalType": "contract IGatewayRegistry",
 				"name": "_registry",
 				"type": "address"
 			}
@@ -218,7 +218,7 @@
 		"name": "registry",
 		"outputs": [
 			{
-				"internalType": "contract IShifterRegistry",
+				"internalType": "contract IGatewayRegistry",
 				"name": "",
 				"type": "address"
 			}

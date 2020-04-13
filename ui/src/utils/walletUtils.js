@@ -9,7 +9,7 @@ import erc20Abi from './erc20ABI.json'
 
 import {
     COLLATERALIZE_PROXY_ADDRESS_TEST,
-    ZBTC_ADDRESS_TEST,
+    BTC_ADDRESS_TEST,
     DAI_ADDRESS_TEST,
     initMonitoring
 } from './txUtils'
@@ -25,7 +25,7 @@ export const updateWalletData = async function() {
     }
 
     const contract = new web3.eth.Contract(erc20Abi, DAI_ADDRESS_TEST);
-    const zbtcContract = new web3.eth.Contract(erc20Abi, ZBTC_ADDRESS_TEST);
+    const zbtcContract = new web3.eth.Contract(erc20Abi, BTC_ADDRESS_TEST);
 
     const balance = await contract.methods.balanceOf(walletAddress).call();
     store.set('collateralize.balance', Number(web3.utils.fromWei(balance)).toFixed(6))

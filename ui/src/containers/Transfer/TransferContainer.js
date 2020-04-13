@@ -21,6 +21,7 @@ import TransferTransactionStatus from '../../components/TransferTransactionStatu
 
 import {
     initGJSDeposit,
+    initDeposit,
     removeTx,
 } from '../../utils/txUtils'
 
@@ -203,7 +204,8 @@ class TransferContainer extends React.Component {
             txHash: ''
         }
 
-        initGJSDeposit.bind(this)(tx)
+        initDeposit.bind(this)(tx)
+        // initGJSDeposit.bind(this)(tx)
     }
 
     render() {
@@ -229,11 +231,15 @@ class TransferContainer extends React.Component {
 
         const disabled = amount <= 0.0001 || (amount > 0.0005 && instantSwapSelected) || !address
 
+        console.log(store.getState(), transactions)
+
         return <div className={classes.wrapper}>
             <Typography variant='subtitle1' className={classes.title}>Mint tokenized Bitcoin onto&nbsp;Ethereum</Typography>
             <Grid className={classes.badges} container>
-                <Chip label="GatewayJS" variant="outlined" />
-                <Chip label="Local Web3" variant="outlined" />
+                {/*<Chip label="GatewayJS" variant="outlined" />
+                <Chip label="Local Web3" variant="outlined" />*/}
+                <Chip label="RenJS" variant="outlined" />
+                <Chip label="Gas-less" variant="outlined" />
             </Grid>
             <Grid container justify='center'>
                 <Grid className={classes.contentContainer}>
@@ -247,13 +253,13 @@ class TransferContainer extends React.Component {
                                     switchNetwork.bind(this)(e.target.value)
                                 }} />
                         </Grid>}
-                        <Grid item xs={12}>
+                        {/*<Grid item xs={12}>
                             <Divider />
                         </Grid>
                         <Grid item xs={12} className={classes.header}>
                             <img src={BtcLogo} />
                             <p className={classes.balance}>{balance} zBTC</p>
-                        </Grid>
+                        </Grid>*/}
                         <Grid item xs={12}>
                             <Divider />
                         </Grid>
@@ -312,7 +318,7 @@ class TransferContainer extends React.Component {
                     </Grid>
                 </Grid>
 
-                {localWeb3Connected && transactions && transactions.length ? <React.Fragment>
+                {transactions && transactions.length ? <React.Fragment>
                 <Grid item xs={12} className={classes.unfinished}>
                     {transactions.map((tx, index) => {
                             return <Grid key={index} container direction='row' className={classes.depositItem}>
@@ -339,7 +345,7 @@ class TransferContainer extends React.Component {
                         <span className={classes.caption}>How it works:</span>
                         <br/>
                         <br/>
-                        Transfers use <a target='_blank' href='https://renproject.io/'>RenVM</a> and Open Zeppelin's <a target='_blank' href='https://gsn.openzeppelin.com/'>GSN</a> to facilitate trustless interoperabilty between Bitcoin and Ethereum. Once Bitcoin is deposited into RenVM, the corresponding amount of zBTC is minted and transferred to the destination address on Ethereum.
+                        Transfers use <a target='_blank' href='https://renproject.io/'>RenVM</a> and Open Zeppelin's <a target='_blank' href='https://gsn.openzeppelin.com/'>GSN</a> to facilitate trustless interoperabilty between Bitcoin and Ethereum. Once Bitcoin is deposited into RenVM, the corresponding amount of testBTC is minted and transferred to the destination address on Ethereum.
                     </p>
                     <p>
                         Transfers are facilitated through the following adapter address: <a target='_blank' href={'https://'+ (network === 'testnet' ? 'kovan.' : '') +'etherscan.io/address/'+adapterAddress}>{adapterAddress}</a>

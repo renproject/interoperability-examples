@@ -121,9 +121,9 @@ const swap = async function (amount, dest, gateway) {
 }
 
 // Complete the shift once RenVM verifies the tx
-const completeShiftIn = async function (shiftIn, signature, response) {
+const completeShiftIn = async function (mint, signature, response) {
     console.log('completeShiftIn', signature, response)
-    const params = shiftIn.params
+    const params = mint.params
     const msg = params.contractCalls[0].contractParams[0].value
     const amount = params.sendAmount
     const nHash = response.autogen.nhash
@@ -131,7 +131,7 @@ const completeShiftIn = async function (shiftIn, signature, response) {
     const gasPrice = await web3Context.lib.eth.getGasPrice()
 
     try {
-        const result = await adapterContract.methods.shiftIn(
+        const result = await adapterContract.methods.mint(
             msg,
             amount,
             nHash,
@@ -141,7 +141,7 @@ const completeShiftIn = async function (shiftIn, signature, response) {
             gasPrice: Math.round(gasPrice * 1.5)
             // nonce: 15
         })
-        console.log('shift in hash for ' + shiftIn.gatewayAddress, result.transactionHash)
+        console.log('shift in hash for ' + mint.gatewayAddress, result.transactionHash)
     } catch(e) {
         console.log(e)
         gatewayStatusMap[gateway].status = 'error'
@@ -150,22 +150,22 @@ const completeShiftIn = async function (shiftIn, signature, response) {
 }
 
 // Stagger Swap and Shift-in based on tx confirmations
-const monitorShiftIn = async function (shiftIn, dest) {
-    const gateway = shiftIn.gatewayAddress
+const monitorMint = async function (mint, dest) {
+    const gateway = mint.gatewayAddress
     const confsTillSwap = 0
     const confsTillShiftIn = 2
 
-    console.log('awaiting initial tx', gateway, shiftIn.params.sendAmount)
-    const initalConf = await shiftIn.waitForDeposit(confsTillSwap);
-    console.log('calling swap', shiftIn.params.sendAmount, dest, gateway)
-    swap(shiftIn.params.sendAmount, dest, gateway)
+    console.log('awaiting initial tx', gateway, mint.params.sendAmount)
+    const initalConf = await mint.wait(confsTillSwap);
+    console.log('calling swap', mint.params.sendAmount, dest, gateway)
+    swap(mint.params.sendAmount, dest, gateway)
 
     console.log('awaiting final confs', gateway)
-    const fullConf = await shiftIn.waitForDeposit(confsTillShiftIn);
+    const fullConf = await mint.wait(confsTillShiftIn);
     console.log('submitting to renvm', fullConf)
-    const renvm = await fullConf.submitToRenVM()
+    const renvm = await fullConf.submit()
     console.log('renvm response', renvm)
-    completeShiftIn(shiftIn, renvm.signature, renvm.response)
+    completeShiftIn(mint, renvm.signature, renvm.renVMResponse)
 }
 
 // Routes
@@ -174,11 +174,11 @@ router.post('/swap-gateway/create', function(req, res, next) {
     const amount = params.sourceAmount
     const dest = params.destinationAddress
 
-    const shiftIn = ren.shiftIn({
+    const mint = ren.lockAndMint({
         sendToken: RenJS.Tokens.BTC.Btc2Eth,
         sendAmount: Math.floor(amount * (10 ** 8)), // Convert to Satoshis
         sendTo: adapterAddress,
-        contractFn: "shiftIn",
+        contractFn: "mint",
         contractParams: [
             {
                 name: "_msg",
@@ -187,14 +187,14 @@ router.post('/swap-gateway/create', function(req, res, next) {
             }
         ],
     });
-    const gatewayAddress = shiftIn.gatewayAddress
+    const gatewayAddress = mint.gatewayAddress
     gatewayStatusMap[gatewayAddress] = {
         created: Date.now(),
         status: 'pending',
         txHash: ''
     }
 
-    monitorShiftIn(shiftIn, dest)
+    monitorMint(mint, dest)
     res.json({ gatewayAddress })
 });
 

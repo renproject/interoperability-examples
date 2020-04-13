@@ -244,7 +244,7 @@ class StreamContainer extends React.Component {
             <Typography variant='subtitle1' className={classes.title}>Stream Bitcoin to another Bitcoin&nbsp;address</Typography>
             <Grid className={classes.badges} container>
                 <Chip label="RenJS" variant="outlined" />
-                <Chip label="GaaS" variant="outlined" />
+                <Chip label="Gas-less" variant="outlined" />
             </Grid>
             <Grid container justify='center' className={classes.wrapper} >
             <Grid className={classes.contentContainer}>
