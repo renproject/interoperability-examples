@@ -1,5 +1,5 @@
 import RenJS from "@renproject/ren";
-// import { ShiftInStatus, ShiftOutStatus } from "@renproject/gateway";
+import { LockAndMintStatus, BurnAndReleaseStatus } from "@renproject/gateway";
 
 import adapterABI from './exchangeAdapterSimpleABI.json'
 import streamAdapterABI from './streamAdapterSimpleABI.json'
@@ -363,7 +363,7 @@ export const completeDeposit = async function(tx) {
                 renResponse.autogen.nhash,
                 renSignature
             ).send({
-                from: web3Context.accounts[0]
+                from: localWeb3Address
             })
         } else if (type === 'collateralize') {
             result = await adapterContract.methods.mintDai(
@@ -615,7 +615,7 @@ export const recoverTrades = async function() {
     // // Re-open incomplete trades
     // const previousGateways = await gjs.getGateways();
     // for (const trade of Array.from(previousGateways.values())) {
-    //     if (trade.status === ShiftInStatus.ConfirmedOnEthereum || trade.status === ShiftOutStatus.ReturnedFromRenVM) { continue; }
+    //     if (trade.status === LockAndMintStatus.ConfirmedOnEthereum || trade.status === BurnAndReleaseStatus.ReturnedFromRenVM) { continue; }
     //     const gateway = gjs.open(trade);
     //     console.log(gateway)
     //     // gateway.pause();
