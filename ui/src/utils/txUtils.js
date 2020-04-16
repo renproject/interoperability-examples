@@ -581,7 +581,7 @@ export const initGJSDeposit = async function(tx) {
     const {
         sdk,
         gjs,
-        web3,
+        localWeb3,
     } = store.getState()
 
     const adapterAddress = this.props.store.get('transfer.adapterAddress')
@@ -601,6 +601,7 @@ export const initGJSDeposit = async function(tx) {
         contractFn,
         contractParams,
         nonce: params && params.nonce ? params.nonce : RenJS.utils.randomNonce(),
+        web3Provider: localWeb3.currentProvider
     }
 
     console.log('initGJSDeposit', data)
@@ -609,22 +610,23 @@ export const initGJSDeposit = async function(tx) {
 }
 
 export const recoverTrades = async function() {
-    // const { store } = this.props
-    // const gjs = store.get('gjs')
-    //
-    // // Re-open incomplete trades
-    // const previousGateways = await gjs.getGateways();
-    // for (const trade of Array.from(previousGateways.values())) {
-    //     if (trade.status === LockAndMintStatus.ConfirmedOnEthereum || trade.status === BurnAndReleaseStatus.ReturnedFromRenVM) { continue; }
-    //     const gateway = gjs.open(trade);
-    //     console.log(gateway)
-    //     // gateway.pause();
-    //     // gateway.cancel();
-    //     gateway.result()
-    //         .on("status", (status) => console.log(`[GOT STATUS] ${status}`))
-    //         .then(console.log)
-    //         .catch(console.error);
-    // }
+    const { store } = this.props
+    const gjs = store.get('gjs')
+    const localWeb3 = store.get('localWeb3')
+
+    // Re-open incomplete trades
+    const previousGateways = await gjs.getGateways();
+    for (const trade of Array.from(previousGateways.values())) {
+        console.log(trade)
+        if (trade.status === LockAndMintStatus.ConfirmedOnEthereum || trade.status === BurnAndReleaseStatus.ReturnedFromRenVM) { continue; }
+        const gateway = gjs.recoverTransfer(localWeb3.currentProvider, trade)
+        console.log(gateway)
+        // gateway.cancel();
+        gateway.result()
+            .on("status", (status) => console.log(`[GOT STATUS] ${status}`))
+            .then(console.log)
+            .catch(console.error);
+    }
 }
 
 export const initInstantSwap = async function(tx) {

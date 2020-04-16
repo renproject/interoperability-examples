@@ -42,7 +42,7 @@ export const initNetworking = async function(network) {
     const sdk = new RenJS(network)
     store.set('sdk', sdk)
 
-    const gjs = new GatewayJS('testnet')
+    const gjs = new GatewayJS(network)
     store.set('gjs', gjs)
 
     store.set('swap.adapterAddress', network === 'testnet' ? SWAP_ADAPTER_TEST : SWAP_ADAPTER_MAIN)

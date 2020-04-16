@@ -1411,6 +1411,34 @@
     web3-core "^2.0.0-alpha.1"
     web3-eth-abi "^2.0.0-alpha.1"
 
+"@renproject/chains@^1.0.0-alpha.2":
+  version "1.0.0-alpha.2"
+  resolved "https://registry.yarnpkg.com/@renproject/chains/-/chains-1.0.0-alpha.2.tgz#7a8365553f1759c25273f2d544bd0fc45d2feab2"
+  integrity sha512-H/c5WAW+oJ/nKG1KJkcPJR8qdE6cxFIVMlNSiN67cTLZWfb1UV10omEdS0yPmroDBXymAisFbzry/1MI7zk1dQ==
+  dependencies:
+    "@renproject/contracts" "^0.5.1"
+    "@renproject/interfaces" "^1.0.0-alpha.2"
+    "@types/bn.js" "^4.11.6"
+    "@types/bs58" "^4.0.1"
+    "@types/ethereumjs-util" "^6.1.0"
+    "@types/node" "^13.11.1"
+    axios "^0.19.2"
+    bchaddrjs "^0.4.8"
+    bignumber.js "^9.0.0"
+    bitcore-lib "^8.17.0"
+    bitcore-lib-cash "^8.17.0"
+    bitcore-lib-zcash zcash-hackworks/bitcore-lib-zcash
+    bn.js "^5.1.1"
+    bs58 "^4.0.1"
+    ethereumjs-util "^6.2.0"
+    immutable "^4.0.0-rc.12"
+    send-crypto "0.2.2"
+    sha3 "^2.1.2"
+    wallet-address-validator "^0.2.4"
+    web3 "^2.0.0-alpha.1"
+    web3-core "^2.0.0-alpha.1"
+    web3-eth-abi "^2.0.0-alpha.1"
+
 "@renproject/contracts@^0.5.1":
   version "0.5.1"
   resolved "https://registry.yarnpkg.com/@renproject/contracts/-/contracts-0.5.1.tgz#e902686889a6bbb0f02bf69b720efd8a115d503d"
@@ -1418,13 +1446,13 @@
   dependencies:
     darknode-sol "https://github.com/renproject/darknode-sol#2bfa2f880eeea47774a4802b7bb337b2e5c028d8"
 
-"@renproject/gateway@^1.0.0-alpha.1":
-  version "1.0.0-alpha.1"
-  resolved "https://registry.yarnpkg.com/@renproject/gateway/-/gateway-1.0.0-alpha.1.tgz#33d08611f572c71b27e1fc5bb7ccc66f6daa4549"
-  integrity sha512-FVucboJ7OVrMKyq3VtPKewzKAIp+c5zdZL1Cu8jF8Z2gLW0dDEDY9GwWkTeSbBH5griA6YghBrfbtEQBBoYpoA==
+"@renproject/gateway@^1.0.0-alpha.2":
+  version "1.0.0-alpha.2"
+  resolved "https://registry.yarnpkg.com/@renproject/gateway/-/gateway-1.0.0-alpha.2.tgz#e26932d3c2169a62648c55a57202c377a7a5ae28"
+  integrity sha512-d77k+yIiLT1zxm+rwKfPP5jNBS+1UvilJzLZf3cI6Trk0AMDmcGd9uUQvgpix4FuTrM8AO5pB6BUqIPEJjyrFQ==
   dependencies:
-    "@renproject/interfaces" "^1.0.0-alpha.1"
-    "@renproject/utils" "^1.0.0-alpha.1"
+    "@renproject/interfaces" "^1.0.0-alpha.2"
+    "@renproject/utils" "^1.0.0-alpha.2"
     "@types/bn.js" "^4.11.6"
     "@types/node" "^13.11.1"
     web3 "^2.0.0-alpha.1"
@@ -1433,6 +1461,16 @@
   version "1.0.0-alpha.1"
   resolved "https://registry.yarnpkg.com/@renproject/interfaces/-/interfaces-1.0.0-alpha.1.tgz#c455662b9af44a583e18a2829820f1e12a12a0c1"
   integrity sha512-WUx6iHRRuQqOBT8TqZof0feq8S0XJ0KVPYpEA3nVg1NI+vcKZXilr1K9INpjyv9bYT+tihrhZb6p0RBMpXdzDA==
+  dependencies:
+    "@renproject/contracts" "^0.5.1"
+    "@types/node" "^13.11.1"
+    bignumber.js "^9.0.0"
+    events "^3.1.0"
+
+"@renproject/interfaces@^1.0.0-alpha.2":
+  version "1.0.0-alpha.2"
+  resolved "https://registry.yarnpkg.com/@renproject/interfaces/-/interfaces-1.0.0-alpha.2.tgz#55fd04f24352b6096077aaa4466d891d928e23ed"
+  integrity sha512-9Ks7svIQFKihaCV8ok158rHeuNb/Qvx9U3cs0oRNpJ666VF5ioeOsy9Oq3sVQoOUTG8eCnutyv8FwUsoDYf3gw==
   dependencies:
     "@renproject/contracts" "^0.5.1"
     "@types/node" "^13.11.1"
@@ -1538,6 +1576,35 @@
     "@renproject/chains" "^1.0.0-alpha.1"
     "@renproject/contracts" "^0.5.1"
     "@renproject/interfaces" "^1.0.0-alpha.1"
+    "@types/bn.js" "^4.11.6"
+    "@types/bs58" "^4.0.1"
+    "@types/ethereumjs-util" "^6.1.0"
+    "@types/node" "^13.11.1"
+    axios "^0.19.2"
+    bchaddrjs "^0.4.8"
+    bignumber.js "^9.0.0"
+    bitcore-lib "^8.17.0"
+    bitcore-lib-cash "^8.17.0"
+    bitcore-lib-zcash zcash-hackworks/bitcore-lib-zcash
+    bn.js "^5.1.1"
+    bs58 "^4.0.1"
+    ethereumjs-util "^6.2.0"
+    immutable "^4.0.0-rc.12"
+    send-crypto "0.2.2"
+    sha3 "^2.1.2"
+    wallet-address-validator "^0.2.4"
+    web3 "^2.0.0-alpha.1"
+    web3-core "^2.0.0-alpha.1"
+    web3-eth-abi "^2.0.0-alpha.1"
+
+"@renproject/utils@^1.0.0-alpha.2":
+  version "1.0.0-alpha.2"
+  resolved "https://registry.yarnpkg.com/@renproject/utils/-/utils-1.0.0-alpha.2.tgz#facead47ab7ff81204371fcc4ba22ff396f1ed6a"
+  integrity sha512-4DPSCYxOfmwdJmQXm2tQszSDQO7F42rh4rpH90i9KsWjeJsoBjht/xYOApWDCBIvbEU+s1kXXTn7kiuGXgrNXw==
+  dependencies:
+    "@renproject/chains" "^1.0.0-alpha.2"
+    "@renproject/contracts" "^0.5.1"
+    "@renproject/interfaces" "^1.0.0-alpha.2"
     "@types/bn.js" "^4.11.6"
     "@types/bs58" "^4.0.1"
     "@types/ethereumjs-util" "^6.1.0"

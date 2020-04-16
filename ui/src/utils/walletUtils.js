@@ -3,6 +3,7 @@ import Web3Modal from 'web3modal'
 import Authereum from "authereum"
 import Torus from "@toruslabs/torus-embed"
 import Fortmatic from "fortmatic";
+import GatewayJS from "@renproject/gateway";
 
 import proxyABI from './btcVaultProxyABI.json'
 import erc20Abi from './erc20ABI.json'
@@ -11,7 +12,8 @@ import {
     COLLATERALIZE_PROXY_ADDRESS_TEST,
     BTC_ADDRESS_TEST,
     DAI_ADDRESS_TEST,
-    initMonitoring
+    initMonitoring,
+    recoverTrades
 } from './txUtils'
 
 export const updateWalletData = async function() {
@@ -88,6 +90,7 @@ export const initLocalWeb3 = async function() {
     if (network === 'testnet') {
         updateWalletData.bind(this)()
         initMonitoring.bind(this)()
+        recoverTrades.bind(this)()
     }
 
     if (window.ethereum) {

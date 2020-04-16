@@ -204,8 +204,8 @@ class TransferContainer extends React.Component {
             txHash: ''
         }
 
-        initDeposit.bind(this)(tx)
-        // initGJSDeposit.bind(this)(tx)
+        // initDeposit.bind(this)(tx)
+        initGJSDeposit.bind(this)(tx)
     }
 
     render() {
@@ -299,7 +299,13 @@ class TransferContainer extends React.Component {
                         </Grid>
 
                         <Grid item xs={12} className={classes.swapButtonContainer}>
-                            {<Button disabled={disabled}
+                            {!localWeb3Connected ? <Button className={classes.swapButton}
+                                variant='contained'
+                                color='primary'
+                                size='large'
+                                onClick={initLocalWeb3.bind(this)}>
+                                    Connect wallet
+                                </Button> : <Button disabled={disabled}
                                   className={classes.swapButton}
                                   variant='contained'
                                   color='primary'
@@ -308,12 +314,11 @@ class TransferContainer extends React.Component {
                                       Reveal BTC Deposit Address
                               </Button>}
                         </Grid>
-
-                        {/*localWeb3Address && !rightNetwork && <Grid className={classes.walletError}>
+                        {localWeb3Address && !rightNetwork && <Grid className={classes.walletError}>
                             <Typography variant='subtitle1'>
                                 Please switch your wallet to the kovan network
                             </Typography>
-                        </Grid>*/}
+                        </Grid>}
 
                     </Grid>
                 </Grid>
