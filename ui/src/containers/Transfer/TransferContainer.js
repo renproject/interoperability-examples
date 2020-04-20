@@ -236,10 +236,10 @@ class TransferContainer extends React.Component {
         return <div className={classes.wrapper}>
             <Typography variant='subtitle1' className={classes.title}>Mint tokenized Bitcoin onto&nbsp;Ethereum</Typography>
             <Grid className={classes.badges} container>
-                {/*<Chip label="GatewayJS" variant="outlined" />
-                <Chip label="Local Web3" variant="outlined" />*/}
-                <Chip label="RenJS" variant="outlined" />
-                <Chip label="Gas-less" variant="outlined" />
+                <Chip label="GatewayJS" variant="outlined" />
+                <Chip label="Local Web3" variant="outlined" />
+                {/*<Chip label="RenJS" variant="outlined" />
+                <Chip label="Gas-less" variant="outlined" />*/}
             </Grid>
             <Grid container justify='center'>
                 <Grid className={classes.contentContainer}>
