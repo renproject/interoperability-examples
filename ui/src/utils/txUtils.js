@@ -1,5 +1,10 @@
+// import RenJS from "@renproject/ren";
 import RenJS from "@renproject/ren";
-import { LockAndMintStatus, BurnAndReleaseStatus } from "@renproject/gateway";
+import { Bitcoin } from "@renproject/chains-bitcoin";
+import { Ethereum } from "@renproject/chains-ethereum";
+
+// import { LockAndMintStatus, BurnAndReleaseStatus } from "@renproject/gateway";
+import GatewayJS from "@renproject/gateway";
 
 import adapterABI from './exchangeAdapterSimpleABI.json'
 import streamAdapterABI from './streamAdapterSimpleABI.json'
@@ -23,6 +28,7 @@ export const BTC_ADDRESS_TEST = '0x0A9ADD98C076448CBcFAcf5E457DA12ddbEF4A8f'
 export const DAI_ADDRESS_TEST = '0x4F96Fe3b7A6Cf9725f59d353F723c1bDb64CA6Aa'
 export const UNISWAP_BTC_TEST = '0xF15E0e337d7D34Ab14916f5FfC8348b1Af55CEcD'
 
+console.log('Chains', GatewayJS.Tokens);
 
 let swapMonitor = null
 
@@ -335,7 +341,7 @@ export const completeDeposit = async function(tx) {
             result = await adapterContract.methods.mintWithSwap(
                 params.contractCalls[0].contractParams[0].value,
                 utxoAmount,
-                renResponse.autogen.nhash,
+                renResponse.out.nhash,
                 renSignature
             ).send({
                 from: web3Context.accounts[0],
@@ -348,7 +354,7 @@ export const completeDeposit = async function(tx) {
                 params.contractCalls[0].contractParams[1].value,
                 Number(params.contractCalls[0].contractParams[2].value),
                 utxoAmount,
-                renResponse.autogen.nhash,
+                renResponse.out.nhash,
                 renSignature
             ).send({
                 from: web3Context.accounts[0],
@@ -360,7 +366,7 @@ export const completeDeposit = async function(tx) {
             result = await adapterContract.methods.deposit(
                 params.contractCalls[0].contractParams[0].value,
                 utxoAmount,
-                renResponse.autogen.nhash,
+                renResponse.out.nhash,
                 renSignature
             ).send({
                 from: localWeb3Address
@@ -370,7 +376,7 @@ export const completeDeposit = async function(tx) {
                 params.contractCalls[0].contractParams[1].value,
                 params.contractCalls[0].contractParams[2].value,
                 utxoAmount,
-                renResponse.autogen.nhash,
+                renResponse.out.nhash,
                 renSignature
             ).send({
                 from: localWeb3Address,
@@ -473,12 +479,22 @@ export const initMint = function(tx) {
 
     // // store data or update params with nonce
     const data = {
-        sendToken: RenJS.Tokens.BTC.Btc2Eth,
-        sendAmount: RenJS.utils.value(amount, "btc").sats(), // Convert to Satoshis
-        sendTo: adapterAddress,
-        contractFn,
-        contractParams,
-        nonce: params && params.nonce ? params.nonce : RenJS.utils.randomNonce(),
+        asset: "BTC",
+        from: Bitcoin(),
+        to: Ethereum(web3.currentProvider).Contract({
+            // The contract we want to interact with
+            sendTo: adapterAddress,
+            contractFn,
+            contractParams,
+            nonce: params && params.nonce ? params.nonce : RenJS.utils.randomNonce()
+        })
+
+        // sendToken: RenJS.Tokens.BTC.Btc2Eth,
+        // sendAmount: RenJS.utils.value(amount, "btc").sats(), // Convert to Satoshis
+        // sendTo: adapterAddress,
+        // contractFn,
+        // contractParams,
+        // nonce: params && params.nonce ? params.nonce : RenJS.utils.randomNonce(),
     }
 
     const mint = sdk.lockAndMint(data)
@@ -527,46 +543,111 @@ export const initDeposit = async function(tx) {
 
         if (!params) {
             addTx(store, Object.assign(tx, {
-                params: mint.params,
-                renBtcAddress: mint.addr()
+                params: {
+                    nonce: mint.params.contractCalls.nonce,
+                    contractCalls: mint.params.contractCalls
+                },
+                renBtcAddress: mint.gatewayAddress
             }))
         }
 
-        // wait for btc
-        const deposit = await mint
-            .wait(2)
-            .on("deposit", dep => {
-                // console.log('on deposit', dep)
-                if (dep.utxo) {
-                    if (awaiting === 'btc-init') {
-                        updateTx(store, Object.assign(tx, {
-                            awaiting: 'btc-settle',
-                            btcConfirmations: dep.utxo.confirmations,
-                            btcTxHash: dep.utxo.txid
-                        }))
-                    } else {
-                        updateTx(store, Object.assign(tx, {
-                            btcConfirmations: dep.utxo.confirmations,
-                            btcTxHash: dep.utxo.txid
-                        }))
-                    }
+        mint.on("deposit", async (dep) => {
+            console.log(dep)
+            if (dep.depositDetails) {
+                if (awaiting === 'btc-init') {
+                    updateTx(store, Object.assign(tx, {
+                        awaiting: 'btc-settle',
+                        btcConfirmations: dep.depositDetails.transaction.confirmations,
+                        btcTxHash: dep.depositDetails.transaction.txHash
+                    }))
+                } else {
+                    updateTx(store, Object.assign(tx, {
+                        btcConfirmations: dep.depositDetails.transaction.confirmations,
+                        btcTxHash: dep.depositDetails.transaction.txHash
+                    }))
                 }
-            })
+            }
 
-        updateTx(store, Object.assign(tx, { awaiting: 'ren-settle' }))
+            updateTx(store, Object.assign(tx, {
+                awaiting: 'btc-settle',
+                btcConfirmations: dep.depositDetails.transaction.confirmations,
+                btcTxHash: dep.depositDetails.transaction.txHash
+            }))
 
-        try {
-            const signature = await deposit.submit();
+            await dep.confirmed().on("target", () => (confs, target) => {
+                    console.log(target, confs);
+                    updateTx(store, Object.assign(tx, {
+                        awaiting: 'btc-settle',
+                        btcConfirmations: dep.depositDetails.transaction.confirmations,
+                        btcTxHash: dep.depositDetails.transaction.txHash
+                    }))
+                }).on("confirmation", (confs, target) => {
+                    console.log(target, confs);
+                    updateTx(store, Object.assign(tx, {
+                        awaiting: 'btc-settle',
+                        btcConfirmations: dep.depositDetails.transaction.confirmations,
+                        btcTxHash: dep.depositDetails.transaction.txHash
+                    }))
+                });
+
+            updateTx(store, Object.assign(tx, { awaiting: 'ren-settle' }))
+
+
+
+            const signed = await dep.signed().on("status", (status) => {
+                  console.log(status)
+              });
+
+            console.log(signed)
+
+            const query = signed._state.queryTxResult
+            const out = query.out
+
+            console.log('signature', out)
             updateTx(store, Object.assign(tx, {
                 // renSubmitData: signature,
-                renResponse: signature.renVMResponse,
-                renSignature: signature.signature
+                renResponse: query,
+                renSignature: out.signature
             }))
 
             completeDeposit.bind(this)(tx)
-        } catch(e) {
-            console.log(e)
-        }
+        });
+
+        // // wait for btc
+        // const deposit = await mint
+        //     .wait(2)
+        //     .on("deposit", dep => {
+        //         // console.log('on deposit', dep)
+        //         if (dep.utxo) {
+        //             if (awaiting === 'btc-init') {
+        //                 updateTx(store, Object.assign(tx, {
+        //                     awaiting: 'btc-settle',
+        //                     btcConfirmations: dep.utxo.confirmations,
+        //                     btcTxHash: dep.utxo.txid
+        //                 }))
+        //             } else {
+        //                 updateTx(store, Object.assign(tx, {
+        //                     btcConfirmations: dep.utxo.confirmations,
+        //                     btcTxHash: dep.utxo.txid
+        //                 }))
+        //             }
+        //         }
+        //     })
+        //
+        // updateTx(store, Object.assign(tx, { awaiting: 'ren-settle' }))
+        //
+        // try {
+        //     const signature = await deposit.submit();
+        //     updateTx(store, Object.assign(tx, {
+        //         // renSubmitData: signature,
+        //         renResponse: signature.renVMResponse,
+        //         renSignature: signature.signature
+        //     }))
+        //
+        //     completeDeposit.bind(this)(tx)
+        // } catch(e) {
+        //     console.log(e)
+        // }
     }
 }
 
@@ -595,12 +676,12 @@ export const initGJSDeposit = async function(tx) {
     ]
 
     const data = {
-        sendToken: RenJS.Tokens.BTC.Btc2Eth,
-        suggestedAmount: RenJS.utils.value(amount, "btc").sats().toString(), // Convert to Satoshis
+        sendToken: GatewayJS.Tokens.BTC.Btc2Eth,
+        suggestedAmount: GatewayJS.utils.value(amount, "btc").sats().toString(), // Convert to Satoshis
         sendTo: adapterAddress,
         contractFn,
         contractParams,
-        nonce: params && params.nonce ? params.nonce : RenJS.utils.randomNonce(),
+        nonce: params && params.nonce ? params.nonce : GatewayJS.utils.randomNonce(),
         web3Provider: localWeb3.currentProvider
     }
 
@@ -618,7 +699,7 @@ export const recoverTrades = async function() {
     const previousGateways = await gjs.getGateways();
     for (const trade of Array.from(previousGateways.values())) {
         console.log(trade)
-        if (trade.status === LockAndMintStatus.ConfirmedOnEthereum || trade.status === BurnAndReleaseStatus.ReturnedFromRenVM) { continue; }
+        if (trade.status === GatewayJS.LockAndMintStatus.ConfirmedOnEthereum || trade.status === GatewayJS.BurnAndReleaseStatus.ReturnedFromRenVM) { continue; }
         const gateway = gjs.recoverTransfer(localWeb3.currentProvider, trade)
         console.log(gateway)
         // gateway.cancel();
@@ -710,6 +791,7 @@ export const initMonitoring = function() {
     // recoverTrades.bind(this)()
 }
 
+window.updateTx = updateTx
 
 window.shiftIns = []
 

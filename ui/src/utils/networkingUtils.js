@@ -30,7 +30,7 @@ export const initNetworking = async function(network) {
     const { store } = this.props
 
     const web3Context = await fromConnection(
-        `https://${network === 'testnet' ? 'kovan' : 'mainnet'}.infura.io/v3/7be66f167c2e4a05981e2ffc4653dec2`,
+        `https://${network === 'testnet' ? 'kovan' : 'mainnet'}.infura.io/v3/6de9092ee3284217bb744cc1a6daab94`,
         {
             gsn: { signKey, ...relay_client_config }
         }
