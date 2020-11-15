@@ -1,4 +1,6 @@
 const RenJS = require("@renproject/ren").default;
+const Bitcoin = require("@renproject/chains-bitcoin").Bitcoin
+const Ethereum = require("@renproject/chains-ethereum").Ethereum
 const Web3 = require("web3");
 const ethers = require('ethers');
 const Tx = require('ethereumjs-tx').Transaction;
@@ -18,7 +20,7 @@ const adapterABI = require('../utils/exchangeAdapterSimpleABI.json')
 const walletAddress = process.env.WALLET_ADDRESS;
 const walletKey = new Buffer.from(process.env.WALLET_KEY, 'hex')
 
-const url = 'https://kovan.infura.io/v3/7ae0954512994011a37062e1f805f619';
+const url = 'https://kovan.infura.io/v3/6de9092ee3284217bb744cc1a6daab94';
 
 // for gas price
 // const web3 = new Web3(url)
@@ -33,19 +35,14 @@ const signKey = {
 let web3Context = null;
 
 (async function() {
-    // const gasPriceResult = await web3.eth.getGasPrice()
-    // console.log(gasPriceResult)
-    // const gasPrice = 10000000000;
     const relay_client_config = {
       txfee: REACT_APP_TX_FEE,
-      // force_gasPrice: gasPrice, //override requested gas price
-      // gasPrice: gasPrice, //override requested gas price
       force_gasLimit: 200000, //override requested gas limit.
       gasLimit: 200000, //override requested gas limit.
       verbose: true
     };
     web3Context = await fromConnection(
-        "https://kovan.infura.io/v3/7be66f167c2e4a05981e2ffc4653dec2",
+        "https://kovan.infura.io/v3/6de9092ee3284217bb744cc1a6daab94",
         {
             gsn: { signKey, ...relay_client_config }
         }
@@ -126,7 +123,7 @@ const completeShiftIn = async function (mint, signature, response) {
     const params = mint.params
     const msg = params.contractCalls[0].contractParams[0].value
     const amount = params.sendAmount
-    const nHash = response.autogen.nhash
+    const nHash = response.nhash
     const adapterContract = new web3Context.lib.eth.Contract(adapterABI, adapterAddress)
     const gasPrice = await web3Context.lib.eth.getGasPrice()
 
@@ -152,20 +149,18 @@ const completeShiftIn = async function (mint, signature, response) {
 // Stagger Swap and Shift-in based on tx confirmations
 const monitorMint = async function (mint, dest) {
     const gateway = mint.gatewayAddress
-    const confsTillSwap = 0
-    const confsTillShiftIn = 2
 
-    console.log('awaiting initial tx', gateway, mint.params.sendAmount)
-    const initalConf = await mint.wait(confsTillSwap);
-    console.log('calling swap', mint.params.sendAmount, dest, gateway)
-    swap(mint.params.sendAmount, dest, gateway)
+    mint.on("deposit", async (dep) => {
+        swap(mint.params.sendAmount, dest, gateway)
 
-    console.log('awaiting final confs', gateway)
-    const fullConf = await mint.wait(confsTillShiftIn);
-    console.log('submitting to renvm', fullConf)
-    const renvm = await fullConf.submit()
-    console.log('renvm response', renvm)
-    completeShiftIn(mint, renvm.signature, renvm.renVMResponse)
+        await dep.confirmed()
+
+        const signed = await dep.signed()
+        const query = signed._state.queryTxResult
+        const out = query.out
+
+        completeShiftIn(mint, out.signature, query)
+    })
 }
 
 // Routes
@@ -175,18 +170,23 @@ router.post('/swap-gateway/create', function(req, res, next) {
     const dest = params.destinationAddress
 
     const mint = ren.lockAndMint({
-        sendToken: RenJS.Tokens.BTC.Btc2Eth,
-        sendAmount: Math.floor(amount * (10 ** 8)), // Convert to Satoshis
-        sendTo: adapterAddress,
-        contractFn: "mint",
-        contractParams: [
-            {
-                name: "_msg",
-                type: "bytes",
-                value: web3Context.lib.utils.fromAscii(`Depositing ${amount} BTC`),
-            }
-        ],
+        asset: "BTC",
+        from: Bitcoin(),
+        to: Ethereum(web3.currentProvider).Contract({
+            // The contract we want to interact with
+            sendTo: adapterAddress,
+            contractFn: "mint",
+            contractParams: [
+                {
+                    name: "_msg",
+                    type: "bytes",
+                    value: web3Context.lib.utils.fromAscii(`Depositing ${amount} BTC`),
+                }
+            ],
+            nonce: RenJS.utils.randomNonce()
+        })
     });
+
     const gatewayAddress = mint.gatewayAddress
     gatewayStatusMap[gatewayAddress] = {
         created: Date.now(),
